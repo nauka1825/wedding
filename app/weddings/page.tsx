@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { supabase, Wedding } from "@/lib/supabase";
 import TemplateCard from "@/components/TemplateCard";
+import Link from "next/link";
 
 export default function WeddingsPage() {
   const [weddings, setWeddings] = useState<Wedding[]>([]);
@@ -44,52 +45,79 @@ export default function WeddingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div
+      className="min-h-screen"
+      style={{
+        background:
+          "linear-gradient(135deg, #FDF0F5 0%, #FDF6F0 50%, #F0F5FD 100%)",
+      }}
+    >
       {/* Header */}
-      <div className="bg-white border-b border-stone-200 sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col md:flex-row gap-3 items-center justify-between">
-          <h1 className="font-[Playfair_Display,serif] text-2xl text-stone-800 font-light">
-            Хурмын урилга бүртгэл
-          </h1>
-          <div className="flex gap-2 w-full md:w-auto">
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="ID эсвэл утасны дугаараар хайх..."
-              className="flex-1 md:w-72 border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-stone-400 font-[Josefin_Sans,sans-serif]"
-            />
-            <button
-              onClick={fetchWeddings}
-              className="px-4 py-2 bg-stone-800 text-white rounded-lg text-sm font-[Josefin_Sans,sans-serif] hover:bg-stone-700 transition-colors"
-            >
-              ↻
-            </button>
-            <a
-              href="/"
-              className="px-4 py-2 border border-stone-300 text-stone-600 rounded-lg text-sm font-[Josefin_Sans,sans-serif] hover:bg-stone-100 transition-colors"
-            >
-              + Нэмэх
-            </a>
-          </div>
+      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-rose-100/50 px-4 py-3.5">
+        <div className="flex items-center justify-between mb-3">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-rose-300">✿</span>
+            <span className="font-playfair text-stone-700 text-base font-light">
+              Хурмын бүртгэл
+            </span>
+          </Link>
+          <Link
+            href="/"
+            className="text-[11px] font-josefin tracking-widest uppercase text-stone-400 hover:text-stone-700 transition-colors"
+          >
+            + Нэмэх
+          </Link>
         </div>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="ID эсвэл утасны дугаараар хайх..."
+          className="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-rose-300 bg-white/80 placeholder:text-stone-300 font-josefin"
+        />
       </div>
 
       {/* Content */}
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="px-4 py-5 pb-10">
         {loading ? (
-          <div className="text-center py-20 text-stone-400 font-[Josefin_Sans,sans-serif]">
-            Ачаалж байна...
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <div className="w-8 h-8 border-2 border-rose-200 border-t-rose-400 rounded-full animate-spin" />
+            <p className="text-stone-400 font-josefin text-xs tracking-widest uppercase">
+              Ачаалж байна...
+            </p>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-20 text-stone-400 font-[Josefin_Sans,sans-serif]">
-            {search ? "Хайлтын үр дүн олдсонгүй" : "Бүртгэл байхгүй байна"}
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <span className="text-4xl opacity-30">💍</span>
+            <p className="text-stone-400 font-josefin text-xs tracking-widest uppercase text-center">
+              {search ? "Хайлтын үр дүн олдсонгүй" : "Бүртгэл байхгүй байна"}
+            </p>
+            {!search && (
+              <Link
+                href="/"
+                className="mt-2 px-5 py-2.5 bg-stone-800 text-white rounded-xl font-josefin text-xs tracking-widest uppercase hover:bg-stone-700 transition-colors"
+              >
+                + Шинэ бүртгэл
+              </Link>
+            )}
           </div>
         ) : (
           <>
-            <p className="text-stone-400 text-sm font-[Josefin_Sans,sans-serif] mb-6">
-              Нийт {filtered.length} бүртгэл
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-stone-400 text-xs font-josefin tracking-wide">
+                Нийт{" "}
+                <span className="text-stone-600 font-semibold">
+                  {filtered.length}
+                </span>{" "}
+                бүртгэл
+              </p>
+              <button
+                onClick={fetchWeddings}
+                className="text-xs font-josefin tracking-wide text-stone-400 hover:text-stone-600 transition-colors"
+              >
+                ↻ Шинэчлэх
+              </button>
+            </div>
+            <div className="space-y-4">
               {filtered.map((w) => (
                 <TemplateCard key={w.id} wedding={w} />
               ))}
