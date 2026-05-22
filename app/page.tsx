@@ -17,7 +17,7 @@ export default function Home() {
           <Link href="/" className="flex items-center gap-2">
             <span className="text-rose-300 text-lg">✿</span>
             <span className="font-playfair text-stone-700 text-lg font-light tracking-wide">
-              Хурмын бүртгэл
+              Үйлену тіркеуі
             </span>
           </Link>
           <div className="w-8 h-8 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center">
@@ -35,15 +35,15 @@ export default function Home() {
           </div>
           <div className="relative z-10">
             <p className="font-josefin text-rose-200 text-[10px] tracking-[0.4em] uppercase mb-2">
-              Wedding Registry
+              Online шақыру
             </p>
             <h1 className="font-playfair text-white text-2xl font-light leading-snug">
-              Хурмын урилга
+              Үйлену шақыруы
               <br />
-              <span className="italic">бүртгэлийн систем</span>
+              <span className="italic">тіркеу жүйесі</span>
             </h1>
             <p className="font-josefin text-rose-200/80 text-xs mt-3 tracking-wide">
-              Мэдээллээ оруулж загвараа сонгоорой
+              Деректерді енгізіп, үлгіні таңдаңыз
             </p>
           </div>
         </div>
