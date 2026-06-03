@@ -61,6 +61,7 @@ function GallerySwiper({ urls }: { urls: string[] }) {
 
   return (
     <div>
+      <Music />
       <style>{`
         @keyframes gold-progress {
           from { width: 0%; }
@@ -790,7 +791,6 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
             "linear-gradient(to right, transparent, #C9A84C80, #F0D06060, #C9A84C80, transparent)",
         }}
       />
-      <Music />
     </div>
   );
 }
