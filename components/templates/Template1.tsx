@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { formatDate, Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
+import Music from "../music";
 
 // ─── GALLERY SWIPER ───
 function GallerySwiper({ urls }: { urls: string[] }) {
@@ -1253,6 +1254,7 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
           </p>
         )}
       </div>
+      <Music />
     </div>
   );
 }

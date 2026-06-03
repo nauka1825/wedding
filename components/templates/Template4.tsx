@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { formatDate, Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
+import MusicPlayer from "../MusicPlayer";
 
 const DEFAULT_WEDDING: Wedding = {
   id: "preview",
@@ -861,6 +862,7 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
             "linear-gradient(to right, #C8E9FA, #5BA8D5, #A8D8F0, #5BA8D5, #C8E9FA)",
         }}
       />
+      <MusicPlayer />
     </div>
   );
 }

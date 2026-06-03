@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { formatDate, Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
+import Music from "../music";
 
 // ─── GALLERY SWIPER ───
 function GallerySwiper({ urls }: { urls: string[] }) {
@@ -789,6 +790,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
             "linear-gradient(to right, transparent, #C9A84C80, #F0D06060, #C9A84C80, transparent)",
         }}
       />
+      <Music />
     </div>
   );
 }
