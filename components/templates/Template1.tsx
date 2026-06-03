@@ -1,7 +1,141 @@
 "use client";
+import { useEffect, useRef, useState } from "react";
 import { formatDate, Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
 
+// ─── GALLERY SWIPER (Template4-аас авсан, romantic өнгөнд тохируулсан) ───
+function GallerySwiper({ urls }: { urls: string[] }) {
+  const [active, setActive] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const scrollTo = (i: number) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const child = el.children[i] as HTMLElement;
+    if (child) {
+      el.scrollTo({
+        left: child.offsetLeft - (el.offsetWidth - child.offsetWidth) / 2,
+        behavior: "smooth",
+      });
+    }
+    setActive(i);
+  };
+
+  const resetTimer = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setActive((prev) => {
+        const next = (prev + 1) % urls.length;
+        scrollTo(next);
+        return next;
+      });
+    }, 5000);
+  };
+
+  useEffect(() => {
+    if (urls.length <= 1) return;
+    resetTimer();
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [urls.length]);
+
+  const onScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const center = el.scrollLeft + el.offsetWidth / 2;
+    let closest = 0,
+      minDist = Infinity;
+    Array.from(el.children).forEach((child, i) => {
+      const c = child as HTMLElement;
+      const dist = Math.abs(c.offsetLeft + c.offsetWidth / 2 - center);
+      if (dist < minDist) {
+        minDist = dist;
+        closest = i;
+      }
+    });
+    setActive(closest);
+  };
+
+  return (
+    <div>
+      <style>{`
+        @keyframes gallery-progress {
+          from { width: 0%; }
+          to { width: 100%; }
+        }
+      `}</style>
+      <div
+        ref={scrollRef}
+        onScroll={onScroll}
+        onTouchStart={resetTimer}
+        onMouseDown={resetTimer}
+        className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-5 pb-3"
+        style={{ scrollbarWidth: "none" }}
+      >
+        {urls.map((url, i) => (
+          <div
+            key={i}
+            className="snap-center flex-shrink-0 overflow-hidden"
+            style={{
+              width: "72vw",
+              maxWidth: "300px",
+              height: "220px",
+              borderRadius: "20px",
+              border: "1px solid rgba(232,180,200,0.35)",
+              transition: "transform 0.3s ease, box-shadow 0.3s ease",
+              transform: active === i ? "scale(1)" : "scale(0.93)",
+              boxShadow:
+                active === i
+                  ? "0 8px 32px rgba(196,160,176,0.35)"
+                  : "0 2px 8px rgba(196,160,176,0.10)",
+            }}
+          >
+            <img
+              src={url}
+              alt={`сурет ${i + 1}`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ))}
+      </div>
+
+      {urls.length > 1 && (
+        <div className="flex justify-center gap-2 mt-2">
+          {urls.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => {
+                scrollTo(i);
+                resetTimer();
+              }}
+              className="transition-all duration-300 rounded-full overflow-hidden relative"
+              style={{
+                width: active === i ? 20 : 7,
+                height: 7,
+                background: "#E8B4C8",
+                opacity: active === i ? 1 : 0.45,
+              }}
+            >
+              {active === i && (
+                <span
+                  className="absolute inset-0 rounded-full"
+                  style={{
+                    background: "#C4A0B0",
+                    animation: "gallery-progress 5s linear forwards",
+                  }}
+                />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── ORNAMENTS ───
 const OrnamentDivider = ({ className = "" }: { className?: string }) => (
   <svg
     viewBox="0 0 260 28"
@@ -153,7 +287,6 @@ const SmallOrnament = () => (
   </svg>
 );
 
-/* Қазақша алтын өрнек — шиыршықты ою бөлгіш */
 const KazakhBorder = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -177,7 +310,6 @@ const KazakhBorder = () => (
   </svg>
 );
 
-/* Қазақша ою-өрнек — карта ішіне жоғарғы безендіру */
 const KazakhCardTop = () => (
   <svg
     viewBox="0 0 340 36"
@@ -227,7 +359,6 @@ const CalendarIcon = () => (
     strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    xmlns="http://www.w3.org/2000/svg"
   >
     <rect x="3" y="4" width="18" height="18" rx="3" />
     <path d="M16 2v4M8 2v4M3 10h18" />
@@ -247,10 +378,24 @@ const LocationIcon = () => (
     strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    xmlns="http://www.w3.org/2000/svg"
   >
     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
     <circle cx="12" cy="9" r="2.5" />
+  </svg>
+);
+
+const PhoneIcon = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#C4A0B0"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.53 2 2 0 0 1 3.6 1.5h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.1a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
   </svg>
 );
 
@@ -264,7 +409,6 @@ const GuestsIcon = () => (
     strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    xmlns="http://www.w3.org/2000/svg"
   >
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
     <circle cx="9" cy="7" r="4" />
@@ -282,7 +426,6 @@ const InstagramIcon = ({ color = "currentColor" }: { color?: string }) => (
     strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    xmlns="http://www.w3.org/2000/svg"
   >
     <rect x="2" y="2" width="20" height="20" rx="5" />
     <circle cx="12" cy="12" r="4" />
@@ -290,11 +433,20 @@ const InstagramIcon = ({ color = "currentColor" }: { color?: string }) => (
   </svg>
 );
 
+// ─── MAIN TEMPLATE ───
 export default function Template1({ wedding }: { wedding: Wedding }) {
   const date = formatDate(wedding.wedding_date);
   const time = wedding.wedding_date?.includes("T")
     ? wedding.wedding_date.split("T")[1].slice(0, 5)
     : null;
+
+  const extras = [
+    wedding.extra1,
+    wedding.extra2,
+    wedding.extra3,
+    wedding.extra4,
+    wedding.extra5,
+  ].filter(Boolean);
 
   return (
     <div
@@ -304,6 +456,17 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
           "linear-gradient(135deg, #FDF0F5 0%, #FDF6F0 40%, #F5F0FD 100%)",
       }}
     >
+      <style>{`
+        @keyframes fade-up {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fade-up 0.8s cubic-bezier(0.22,1,0.36,1) both; }
+        .fade-up-1 { animation-delay: 0.1s; }
+        .fade-up-2 { animation-delay: 0.25s; }
+        .fade-up-3 { animation-delay: 0.4s; }
+      `}</style>
+
       {/* ═══ БАСТЫ ФОТО ═══ */}
       <div className="relative w-full h-[62vh] overflow-hidden">
         {wedding.main_photo_url ? (
@@ -341,17 +504,50 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                 <rect width="100%" height="100%" fill="url(#dots)" />
               </svg>
             </div>
-            <img
-              src="/images/rings.png"
-              alt="Жүзіктер"
-              className="relative z-10"
-              style={{
-                width: "min(70%, 320px)",
-                mixBlendMode: "multiply",
-                filter: "drop-shadow(0 8px 24px rgba(196,160,176,0.3))",
-                objectFit: "contain",
-              }}
-            />
+            <div className="relative z-10 flex flex-col items-center gap-4">
+              <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                <circle
+                  cx="28"
+                  cy="44"
+                  r="18"
+                  stroke="#C8A84B"
+                  strokeWidth="3"
+                  fill="none"
+                />
+                <circle
+                  cx="28"
+                  cy="44"
+                  r="12"
+                  stroke="#E8C96A"
+                  strokeWidth="1.5"
+                  fill="none"
+                />
+                <circle
+                  cx="52"
+                  cy="36"
+                  r="18"
+                  stroke="#C8A84B"
+                  strokeWidth="3"
+                  fill="none"
+                />
+                <circle
+                  cx="52"
+                  cy="36"
+                  r="12"
+                  stroke="#E8C96A"
+                  strokeWidth="1.5"
+                  fill="none"
+                />
+                <path
+                  d="M52 20 L53.5 15 L55 20 L60 21.5 L55 23 L53.5 28 L52 23 L47 21.5 Z"
+                  fill="#F5D878"
+                  opacity="0.9"
+                />
+              </svg>
+              <p className="text-rose-300/50 text-[10px] tracking-[0.4em] uppercase font-[Josefin_Sans,sans-serif]">
+                Үйлену тойы
+              </p>
+            </div>
           </div>
         )}
         <div
@@ -384,17 +580,10 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
       {/* ═══ ЕСІМДЕР ═══ */}
       <div className="text-center px-6 -mt-14 relative z-10">
         <div
-          className="inline-flex items-center justify-center mb-4 bg-white/70 backdrop-blur-sm p-2.5 rounded-full border border-yellow-200/60"
+          className="fade-up fade-up-1 inline-flex items-center justify-center mb-4 bg-white/70 backdrop-blur-sm p-2.5 rounded-full border border-yellow-200/60"
           style={{ boxShadow: "0 2px 12px rgba(212,175,55,0.18)" }}
         >
-          <svg
-            width="38"
-            height="38"
-            viewBox="0 0 48 48"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {/* Сол жүзік */}
+          <svg width="38" height="38" viewBox="0 0 48 48" fill="none">
             <circle
               cx="17"
               cy="27"
@@ -411,16 +600,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
               strokeWidth="1.2"
               fill="none"
             />
-            <circle
-              cx="17"
-              cy="27"
-              r="4.5"
-              fill="none"
-              stroke="#D4AF37"
-              strokeWidth="0.7"
-              strokeDasharray="2 2"
-            />
-            {/* Бриллиант нүктелер сол жүзікте */}
             {[0, 45, 90, 135, 180, 225, 270, 315].map((deg, i) => {
               const rad = (deg * Math.PI) / 180;
               return (
@@ -434,7 +613,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                 />
               );
             })}
-            {/* Оң жүзік */}
             <circle
               cx="31"
               cy="21"
@@ -451,16 +629,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
               strokeWidth="1.2"
               fill="none"
             />
-            <circle
-              cx="31"
-              cy="21"
-              r="4.5"
-              fill="none"
-              stroke="#D4AF37"
-              strokeWidth="0.7"
-              strokeDasharray="2 2"
-            />
-            {/* Бриллиант нүктелер оң жүзікте */}
             {[0, 45, 90, 135, 180, 225, 270, 315].map((deg, i) => {
               const rad = (deg * Math.PI) / 180;
               return (
@@ -474,38 +642,29 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                 />
               );
             })}
-            {/* Жарқыл эффекті */}
             <path
               d="M31 13 L32 10 L33 13 L36 14 L33 15 L32 18 L31 15 L28 14 Z"
               fill="#F5D878"
               opacity="0.9"
             />
-            <circle cx="14" cy="19" r="1" fill="#F5D878" opacity="0.7" />
-            <circle cx="38" cy="28" r="0.7" fill="#F5D878" opacity="0.6" />
           </svg>
         </div>
 
         <h1
-          className="text-[#7B3F5E] font-light italic leading-tight"
+          className="fade-up fade-up-1 text-[#7B3F5E] font-light italic leading-tight"
           style={{ fontSize: "clamp(2.2rem, 10vw, 3rem)" }}
         >
           {wedding.male_name}
         </h1>
 
-        <div className="flex items-center justify-center gap-3 my-4">
+        <div className="fade-up fade-up-2 flex items-center justify-center gap-3 my-4">
           <div
             className="h-px w-12"
             style={{
               background: "linear-gradient(to right, transparent, #E8B4C8)",
             }}
           />
-          <svg
-            width="28"
-            height="24"
-            viewBox="0 0 28 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+          <svg width="28" height="24" viewBox="0 0 28 24" fill="none">
             <path
               d="M14 21 C14 21 3 14 3 8 C3 4.5 6 2 9.5 2 C11.5 2 13 3 14 4.5 C15 3 16.5 2 18.5 2 C22 2 25 4.5 25 8 C25 14 14 21 14 21Z"
               fill="#F9D5E5"
@@ -522,18 +681,18 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
         </div>
 
         <h1
-          className="text-[#7B3F5E] font-light italic leading-tight"
+          className="fade-up fade-up-2 text-[#7B3F5E] font-light italic leading-tight"
           style={{ fontSize: "clamp(2.2rem, 10vw, 3rem)" }}
         >
           {wedding.female_name}
         </h1>
 
-        <div className="flex justify-center mt-4">
+        <div className="fade-up fade-up-3 flex justify-center mt-4">
           <OrnamentDivider />
         </div>
       </div>
 
-      {/* ═══ ШАҚЫРУ МӘТІНІ + ТОЙ ИЕЛЕРІ — БІР КАРТА ═══ */}
+      {/* ═══ ШАҚЫРУ МӘТІНІ + ТОЙ ИЕЛЕРІ ═══ */}
       {(wedding.description1 || wedding.organizer) && (
         <div className="mx-5 mt-7">
           <div
@@ -546,12 +705,10 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                 "0 8px 32px rgba(196,160,176,0.18), 0 2px 8px rgba(196,160,176,0.10)",
             }}
           >
-            {/* Жоғарғы қазақ өрнегі */}
             <div className="pt-2 px-2">
               <KazakhCardTop />
             </div>
 
-            {/* Шақыру мәтіні */}
             {wedding.description1 && (
               <div className="px-6 pt-2 pb-4 text-center relative">
                 <svg
@@ -559,7 +716,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                   height="16"
                   viewBox="0 0 22 16"
                   fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
                   className="mx-auto mb-2 opacity-40"
                 >
                   <path
@@ -585,7 +741,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                   height="16"
                   viewBox="0 0 22 16"
                   fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
                   className="mx-auto mt-2 opacity-40 rotate-180"
                 >
                   <path
@@ -600,24 +755,16 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
               </div>
             )}
 
-            {/* Бөлгіш — description1 мен organizer арасында */}
             {wedding.description1 && wedding.organizer && (
               <div className="px-6">
                 <KazakhBorder />
               </div>
             )}
 
-            {/* Той иелері */}
             {wedding.organizer && (
               <div className="px-6 py-4">
                 <div className="flex items-center justify-center gap-2 mb-1.5">
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <rect
                       x="1"
                       y="1"
@@ -659,13 +806,7 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                   <p className="text-rose-300 text-[10px] tracking-[0.3em] uppercase font-[Josefin_Sans,sans-serif]">
                     Той иелері
                   </p>
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <rect
                       x="1"
                       y="1"
@@ -725,7 +866,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
               </div>
             )}
 
-            {/* Төменгі қазақ өрнегі */}
             <div className="pb-2 px-2 rotate-180">
               <KazakhCardTop />
             </div>
@@ -733,51 +873,17 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
         </div>
       )}
 
-      {/* ═══ ФОТОАЛЬБОМ ═══ */}
+      {/* ═══ ФОТОАЛЬБОМ — GallerySwiper ═══ */}
       {!!wedding.gallery_urls?.length && (
         <div className="mt-8">
-          <div className="flex items-center gap-3 px-5 mb-3">
+          <div className="flex items-center gap-3 px-5 mb-4">
             <div className="h-px flex-1 bg-rose-100" />
             <p className="text-rose-300 text-[10px] tracking-[0.3em] uppercase font-[Josefin_Sans,sans-serif]">
               Фотоальбом
             </p>
             <div className="h-px flex-1 bg-rose-100" />
           </div>
-          <div
-            className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-5 pb-3"
-            style={{ scrollbarWidth: "none" }}
-          >
-            {wedding.gallery_urls.map((url, i) => (
-              <div
-                key={i}
-                className="snap-center flex-shrink-0 overflow-hidden shadow-md shadow-rose-100"
-                style={{
-                  width: "72vw",
-                  maxWidth: "300px",
-                  height: "220px",
-                  borderRadius: "20px",
-                  border: "1px solid rgba(232,180,200,0.3)",
-                }}
-              >
-                <img
-                  src={url}
-                  alt={`сурет ${i + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ))}
-          </div>
-          {wedding.gallery_urls.length > 1 && (
-            <div className="flex justify-center gap-1.5 mt-1">
-              {wedding.gallery_urls.map((_, i) => (
-                <div
-                  key={i}
-                  style={{ background: "#E8B4C8", opacity: i === 0 ? 1 : 0.3 }}
-                  className={`rounded-full transition-all ${i === 0 ? "w-5 h-1.5" : "w-1.5 h-1.5"}`}
-                />
-              ))}
-            </div>
-          )}
+          <GallerySwiper urls={wedding.gallery_urls} />
         </div>
       )}
 
@@ -847,7 +953,7 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
         </div>
       )}
 
-      {/* ═══ INSTAGRAM СІЛТЕМЕЛЕРІ — flex + gap-5 ═══ */}
+      {/* ═══ INSTAGRAM СІЛТЕМЕЛЕРІ ═══ */}
       {(wedding.link1 || wedding.link2) && (
         <div className="mx-5 mt-7 flex flex-row gap-5">
           {wedding.link1 && (
@@ -893,7 +999,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
               "0 8px 32px rgba(196,160,176,0.18), 0 2px 8px rgba(196,160,176,0.10)",
           }}
         >
-          {/* Жоғарғы градиент жолақ */}
           <div
             className="h-1"
             style={{
@@ -901,13 +1006,12 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                 "linear-gradient(to right, #F9D5E5, #C4A0B0, #D5D5F9)",
             }}
           />
-          {/* Қазақ өрнегі жоғарыда */}
           <div className="px-2 pt-1">
             <KazakhBorder />
           </div>
 
           <div className="p-5 space-y-4">
-            {/* Күні мен Уақыты */}
+            {/* Күні & Уақыты */}
             {(date || time) && (
               <div className="flex items-center gap-4">
                 <div
@@ -936,7 +1040,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                         fill="none"
                         stroke="#C4A0B0"
                         strokeWidth="2"
-                        xmlns="http://www.w3.org/2000/svg"
                       >
                         <circle cx="12" cy="12" r="10" />
                         <polyline points="12 6 12 12 16 14" />
@@ -982,7 +1085,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                         fill="none"
                         stroke="#C4A0B0"
                         strokeWidth="2"
-                        xmlns="http://www.w3.org/2000/svg"
                         style={{ marginTop: "2px", flexShrink: 0 }}
                       >
                         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
@@ -1000,39 +1102,51 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
               </div>
             )}
 
+            {/* Байланыс (телефон) */}
+            {wedding.phone && (
+              <div className="flex items-center gap-4 pt-3 border-t border-rose-50">
+                <div
+                  className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: "linear-gradient(135deg, #F9D5E5, #FDF0F5)",
+                  }}
+                >
+                  <PhoneIcon />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-rose-300 text-[10px] tracking-[0.25em] uppercase font-[Josefin_Sans,sans-serif]">
+                    Байланыс
+                  </p>
+                  <a
+                    href={`tel:${wedding.phone}`}
+                    className="text-[#7B3F5E] text-base font-light italic mt-0.5 hover:underline block"
+                    style={{ fontFamily: "'Josefin Sans', sans-serif" }}
+                  >
+                    {wedding.phone}
+                  </a>
+                </div>
+              </div>
+            )}
+
             {/* Қосымша ақпарат */}
-            {[
-              wedding.extra1,
-              wedding.extra2,
-              wedding.extra3,
-              wedding.extra4,
-              wedding.extra5,
-            ].filter(Boolean).length > 0 && (
+            {extras.length > 0 && (
               <div className="pt-3 border-t border-rose-50 space-y-2.5">
-                {[
-                  wedding.extra1,
-                  wedding.extra2,
-                  wedding.extra3,
-                  wedding.extra4,
-                  wedding.extra5,
-                ]
-                  .filter(Boolean)
-                  .map((e, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-rose-300" />
-                      </div>
-                      <p
-                        className="text-[#9B6B7E] text-[13px] font-[Josefin_Sans,sans-serif] leading-relaxed flex-1"
-                        style={{
-                          wordBreak: "break-word",
-                          overflowWrap: "break-word",
-                        }}
-                      >
-                        {e}
-                      </p>
+                {extras.map((e, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-300" />
                     </div>
-                  ))}
+                    <p
+                      className="text-[#9B6B7E] text-[13px] font-[Josefin_Sans,sans-serif] leading-relaxed flex-1"
+                      style={{
+                        wordBreak: "break-word",
+                        overflowWrap: "break-word",
+                      }}
+                    >
+                      {e}
+                    </p>
+                  </div>
+                ))}
               </div>
             )}
 
@@ -1050,7 +1164,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
             )}
           </div>
 
-          {/* Қазақ өрнегі төменде */}
           <div className="px-2 pb-1 rotate-180">
             <KazakhBorder />
           </div>
