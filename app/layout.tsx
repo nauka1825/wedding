@@ -8,8 +8,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Хурмын урилга бүртгэл",
-  description: "Хосуудын хурмын урилга бүртгэлийн систем",
+  title: "Online шақыру",
+  description: "Үйлену тойына арналған шақыру жасау қызметі",
 };
 
 export default function RootLayout({
