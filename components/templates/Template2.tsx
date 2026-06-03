@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { formatDate, Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
-import Music from "../music";
+import MusicMan from "../MusicMan";
 
 // ─── GALLERY SWIPER ───
 function GallerySwiper({ urls }: { urls: string[] }) {
@@ -61,7 +61,7 @@ function GallerySwiper({ urls }: { urls: string[] }) {
 
   return (
     <div>
-      <Music />
+      <MusicMan />
       <style>{`
         @keyframes gold-progress {
           from { width: 0%; }

@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { formatDate, Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
-import Music from "../music";
+import MusicMan from "../MusicMan";
 
 // ─── GALLERY SWIPER ───
 function GallerySwiper({ urls }: { urls: string[] }) {
@@ -61,6 +61,7 @@ function GallerySwiper({ urls }: { urls: string[] }) {
 
   return (
     <div>
+      <MusicMan />
       <div
         ref={scrollRef}
         onScroll={onScroll}
@@ -585,7 +586,7 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
           "linear-gradient(135deg, #FDF0F5 0%, #FDF6F0 40%, #F5F0FD 100%)",
       }}
     >
-      <Music />
+      <MusicMan />
       <style>{`
         @keyframes gallery-progress { from { width: 0%; } to { width: 100%; } }
         @keyframes fade-up {

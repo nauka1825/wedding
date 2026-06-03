@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { FaPlay, FaPause } from "react-icons/fa";
 
-export default function Music() {
+export default function MusicMan() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
 
