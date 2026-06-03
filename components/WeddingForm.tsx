@@ -15,6 +15,7 @@ import {
   HiOutlineLink,
   HiOutlineUserGroup,
   HiOutlineCheckCircle,
+  HiOutlineX,
 } from "react-icons/hi";
 import { supabase, uploadImage, Template, Wedding } from "@/lib/supabase";
 import Template1 from "./templates/Template1";
@@ -128,6 +129,77 @@ const EMPTY_WEDDING: Omit<Wedding, "id" | "created_at"> = {
   extra5: null,
 };
 
+function SuccessModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pb-6 sm:pb-0">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Modal */}
+      <div className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+        {/* Top gradient bar */}
+        <div className="h-1.5 w-full bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500" />
+
+        <div className="px-6 pt-8 pb-6 text-center">
+          {/* Icon */}
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-sky-100 to-blue-100 border border-sky-200/60 flex items-center justify-center mx-auto mb-5">
+            <span className="text-3xl">🎉</span>
+          </div>
+
+          {/* Title */}
+          <h2 className="text-lg font-[Josefin_Sans,sans-serif] font-semibold text-slate-800 tracking-wide mb-2">
+            Өтінішіңіз қабылданды!
+          </h2>
+
+          {/* Body */}
+          <p className="text-sm text-slate-500 font-[Josefin_Sans,sans-serif] leading-relaxed mb-1">
+            Сіздің тойыңыздың мәліметтері сәтті тіркелді.
+          </p>
+          <p className="text-sm text-slate-500 font-[Josefin_Sans,sans-serif] leading-relaxed mb-6">
+            Бізбен байланысып,{" "}
+            <span className="text-sky-600 font-semibold">төлемді төлеп</span>,
+            сілтемеңізді алыңыз! 🔗
+          </p>
+
+          {/* Contact info box */}
+          <div className="bg-sky-50/80 border border-sky-100 rounded-2xl px-4 py-3 mb-6 text-left space-y-2">
+            <p className="text-[10px] text-sky-500 font-[Josefin_Sans,sans-serif] uppercase tracking-widest font-semibold mb-2">
+              Байланыс
+            </p>
+            <a
+              href="tel:+77001234567"
+              className="flex items-center gap-2 text-sm text-slate-700 font-[Josefin_Sans,sans-serif] hover:text-sky-600 transition-colors"
+            >
+              <HiOutlinePhone className="w-4 h-4 text-sky-400 flex-shrink-0" />
+              +7 700 123 45 67
+            </a>
+            <a
+              href="https://wa.me/77001234567"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-slate-700 font-[Josefin_Sans,sans-serif] hover:text-sky-600 transition-colors"
+            >
+              <span className="text-green-500 text-base leading-none">💬</span>
+              WhatsApp арқылы жазу
+            </a>
+          </div>
+
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500 text-white text-sm font-[Josefin_Sans,sans-serif] tracking-widest uppercase shadow-lg shadow-sky-200/60 hover:opacity-90 transition-opacity"
+          >
+            Жабу
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
   const [template, setTemplate] = useState<Template>("romantic");
   const [loading, setLoading] = useState(false);
@@ -135,6 +207,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
     null,
   );
   const [showPreview, setShowPreview] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const [f, setF] = useState({
     maleName: "",
@@ -161,7 +234,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setF((prev) => ({ ...prev, [k]: e.target.value }));
 
-  // File states — ref-ийн оронд state ашиглана (Preview-д алдагдахгүй)
+  // File states
   const [mainFile, setMainFile] = useState<File | null>(null);
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [p3File, setP3File] = useState<File | null>(null);
@@ -269,7 +342,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
       });
 
       if (error) throw error;
-      setStatus({ ok: true, msg: "Сәтті тіркелді! 🎉" });
+      setShowSuccess(true);
       onSuccess?.();
     } catch (e: unknown) {
       setStatus({
@@ -278,6 +351,11 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
       });
     }
     setLoading(false);
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccess(false);
+    window.location.href = "/";
   };
 
   const renderPreview = () => {
@@ -294,6 +372,9 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
 
   return (
     <div className="min-h-screen">
+      {/* Success Modal */}
+      {showSuccess && <SuccessModal onClose={handleSuccessClose} />}
+
       {/* Tab switcher */}
       <div className="sticky top-[57px] z-20 bg-white/80 backdrop-blur-md border-b border-sky-100/60 flex shadow-sm shadow-sky-100/20">
         <button
@@ -649,7 +730,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 <input
                   value={f.venueAddress}
                   onChange={upd("venueAddress")}
-                  placeholder="Алматы, Достық даңғылы..."
+                  placeholder="Баян-Өлгий, Улаанбаатар"
                   className={INPUT}
                 />
               </div>

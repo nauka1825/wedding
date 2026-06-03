@@ -47,8 +47,10 @@ export async function uploadImage(file: File, path: string): Promise<string | nu
 
 export function formatDate(dateStr: string | null): string | null {
   if (!dateStr) return null
-  const [year, month, day] = dateStr.split('-')
-  const months = ['1-р сар', '2-р сар', '3-р сар', '4-р сар', '5-р сар', '6-р сар',
-    '7-р сар', '8-р сар', '9-р сар', '10-р сар', '11-р сар', '12-р сар']
-  return `${year} оны ${months[parseInt(month) - 1]} ${parseInt(day)}`
+  const [year, month, day] = dateStr.split('T')[0].split('-')
+  const months = [
+    'қаңтар', 'ақпан', 'наурыз', 'сәуір', 'мамыр', 'маусым',
+    'шілде', 'тамыз', 'қыркүйек', 'қазан', 'қараша', 'желтоқсан'
+  ]
+  return `${year} жылы ${months[parseInt(month) - 1]}дың ${parseInt(day)}-і`
 }

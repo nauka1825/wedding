@@ -10,7 +10,7 @@ const DEFAULT_WEDDING: Wedding = {
   female_name: "Альбина",
   wedding_date: "2025-09-14T17:00",
   venue_name: "Sky Palace",
-  venue_address: "Алматы қ., Достық даңғылы 180",
+  venue_address: "Баян-Өлгий, Улаанбаатар",
   organizer: "Руслан мен Ләйлә",
   phone: "+7 701 234 5678",
   template: "azure",
@@ -20,12 +20,12 @@ const DEFAULT_WEDDING: Wedding = {
   photo4_url: null,
   photo5_url: null,
   description1:
-    "Сіздерді аяулы қызымыз Альбинаның ұзату тойына арналған салтанатты ақ дастарханымыздың қадірлі қонағы болуға шақырамыз.",
+    "Біз үйлену тойымызға арналған шақыруды сіздерге арнаймыз. Бұл ерекше күнді бізбен бірге атап өтуге шақырамыз. Сіздердің қатысуларыңыз біз үшін үлкен қуаныш болады.",
   description2: null,
   link1: null,
   link2: null,
-  extra1: "Дресс-код: ақ және көгілдір",
-  extra2: "Тегін паркинг бар",
+  extra1: "",
+  extra2: "",
   extra3: null,
   extra4: null,
   extra5: null,
@@ -83,6 +83,142 @@ function FadeIn({
       }}
     >
       {children}
+    </div>
+  );
+}
+
+function GallerySwiper({ urls }: { urls: string[] }) {
+  const [active, setActive] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const scrollTo = (i: number) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const child = el.children[i] as HTMLElement;
+    if (child) {
+      el.scrollTo({
+        left: child.offsetLeft - (el.offsetWidth - child.offsetWidth) / 2,
+        behavior: "smooth",
+      });
+    }
+    setActive(i);
+  };
+
+  // Auto-play
+  useEffect(() => {
+    if (urls.length <= 1) return;
+    timerRef.current = setInterval(() => {
+      setActive((prev) => {
+        const next = (prev + 1) % urls.length;
+        scrollTo(next);
+        return next;
+      });
+    }, 5000);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [urls.length]);
+
+  // Хэрэглэгч гараар свайп хийхэд timer reset хийх
+  const resetTimer = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setActive((prev) => {
+        const next = (prev + 1) % urls.length;
+        scrollTo(next);
+        return next;
+      });
+    }, 5000);
+  };
+
+  const onScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const center = el.scrollLeft + el.offsetWidth / 2;
+    let closest = 0;
+    let minDist = Infinity;
+    Array.from(el.children).forEach((child, i) => {
+      const c = child as HTMLElement;
+      const dist = Math.abs(c.offsetLeft + c.offsetWidth / 2 - center);
+      if (dist < minDist) {
+        minDist = dist;
+        closest = i;
+      }
+    });
+    setActive(closest);
+  };
+
+  return (
+    <div>
+      <div
+        ref={scrollRef}
+        onScroll={onScroll}
+        onTouchStart={resetTimer}
+        onMouseDown={resetTimer}
+        className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-5 pb-3"
+        style={{ scrollbarWidth: "none" }}
+      >
+        {urls.map((url, i) => (
+          <div
+            key={i}
+            className="snap-center flex-shrink-0 w-[78vw] max-w-[320px] h-56 overflow-hidden rounded-2xl border border-sky-100/60 shadow-md shadow-sky-100/30"
+            style={{
+              transition: "transform 0.3s ease, box-shadow 0.3s ease",
+              transform: active === i ? "scale(1)" : "scale(0.93)",
+              boxShadow:
+                active === i
+                  ? "0 8px 32px rgba(91,168,213,0.25)"
+                  : "0 2px 8px rgba(91,168,213,0.08)",
+            }}
+          >
+            <img
+              src={url}
+              alt={`зураг ${i + 1}`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Dots — progress indicator */}
+      {urls.length > 1 && (
+        <div className="flex justify-center gap-2 mt-2">
+          {urls.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => {
+                scrollTo(i);
+                resetTimer();
+              }}
+              className="transition-all duration-300 rounded-full overflow-hidden relative"
+              style={{
+                width: active === i ? 20 : 7,
+                height: 7,
+                background: "#B8D8EE",
+                opacity: active === i ? 1 : 0.55,
+              }}
+            >
+              {active === i && (
+                <span
+                  className="absolute inset-0 rounded-full"
+                  style={{
+                    background: "#5BA8D5",
+                    animation: "progress 5s linear forwards",
+                  }}
+                />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <style>{`
+        @keyframes progress {
+          from { width: 0%; }
+          to { width: 100%; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -452,42 +588,7 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
               Фотоальбом
             </p>
           </FadeIn>
-          <div
-            className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-5 pb-3"
-            style={{ scrollbarWidth: "none" }}
-          >
-            {wedding.gallery_urls.map((url, i) => (
-              <FadeIn
-                key={i}
-                delay={i * 80}
-                from={i % 2 === 0 ? "left" : "right"}
-              >
-                <div className="snap-center flex-shrink-0 w-[72vw] max-w-[300px] h-52 overflow-hidden rounded-2xl border border-sky-100/60 shadow-md shadow-sky-100/30">
-                  <img
-                    src={url}
-                    alt={`зураг ${i + 1}`}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-          {wedding.gallery_urls.length > 1 && (
-            <div className="flex justify-center gap-1.5 mt-1">
-              {wedding.gallery_urls.map((_, i) => (
-                <div
-                  key={i}
-                  className="rounded-full"
-                  style={{
-                    width: i === 0 ? 16 : 6,
-                    height: 6,
-                    background: i === 0 ? "#6BB8D8" : "#B8D8EE",
-                    opacity: i === 0 ? 1 : 0.5,
-                  }}
-                />
-              ))}
-            </div>
-          )}
+          <GallerySwiper urls={wedding.gallery_urls} />
         </div>
       )}
 
