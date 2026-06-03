@@ -3,6 +3,16 @@ import { useEffect, useRef, useState } from "react";
 import { formatDate, Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
 import MusicMan from "../MusicMan";
+import {
+  FaInstagram,
+  FaHeart,
+  FaStar,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaClock,
+  FaCalendarAlt,
+} from "react-icons/fa";
+import { BsQuote } from "react-icons/bs";
 
 // ─── GALLERY SWIPER ───
 function GallerySwiper({ urls }: { urls: string[] }) {
@@ -94,13 +104,13 @@ function GallerySwiper({ urls }: { urls: string[] }) {
               transform: active === i ? "scale(1)" : "scale(0.92)",
               boxShadow:
                 active === i
-                  ? "0 8px 40px rgba(201,168,76,0.25), inset 0 0 0 1px rgba(201,168,76,0.15)"
+                  ? "0 8px 40px rgba(201,168,76,0.18)"
                   : "0 2px 12px rgba(0,0,0,0.4)",
             }}
           >
             <img
               src={url}
-              alt={`зураг ${i + 1}`}
+              alt={`сурет ${i + 1}`}
               className="w-full h-full object-cover"
               style={{
                 opacity: active === i ? 0.85 : 0.55,
@@ -185,30 +195,37 @@ function GoldDivider({ className = "" }: { className?: string }) {
         className="h-px flex-1"
         style={{
           background:
-            "linear-gradient(to right, transparent, rgba(201,168,76,0.5))",
+            "linear-gradient(to right, transparent, rgba(201,168,76,0.45))",
         }}
       />
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M12 2 L13.8 9 L20 9.5 L15 14 L16.8 21 L12 17.5 L7.2 21 L9 14 L4 9.5 L10.2 9 Z"
-          fill="rgba(201,168,76,0.7)"
-        />
-      </svg>
+      <FaStar
+        size={10}
+        style={{ color: "rgba(201,168,76,0.65)", flexShrink: 0 }}
+      />
       <div
         className="h-px flex-1"
         style={{
           background:
-            "linear-gradient(to left, transparent, rgba(201,168,76,0.5))",
+            "linear-gradient(to left, transparent, rgba(201,168,76,0.45))",
         }}
       />
     </div>
   );
 }
 
-// ─── LABEL ───
+// ─── LABEL — unified size & style ───
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-amber-600/55 text-[9px] tracking-[0.38em] uppercase font-[Josefin_Sans,sans-serif] mb-1.5">
+    <p
+      className="uppercase mb-2"
+      style={{
+        fontSize: "9px",
+        letterSpacing: "0.36em",
+        fontFamily: "'Cinzel', serif",
+        fontWeight: 400,
+        color: "rgba(201,168,76,0.6)",
+      }}
+    >
       {children}
     </p>
   );
@@ -231,23 +248,22 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
 
   return (
     <div
-      className="min-h-screen font-[Cormorant_Garamond,serif]"
-      style={{
-        background:
-          "linear-gradient(160deg, #0A0A0A 0%, #141008 40%, #0D0B06 70%, #0A0A0A 100%)",
-      }}
+      className="min-h-screen bg-gradient-to-br from-neutral-800 to-amber-900"
+      style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
     >
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+
         @keyframes shimmer-gold {
           0% { background-position: -200% center; }
           100% { background-position: 200% center; }
         }
         @keyframes fade-up {
-          from { opacity: 0; transform: translateY(18px); }
+          from { opacity: 0; transform: translateY(16px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .shimmer-gold {
-          background: linear-gradient(90deg, #8B6914 20%, #F0D060 45%, #C9A84C 55%, #8B6914 80%);
+          background: linear-gradient(90deg, #C9943A 20%, #F5E08A 45%, #E0BC60 55%, #C9943A 80%);
           background-size: 200% auto;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -265,14 +281,14 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
         className="h-px w-full"
         style={{
           background:
-            "linear-gradient(to right, transparent, #C9A84C80, #F0D06060, #C9A84C80, transparent)",
+            "linear-gradient(to right, transparent, rgba(201,168,76,0.7), rgba(240,208,96,0.5), rgba(201,168,76,0.7), transparent)",
         }}
       />
       <div
-        className="h-[2px] w-full mt-0.5"
+        className="h-px w-full mt-0.5"
         style={{
           background:
-            "linear-gradient(to right, transparent, #C9A84C20, transparent)",
+            "linear-gradient(to right, transparent, rgba(201,168,76,0.18), transparent)",
         }}
       />
 
@@ -281,50 +297,22 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
         {wedding.main_photo_url ? (
           <img
             src={wedding.main_photo_url}
-            alt="Гол зураг"
+            alt="Негізгі сурет"
             className="w-full h-full object-cover"
-            style={{ filter: "brightness(0.65) saturate(0.9)" }}
+            style={{ filter: "brightness(0.6) saturate(0.85)" }}
           />
         ) : (
-          <div
-            className="w-full h-full flex items-center justify-center"
-            style={{
-              background:
-                "radial-gradient(ellipse at center, #1E1608 0%, #0A0A0A 70%)",
-            }}
-          >
-            <div className="flex flex-col items-center gap-6">
-              <div className="relative w-24 h-24">
-                <div
-                  className="absolute inset-0 rounded-full border border-amber-700/20"
-                  style={{ animation: "spin-slow 20s linear infinite" }}
-                />
-                <div className="absolute inset-2 rounded-full border border-amber-600/15" />
-                <div className="w-full h-full flex items-center justify-center">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                      fill="rgba(201,168,76,0.3)"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
+          <div className="w-full h-full flex items-center justify-center bg-neutral-900/50">
+            <FaHeart size={36} style={{ color: "rgba(201,168,76,0.3)" }} />
           </div>
         )}
-        {/* Gradient overlays */}
+
+        {/* Gradient overlay — matches new bg */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to top, #0A0A0A 0%, rgba(10,10,10,0.4) 40%, transparent 70%)",
-          }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to bottom, rgba(10,10,10,0.3) 0%, transparent 30%)",
+              "linear-gradient(to top, #78350f 0%, rgba(40,20,5,0.4) 45%, rgba(40,20,5,0.15) 100%)",
           }}
         />
 
@@ -337,8 +325,16 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                 "linear-gradient(to right, transparent, rgba(201,168,76,0.4))",
             }}
           />
-          <span className="text-amber-500/50 text-[9px] font-[Josefin_Sans,sans-serif] tracking-[0.5em] uppercase">
-            Wedding Invitation
+          <span
+            className="uppercase"
+            style={{
+              fontSize: "8px",
+              letterSpacing: "0.55em",
+              fontFamily: "'Cinzel', serif",
+              color: "rgba(240,210,120,0.6)",
+            }}
+          >
+            Той шақыру
           </span>
           <div
             className="h-px flex-1"
@@ -349,11 +345,11 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           />
         </div>
 
-        {/* Corner decorations on hero */}
-        <div className="absolute top-4 left-4 w-7 h-7 border-t border-l border-amber-500/30" />
-        <div className="absolute top-4 right-4 w-7 h-7 border-t border-r border-amber-500/30" />
-        <div className="absolute bottom-16 left-4 w-5 h-5 border-b border-l border-amber-500/20" />
-        <div className="absolute bottom-16 right-4 w-5 h-5 border-b border-r border-amber-500/20" />
+        {/* Corner decorations */}
+        <div className="absolute top-4 left-4 w-7 h-7 border-t border-l border-amber-400/30" />
+        <div className="absolute top-4 right-4 w-7 h-7 border-t border-r border-amber-400/30" />
+        <div className="absolute bottom-16 left-4 w-5 h-5 border-b border-l border-amber-400/20" />
+        <div className="absolute bottom-16 right-4 w-5 h-5 border-b border-r border-amber-400/20" />
       </div>
 
       {/* ─── NAMES ─── */}
@@ -373,12 +369,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                 "linear-gradient(to right, transparent, rgba(201,168,76,0.5))",
             }}
           />
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 2 L13.8 9 L20 9.5 L15 14 L16.8 21 L12 17.5 L7.2 21 L9 14 L4 9.5 L10.2 9 Z"
-              fill="rgba(201,168,76,0.6)"
-            />
-          </svg>
+          <FaHeart size={14} style={{ color: "rgba(201,168,76,0.65)" }} />
           <div
             className="h-px w-14"
             style={{
@@ -395,9 +386,16 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           {wedding.female_name}
         </h1>
 
-        {/* Date preview under names */}
         {date && (
-          <p className="fade-up fade-3 mt-4 text-amber-600/45 text-[10px] tracking-[0.4em] uppercase font-[Josefin_Sans,sans-serif]">
+          <p
+            className="fade-up fade-3 mt-4 uppercase"
+            style={{
+              fontSize: "9px",
+              letterSpacing: "0.42em",
+              fontFamily: "'Cinzel', serif",
+              color: "rgba(220,185,100,0.55)",
+            }}
+          >
             {date}
           </p>
         )}
@@ -409,20 +407,36 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           <div
             className="relative px-7 py-6 text-center"
             style={{
-              background: "rgba(201,168,76,0.03)",
-              border: "1px solid rgba(201,168,76,0.12)",
+              background: "rgba(201,168,76,0.06)",
+              border: "1px solid rgba(201,168,76,0.18)",
             }}
           >
             <Corners size={5} opacity={0.35} />
-            <span className="text-amber-700/40 text-5xl font-serif leading-none absolute top-2 left-4">
-              "
-            </span>
-            <p className="text-amber-200/65 text-[17px] leading-[1.9] italic relative z-10 mt-2">
+            <BsQuote
+              size={32}
+              style={{
+                color: "rgba(201,168,76,0.35)",
+                position: "absolute",
+                top: "10px",
+                left: "12px",
+              }}
+            />
+            <p
+              className="italic relative z-10 mt-2 leading-[1.95]"
+              style={{ fontSize: "17px", color: "rgba(253,230,170,0.82)" }}
+            >
               {wedding.description1}
             </p>
-            <span className="text-amber-700/40 text-5xl font-serif leading-none absolute bottom-0 right-4 rotate-180 block">
-              "
-            </span>
+            <BsQuote
+              size={32}
+              style={{
+                color: "rgba(201,168,76,0.35)",
+                position: "absolute",
+                bottom: "6px",
+                right: "12px",
+                transform: "rotate(180deg)",
+              }}
+            />
           </div>
         </div>
       )}
@@ -434,15 +448,19 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           <div
             className="relative px-5 py-5 text-center"
             style={{
-              border: "1px solid rgba(201,168,76,0.15)",
-              background: "rgba(201,168,76,0.025)",
+              border: "1px solid rgba(201,168,76,0.18)",
+              background: "rgba(201,168,76,0.05)",
             }}
           >
-            <Corners size={4} opacity={0.4} />
-            <Label>Хурмын эзэд аав ээж</Label>
+            <Corners size={4} opacity={0.35} />
+            <Label>Той иелері</Label>
             <p
-              className="text-amber-200/75 text-[17px] font-light leading-relaxed"
-              style={{ wordBreak: "break-word" }}
+              className="font-light leading-relaxed"
+              style={{
+                fontSize: "17px",
+                wordBreak: "break-word",
+                color: "rgba(253,230,170,0.82)",
+              }}
             >
               {wedding.organizer}
             </p>
@@ -461,8 +479,16 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                   "linear-gradient(to right, transparent, rgba(201,168,76,0.3))",
               }}
             />
-            <p className="text-amber-600/50 text-[9px] tracking-[0.38em] uppercase font-[Josefin_Sans,sans-serif]">
-              Зургийн цомог
+            <p
+              className="uppercase"
+              style={{
+                fontSize: "9px",
+                letterSpacing: "0.36em",
+                fontFamily: "'Cinzel', serif",
+                color: "rgba(220,185,100,0.55)",
+              }}
+            >
+              Фото альбом
             </p>
             <div
               className="h-px flex-1"
@@ -479,10 +505,24 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
       {/* ─── DESCRIPTION 2 ─── */}
       {wedding.description2 && (
         <div className="mx-5 mt-8">
-          <div className="border-l border-amber-700/35 pl-5 py-1">
+          <div
+            className="relative px-6 py-5 text-center"
+            style={{
+              background: "rgba(0,0,0,0.2)",
+              border: "1px solid rgba(201,168,76,0.12)",
+              boxShadow:
+                "0 8px 32px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.25)",
+            }}
+          >
             <p
-              className="text-amber-200/55 text-sm leading-[1.9] font-[Josefin_Sans,sans-serif]"
-              style={{ wordBreak: "break-word" }}
+              className="leading-[1.9]"
+              style={{
+                fontSize: "14px",
+                wordBreak: "break-word",
+                fontFamily: "'Cinzel', serif",
+                fontWeight: 400,
+                color: "rgba(240,215,155,0.7)",
+              }}
             >
               {wedding.description2}
             </p>
@@ -502,9 +542,9 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
               >
                 <img
                   src={wedding.photo3_url}
-                  alt="Эрэгтэй"
+                  alt="Ер"
                   className="w-full h-full object-cover"
-                  style={{ filter: "brightness(0.75) saturate(0.85)" }}
+                  style={{ filter: "brightness(0.72) saturate(0.82)" }}
                 />
               </div>
             )}
@@ -515,9 +555,9 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
               >
                 <img
                   src={wedding.photo4_url}
-                  alt="Эмэгтэй"
+                  alt="Әйел"
                   className="w-full h-full object-cover"
-                  style={{ filter: "brightness(0.75) saturate(0.85)" }}
+                  style={{ filter: "brightness(0.72) saturate(0.82)" }}
                 />
               </div>
             )}
@@ -527,36 +567,21 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
 
       {/* ─── INSTAGRAM LINKS ─── */}
       {(wedding.link1 || wedding.link2) && (
-        <div className="mx-5 mt-8 flex flex-col gap-3">
+        <div className="px-5 mt-8 flex gap-3 w-full justify-center">
           {wedding.link1 && (
             <a
               href={wedding.link1}
               target="_blank"
-              className="flex items-center justify-center gap-2.5 py-3.5 font-[Josefin_Sans,sans-serif] text-[10px] tracking-[0.35em] uppercase transition-all hover:opacity-80 relative"
+              className="flex items-center justify-center gap-2.5 py-3.5 px-5 uppercase transition-all hover:opacity-75 relative"
               style={{
-                border: "1px solid rgba(201,168,76,0.25)",
-                color: "#B8963A",
+                color: "#D4A84C",
+                fontSize: "9px",
+                letterSpacing: "0.35em",
+                fontFamily: "'Cinzel', serif",
               }}
             >
               <Corners size={3} opacity={0.35} />
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              >
-                <rect x="2" y="2" width="20" height="20" rx="5" />
-                <circle cx="12" cy="12" r="4" />
-                <circle
-                  cx="17.5"
-                  cy="6.5"
-                  r="1.2"
-                  fill="currentColor"
-                  stroke="none"
-                />
-              </svg>
+              <FaInstagram size={14} />
               Instagram
             </a>
           )}
@@ -564,32 +589,16 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
             <a
               href={wedding.link2}
               target="_blank"
-              className="flex items-center justify-center gap-2.5 py-3.5 font-[Josefin_Sans,sans-serif] text-[10px] tracking-[0.35em] uppercase transition-all hover:opacity-90"
+              className="flex items-center justify-center gap-2.5 py-3.5 px-5 uppercase transition-all hover:opacity-80 relative"
               style={{
-                background:
-                  "linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.08))",
-                color: "#C9A84C",
-                border: "1px solid rgba(201,168,76,0.3)",
+                color: "#D4A84C",
+                fontSize: "9px",
+                letterSpacing: "0.35em",
+                fontFamily: "'Cinzel', serif",
               }}
             >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              >
-                <rect x="2" y="2" width="20" height="20" rx="5" />
-                <circle cx="12" cy="12" r="4" />
-                <circle
-                  cx="17.5"
-                  cy="6.5"
-                  r="1.2"
-                  fill="currentColor"
-                  stroke="none"
-                />
-              </svg>
+              <Corners size={3} opacity={0.35} />
+              <FaInstagram size={14} />
               Instagram
             </a>
           )}
@@ -602,43 +611,47 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
 
         <div
           className="relative p-6 space-y-5"
-          style={{
-            border: "1px solid rgba(201,168,76,0.2)",
-            background:
-              "linear-gradient(160deg, rgba(201,168,76,0.04) 0%, transparent 60%)",
-          }}
+          // style={{
+          //   background: "rgba(0,0,0,0.25)",
+          //   boxShadow:
+          //     "0 12px 48px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.3)",
+          // }}
         >
           <Corners size={5} opacity={0.45} />
 
           {/* Date & Time */}
           {(date || time) && (
             <div className="text-center">
-              <Label>Огноо & Цаг</Label>
+              <Label>Күні & Уақыты</Label>
               {date && (
-                <p className="text-amber-200/80 text-[22px] font-light italic">
-                  {date}
-                </p>
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <FaCalendarAlt
+                    size={12}
+                    style={{ color: "rgba(201,168,76,0.55)" }}
+                  />
+                  <p
+                    className="font-light italic"
+                    style={{
+                      fontSize: "22px",
+                      color: "rgba(253,230,170,0.88)",
+                    }}
+                  >
+                    {date}
+                  </p>
+                </div>
               )}
               {time && (
-                <div
-                  className="mt-2.5 inline-flex items-center gap-2"
-                  style={{
-                    border: "1px solid rgba(201,168,76,0.25)",
-                    padding: "6px 16px",
-                  }}
-                >
-                  <svg
-                    width="11"
-                    height="11"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#C9A84C"
-                    strokeWidth="2"
+                <div className="mt-2.5 inline-flex items-center gap-2">
+                  <FaClock size={11} style={{ color: "#C9A84C" }} />
+                  <p
+                    className="font-semibold"
+                    style={{
+                      fontSize: "14px",
+                      fontFamily: "'Cinzel', serif",
+                      letterSpacing: "0.22em",
+                      color: "#E0C060",
+                    }}
                   >
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
-                  <p className="text-amber-400 text-sm font-[Josefin_Sans,sans-serif] font-semibold tracking-[0.25em]">
                     {time}
                   </p>
                 </div>
@@ -652,31 +665,33 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
               className="text-center border-t pt-5"
               style={{ borderColor: "rgba(201,168,76,0.12)" }}
             >
-              <Label>Хурмын байр</Label>
+              <Label>Той өтетін орын</Label>
               {wedding.venue_name && (
                 <p
-                  className="text-amber-200/80 text-[22px] font-light italic"
-                  style={{ wordBreak: "break-word" }}
+                  className="font-light italic"
+                  style={{
+                    fontSize: "22px",
+                    wordBreak: "break-word",
+                    color: "rgba(253,230,170,0.88)",
+                  }}
                 >
                   {wedding.venue_name}
                 </p>
               )}
               {wedding.venue_address && (
                 <div className="flex items-center justify-center gap-1.5 mt-1.5">
-                  <svg
-                    width="10"
-                    height="10"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#B8963A"
-                    strokeWidth="2"
-                  >
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-                    <circle cx="12" cy="9" r="2.5" />
-                  </svg>
+                  <FaMapMarkerAlt
+                    size={10}
+                    style={{ color: "rgba(201,168,76,0.6)", flexShrink: 0 }}
+                  />
                   <p
-                    className="text-amber-600/60 text-xs font-[Josefin_Sans,sans-serif] tracking-wide"
-                    style={{ wordBreak: "break-word" }}
+                    style={{
+                      fontSize: "12px",
+                      fontFamily: "'Cinzel', serif",
+                      wordBreak: "break-word",
+                      letterSpacing: "0.04em",
+                      color: "rgba(201,168,76,0.65)",
+                    }}
                   >
                     {wedding.venue_address}
                   </p>
@@ -691,15 +706,18 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
               className="text-center border-t pt-5"
               style={{ borderColor: "rgba(201,168,76,0.12)" }}
             >
-              <Label>Холбоо барих</Label>
+              <Label>Байланыс</Label>
               <a
                 href={`tel:${wedding.phone}`}
-                className="text-amber-300/75 text-lg font-light hover:text-amber-300 transition-colors"
+                className="inline-flex items-center gap-2 font-light transition-opacity hover:opacity-80"
                 style={{
-                  fontFamily: "'Josefin Sans', sans-serif",
-                  letterSpacing: "0.15em",
+                  fontSize: "18px",
+                  fontFamily: "'Cinzel', serif",
+                  letterSpacing: "0.12em",
+                  color: "rgba(240,210,140,0.8)",
                 }}
               >
+                <FaPhone size={13} style={{ color: "rgba(201,168,76,0.55)" }} />
                 {wedding.phone}
               </a>
             </div>
@@ -713,18 +731,22 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
             >
               {extras.map((e, i) => (
                 <div key={i} className="flex items-start gap-3">
-                  <svg
-                    width="10"
-                    height="10"
-                    viewBox="0 0 24 24"
-                    fill="rgba(201,168,76,0.5)"
-                    className="flex-shrink-0 mt-1"
-                  >
-                    <path d="M12 2 L13.8 9 L20 9.5 L15 14 L16.8 21 L12 17.5 L7.2 21 L9 14 L4 9.5 L10.2 9 Z" />
-                  </svg>
+                  <FaStar
+                    size={9}
+                    style={{
+                      color: "rgba(201,168,76,0.5)",
+                      flexShrink: 0,
+                      marginTop: "4px",
+                    }}
+                  />
                   <p
-                    className="text-amber-200/55 text-sm font-[Josefin_Sans,sans-serif] leading-relaxed"
-                    style={{ wordBreak: "break-word" }}
+                    className="leading-relaxed"
+                    style={{
+                      fontSize: "14px",
+                      fontFamily: "'Cinzel', serif",
+                      wordBreak: "break-word",
+                      color: "rgba(240,210,140,0.7)",
+                    }}
                   >
                     {e}
                   </p>
@@ -745,9 +767,9 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
               >
                 <img
                   src={wedding.photo5_url}
-                  alt="Нэмэлт зураг"
+                  alt="Қосымша сурет"
                   className="w-full object-cover"
-                  style={{ filter: "brightness(0.75) saturate(0.85)" }}
+                  style={{ filter: "brightness(0.72) saturate(0.82)" }}
                 />
               </div>
             </div>
@@ -758,19 +780,34 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
       {/* ─── MESSAGES ─── */}
       <MessageSection
         weddingId={wedding.id}
-        accentColor="#C9A84C"
-        lightColor="#1A1208"
+        accentColor="#3c3c3c"
+        lightColor="#2A1A08"
         borderColor="border-amber-800"
       />
 
       {/* ─── FOOTER ─── */}
       <div className="text-center py-12 mt-4">
         <GoldDivider className="mb-6 mx-8" />
-        <p className="shimmer-gold text-xs font-[Josefin_Sans,sans-serif] tracking-[0.4em] uppercase">
+        <p
+          className="shimmer-gold uppercase"
+          style={{
+            fontSize: "11px",
+            fontFamily: "'Cinzel', serif",
+            letterSpacing: "0.38em",
+          }}
+        >
           {wedding.male_name} & {wedding.female_name}
         </p>
         {date && (
-          <p className="text-amber-800/45 text-xs mt-2 font-[Josefin_Sans,sans-serif] tracking-widest">
+          <p
+            className="mt-2"
+            style={{
+              fontSize: "11px",
+              fontFamily: "'Cinzel', serif",
+              letterSpacing: "0.22em",
+              color: "rgba(201,168,76,0.35)",
+            }}
+          >
             {date}
           </p>
         )}
@@ -778,17 +815,17 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
 
       {/* Bottom bars */}
       <div
-        className="h-[2px] w-full"
+        className="h-px w-full"
         style={{
           background:
-            "linear-gradient(to right, transparent, #C9A84C20, transparent)",
+            "linear-gradient(to right, transparent, rgba(201,168,76,0.18), transparent)",
         }}
       />
       <div
         className="h-px w-full mt-0.5"
         style={{
           background:
-            "linear-gradient(to right, transparent, #C9A84C80, #F0D06060, #C9A84C80, transparent)",
+            "linear-gradient(to right, transparent, rgba(201,168,76,0.7), rgba(240,208,96,0.5), rgba(201,168,76,0.7), transparent)",
         }}
       />
     </div>

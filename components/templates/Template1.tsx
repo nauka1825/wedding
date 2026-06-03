@@ -4,207 +4,725 @@ import { formatDate, Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
 import MusicMan from "../MusicMan";
 
-// ─── ICONS (react svg) ───
+// ─── IcCalendar — хуанли дурлалтай хурц ───
 const IcCalendar = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#C4A0B0"
-    strokeWidth="1.6"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect x="3" y="4" width="18" height="18" rx="3" />
-    <path d="M16 2v4M8 2v4M3 10h18" />
-    <circle cx="8" cy="15" r="1" fill="#C4A0B0" stroke="none" />
-    <circle cx="12" cy="15" r="1" fill="#C4A0B0" stroke="none" />
-    <circle cx="16" cy="15" r="1" fill="#C4A0B0" stroke="none" />
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    {/* body */}
+    <rect x="3" y="5" width="18" height="17" rx="4" fill="url(#cal-body)" />
+    {/* header */}
+    <rect x="3" y="5" width="18" height="7" rx="4" fill="url(#cal-head)" />
+    <rect x="3" y="9" width="18" height="3" fill="url(#cal-head)" />
+    {/* hooks */}
+    <line
+      x1="8"
+      y1="3"
+      x2="8"
+      y2="7.5"
+      stroke="#F9A8D4"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+    <line
+      x1="16"
+      y1="3"
+      x2="16"
+      y2="7.5"
+      stroke="#F9A8D4"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+    {/* dots */}
+    <circle cx="8" cy="15" r="1.5" fill="#F472B6" />
+    <circle cx="12" cy="15" r="1.5" fill="#EC4899" />
+    <circle cx="16" cy="15" r="1.5" fill="#DB2777" />
+    <circle cx="8" cy="19" r="1.5" fill="#F9A8D4" />
+    <circle cx="12" cy="19" r="1.5" fill="#F472B6" />
+    <defs>
+      <linearGradient
+        id="cal-body"
+        x1="3"
+        y1="5"
+        x2="21"
+        y2="22"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="#FFF0F5" />
+        <stop offset="1" stopColor="#FDDDE8" />
+      </linearGradient>
+      <linearGradient
+        id="cal-head"
+        x1="3"
+        y1="5"
+        x2="21"
+        y2="12"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="#F472B6" />
+        <stop offset="1" stopColor="#BE185D" />
+      </linearGradient>
+    </defs>
   </svg>
 );
 
+// ─── IcClock — дугуй цаг ───
 const IcClock = () => (
-  <svg
-    width="10"
-    height="10"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#C4A0B0"
-    strokeWidth="2"
-    strokeLinecap="round"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <polyline points="12 6 12 12 16 14" />
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="11" fill="url(#clk-bg)" />
+    <circle
+      cx="12"
+      cy="12"
+      r="11"
+      stroke="#F9A8D4"
+      strokeWidth="0.8"
+      fill="none"
+    />
+    {/* ticks */}
+    {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg, i) => {
+      const r = (deg * Math.PI) / 180;
+      const isMain = deg % 90 === 0;
+      return (
+        <line
+          key={i}
+          x1={12 + Math.cos(r) * 8.2}
+          y1={12 + Math.sin(r) * 8.2}
+          x2={12 + Math.cos(r) * (isMain ? 6.5 : 7.5)}
+          y2={12 + Math.sin(r) * (isMain ? 6.5 : 7.5)}
+          stroke={isMain ? "#DB2777" : "#F9A8D4"}
+          strokeWidth={isMain ? "1.2" : "0.6"}
+          strokeLinecap="round"
+        />
+      );
+    })}
+    {/* hands */}
+    <line
+      x1="12"
+      y1="12"
+      x2="12"
+      y2="6"
+      stroke="#BE185D"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
+    <line
+      x1="12"
+      y1="12"
+      x2="16.5"
+      y2="14"
+      stroke="#EC4899"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+    />
+    <circle cx="12" cy="12" r="1.8" fill="#BE185D" />
+    <circle cx="12" cy="12" r="0.8" fill="#FFF0F5" />
+    <defs>
+      <radialGradient id="clk-bg" cx="40%" cy="35%" r="65%">
+        <stop stopColor="#FFF0F5" />
+        <stop offset="1" stopColor="#FDDDE8" />
+      </radialGradient>
+    </defs>
   </svg>
 );
 
+// ─── IcMapPin — байршлын тэмдэг ───
 const IcMapPin = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#C4A0B0"
-    strokeWidth="1.6"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-    <circle cx="12" cy="9" r="2.5" fill="#C4A0B0" stroke="none" />
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <ellipse cx="12" cy="22" rx="4" ry="1.2" fill="#F9A8D4" opacity="0.4" />
+    <path
+      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
+      fill="url(#pin-body)"
+    />
+    <path
+      d="M12 2C8.13 2 5 5.13 5 9c0 1.5 0.4 3 1.1 4.3L12 22s0,0,0,0l5.9-8.7C18.6 12 19 10.5 19 9c0-3.87-3.13-7-7-7z"
+      fill="url(#pin-shine)"
+      opacity="0.4"
+    />
+    <circle cx="12" cy="9" r="4" fill="white" opacity="0.9" />
+    <circle cx="12" cy="9" r="2.5" fill="url(#pin-dot)" />
+    <circle cx="10.5" cy="7.5" r="1" fill="white" opacity="0.5" />
+    <defs>
+      <linearGradient
+        id="pin-body"
+        x1="5"
+        y1="2"
+        x2="19"
+        y2="22"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="#F472B6" />
+        <stop offset="0.5" stopColor="#EC4899" />
+        <stop offset="1" stopColor="#9D174D" />
+      </linearGradient>
+      <linearGradient
+        id="pin-shine"
+        x1="5"
+        y1="2"
+        x2="15"
+        y2="12"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="white" />
+        <stop offset="1" stopColor="white" stopOpacity="0" />
+      </linearGradient>
+      <radialGradient id="pin-dot" cx="40%" cy="35%" r="65%">
+        <stop stopColor="#F9A8D4" />
+        <stop offset="1" stopColor="#BE185D" />
+      </radialGradient>
+    </defs>
   </svg>
 );
 
+// ─── IcMapPinTiny ───
 const IcMapPinTiny = () => (
   <svg
     width="10"
     height="10"
     viewBox="0 0 24 24"
     fill="none"
-    stroke="#C4A0B0"
-    strokeWidth="2"
-    strokeLinecap="round"
     style={{ marginTop: 2, flexShrink: 0 }}
   >
-    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-    <circle cx="12" cy="9" r="2.5" fill="#C4A0B0" stroke="none" />
+    <path
+      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
+      fill="url(#pin-tiny)"
+    />
+    <circle cx="12" cy="9" r="3" fill="white" opacity="0.85" />
+    <defs>
+      <linearGradient
+        id="pin-tiny"
+        x1="5"
+        y1="2"
+        x2="19"
+        y2="22"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="#F472B6" />
+        <stop offset="1" stopColor="#9D174D" />
+      </linearGradient>
+    </defs>
   </svg>
 );
 
+// ─── IcPhone — утасны дүрс ───
 const IcPhone = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#C4A0B0"
-    strokeWidth="1.6"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.53 2 2 0 0 1 3.6 1.5h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.1a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <rect x="5" y="1" width="14" height="22" rx="3" fill="url(#ph-body)" />
+    <rect x="5" y="1" width="14" height="8" rx="3" fill="url(#ph-top)" />
+    <rect x="7" y="3" width="10" height="15" rx="1.5" fill="url(#ph-screen)" />
+    {/* camera */}
+    <circle cx="12" cy="2.8" r="1" fill="#F9A8D4" opacity="0.6" />
+    {/* home button */}
+    <circle cx="12" cy="20.5" r="1.2" fill="#F9A8D4" opacity="0.7" />
+    {/* screen details */}
+    <rect
+      x="9"
+      y="5.5"
+      width="6"
+      height="0.8"
+      rx="0.4"
+      fill="#F9A8D4"
+      opacity="0.5"
+    />
+    <rect
+      x="8.5"
+      y="7.5"
+      width="7"
+      height="4"
+      rx="0.8"
+      fill="#F472B6"
+      opacity="0.25"
+    />
+    <defs>
+      <linearGradient
+        id="ph-body"
+        x1="5"
+        y1="1"
+        x2="19"
+        y2="23"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="#FCE7F3" />
+        <stop offset="1" stopColor="#F9A8D4" />
+      </linearGradient>
+      <linearGradient
+        id="ph-top"
+        x1="5"
+        y1="1"
+        x2="19"
+        y2="9"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="#F472B6" />
+        <stop offset="1" stopColor="#EC4899" />
+      </linearGradient>
+      <linearGradient
+        id="ph-screen"
+        x1="7"
+        y1="3"
+        x2="17"
+        y2="18"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="#FFF0F5" />
+        <stop offset="1" stopColor="#FDDDE8" />
+      </linearGradient>
+    </defs>
   </svg>
 );
 
+// ─── IcUsers — хүн дүрс ───
 const IcUsers = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#C4A0B0"
-    strokeWidth="1.6"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-    <circle cx="9" cy="7" r="4" />
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    {/* shadow */}
+    <ellipse cx="9" cy="22.5" rx="5.5" ry="1" fill="#F9A8D4" opacity="0.3" />
+    {/* back person */}
+    <circle cx="16" cy="8" r="3.5" fill="url(#usr-head2)" />
+    <path d="M10 22c0-4.4 2.7-8 6-8s6 3.6 6 8" fill="url(#usr-body2)" />
+    {/* front person */}
+    <circle cx="9" cy="8" r="4" fill="url(#usr-head)" />
+    <path d="M2 22c0-4.8 3.1-8.5 7-8.5s7 3.7 7 8.5" fill="url(#usr-body)" />
+    {/* shine */}
+    <circle cx="7.5" cy="6.5" r="1.2" fill="white" opacity="0.45" />
+    <defs>
+      <radialGradient id="usr-head" cx="40%" cy="35%" r="65%">
+        <stop stopColor="#F9A8D4" />
+        <stop offset="1" stopColor="#DB2777" />
+      </radialGradient>
+      <linearGradient
+        id="usr-body"
+        x1="2"
+        y1="13.5"
+        x2="16"
+        y2="22"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="#F472B6" />
+        <stop offset="1" stopColor="#BE185D" />
+      </linearGradient>
+      <radialGradient id="usr-head2" cx="40%" cy="35%" r="65%">
+        <stop stopColor="#FBBF24" />
+        <stop offset="1" stopColor="#D97706" />
+      </radialGradient>
+      <linearGradient
+        id="usr-body2"
+        x1="10"
+        y1="14"
+        x2="22"
+        y2="22"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="#FCD34D" />
+        <stop offset="1" stopColor="#B45309" />
+      </linearGradient>
+    </defs>
   </svg>
 );
 
-const IcInstagram = ({ color = "#9B6B7E" }: { color?: string }) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth="1.6"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect x="2" y="2" width="20" height="20" rx="5" />
-    <circle cx="12" cy="12" r="4" />
-    <circle cx="17.5" cy="6.5" r="1.2" fill={color} stroke="none" />
+// ─── IcInstagram — Instagram ───
+const IcInstagram = ({ white = false }: { white?: boolean }) => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+    <rect
+      x="2"
+      y="2"
+      width="20"
+      height="20"
+      rx="6"
+      fill={white ? "rgba(255,255,255,0.25)" : "url(#ig-bg)"}
+    />
+    <rect
+      x="2"
+      y="2"
+      width="20"
+      height="20"
+      rx="6"
+      stroke={white ? "rgba(255,255,255,0.5)" : "url(#ig-border)"}
+      strokeWidth="0.8"
+    />
+    <circle
+      cx="12"
+      cy="12"
+      r="4.5"
+      stroke={white ? "white" : "url(#ig-ring)"}
+      strokeWidth="1.6"
+      fill="none"
+    />
+    <circle
+      cx="17.2"
+      cy="6.8"
+      r="1.4"
+      fill={white ? "white" : "url(#ig-dot)"}
+    />
+    {!white && <circle cx="10" cy="10" r="1.2" fill="white" opacity="0.3" />}
+    <defs>
+      <linearGradient
+        id="ig-bg"
+        x1="2"
+        y1="2"
+        x2="22"
+        y2="22"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="#FCE7F3" />
+        <stop offset="1" stopColor="#FDE8D8" />
+      </linearGradient>
+      <linearGradient
+        id="ig-border"
+        x1="2"
+        y1="2"
+        x2="22"
+        y2="22"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="#F9A8D4" />
+        <stop offset="1" stopColor="#FCA5A5" />
+      </linearGradient>
+      <linearGradient
+        id="ig-ring"
+        x1="7.5"
+        y1="7.5"
+        x2="16.5"
+        y2="16.5"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="#EC4899" />
+        <stop offset="1" stopColor="#F97316" />
+      </linearGradient>
+      <radialGradient id="ig-dot" cx="40%" cy="40%" r="60%">
+        <stop stopColor="#FDE68A" />
+        <stop offset="1" stopColor="#F59E0B" />
+      </radialGradient>
+    </defs>
   </svg>
 );
 
+// ─── IcHeart — зүрх дурлалтай ───
 const IcHeart = () => (
-  <svg width="30" height="26" viewBox="0 0 30 26" fill="none">
+  <svg width="32" height="28" viewBox="0 0 32 28" fill="none">
+    <defs>
+      <radialGradient id="hrt-fill" cx="50%" cy="40%" r="65%">
+        <stop stopColor="#FDF2F8" />
+        <stop offset="0.5" stopColor="#F9A8D4" />
+        <stop offset="1" stopColor="#EC4899" />
+      </radialGradient>
+      <radialGradient id="hrt-glow" cx="50%" cy="50%" r="50%">
+        <stop stopColor="#F9A8D4" stopOpacity="0.6" />
+        <stop offset="1" stopColor="#F9A8D4" stopOpacity="0" />
+      </radialGradient>
+    </defs>
+    {/* glow */}
+    <ellipse cx="16" cy="15" rx="14" ry="12" fill="url(#hrt-glow)" />
+    {/* heart */}
     <path
-      d="M15 23 C15 23 2 15 2 8 C2 4.5 5 2 8.5 2 C11 2 13 3.2 15 5 C17 3.2 19 2 21.5 2 C25 2 28 4.5 28 8 C28 15 15 23 15 23Z"
-      fill="#F9D5E5"
-      stroke="#E8B4C8"
-      strokeWidth="1"
+      d="M16 24 C16 24 2 15.5 2 8.5 C2 5 4.8 2.5 8.5 2.5 C11.2 2.5 13.5 4 16 6.2 C18.5 4 20.8 2.5 23.5 2.5 C27.2 2.5 30 5 30 8.5 C30 15.5 16 24 16 24Z"
+      fill="url(#hrt-fill)"
+      stroke="#F9A8D4"
+      strokeWidth="0.8"
     />
-    <circle cx="6" cy="5" r="1.2" fill="#F2C8DC" opacity="0.6" />
-    <circle cx="24" cy="5" r="1.2" fill="#F2C8DC" opacity="0.6" />
-    <circle cx="15" cy="2" r="1" fill="#F2C8DC" opacity="0.5" />
+    {/* inner shine */}
+    <ellipse
+      cx="11"
+      cy="8"
+      rx="4.5"
+      ry="3"
+      fill="white"
+      opacity="0.3"
+      transform="rotate(-20,11,8)"
+    />
+    {/* sparkles */}
+    <circle cx="6" cy="5" r="1.2" fill="#FDE68A" opacity="0.8" />
+    <circle cx="25" cy="5" r="0.9" fill="#FDE68A" opacity="0.7" />
+    <circle cx="16" cy="2" r="0.8" fill="#FDE68A" opacity="0.6" />
+    <path
+      d="M4 3 L4.6 4.6 L6.2 5 L4.6 5.4 L4 7 L3.4 5.4 L1.8 5 L3.4 4.6Z"
+      fill="#FEF3C7"
+      opacity="0.85"
+    />
   </svg>
 );
 
+// ─── IcRing — БООДИТ БӨГ (realistic wedding rings) ───
 const IcRing = () => (
-  <svg width="42" height="42" viewBox="0 0 52 52" fill="none">
+  <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
+    <defs>
+      {/* Алтан gradient — бодит алт өнгө */}
+      <linearGradient id="gold-main" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#FDE68A" />
+        <stop offset="25%" stopColor="#F59E0B" />
+        <stop offset="50%" stopColor="#D97706" />
+        <stop offset="75%" stopColor="#FBBF24" />
+        <stop offset="100%" stopColor="#92400E" />
+      </linearGradient>
+      <linearGradient id="gold-shine" x1="0" y1="0" x2="0.5" y2="1">
+        <stop offset="0%" stopColor="#FEF3C7" stopOpacity="0.9" />
+        <stop offset="40%" stopColor="#FDE68A" stopOpacity="0.4" />
+        <stop offset="100%" stopColor="#92400E" stopOpacity="0.1" />
+      </linearGradient>
+      <linearGradient id="gold-edge" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#FDE68A" />
+        <stop offset="50%" stopColor="#B45309" />
+        <stop offset="100%" stopColor="#FDE68A" />
+      </linearGradient>
+      {/* Мөнгөн/цагаан алт gradient */}
+      <linearGradient id="silver-main" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#F5F5F4" />
+        <stop offset="25%" stopColor="#D6D3D1" />
+        <stop offset="50%" stopColor="#A8A29E" />
+        <stop offset="75%" stopColor="#E7E5E4" />
+        <stop offset="100%" stopColor="#78716C" />
+      </linearGradient>
+      <linearGradient id="silver-shine" x1="0" y1="0" x2="0.5" y2="1">
+        <stop offset="0%" stopColor="white" stopOpacity="0.95" />
+        <stop offset="35%" stopColor="white" stopOpacity="0.3" />
+        <stop offset="100%" stopColor="white" stopOpacity="0" />
+      </linearGradient>
+      {/* Алмаз/чулуу */}
+      <radialGradient id="diamond" cx="35%" cy="30%" r="65%">
+        <stop offset="0%" stopColor="white" />
+        <stop offset="30%" stopColor="#E0F2FE" />
+        <stop offset="60%" stopColor="#7DD3FC" />
+        <stop offset="100%" stopColor="#0369A1" />
+      </radialGradient>
+      {/* Жижиг чулуунууд */}
+      <radialGradient id="gem-pink" cx="35%" cy="30%" r="65%">
+        <stop offset="0%" stopColor="#FDF2F8" />
+        <stop offset="50%" stopColor="#F9A8D4" />
+        <stop offset="100%" stopColor="#BE185D" />
+      </radialGradient>
+      {/* Гялбаа (glow) */}
+      <radialGradient id="ring-glow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stopColor="#FDE68A" stopOpacity="0.5" />
+        <stop offset="100%" stopColor="#FDE68A" stopOpacity="0" />
+      </radialGradient>
+      {/* Shadow */}
+      <radialGradient id="ring-shadow" cx="50%" cy="80%" r="50%">
+        <stop offset="0%" stopColor="#92400E" stopOpacity="0.25" />
+        <stop offset="100%" stopColor="#92400E" stopOpacity="0" />
+      </radialGradient>
+    </defs>
+
+    {/* Тунгалаг гялбаа - гэрлийн эффект */}
+    <ellipse cx="26" cy="55" rx="18" ry="3.5" fill="url(#ring-shadow)" />
+
+    {/* ── АРЫН БӨГ: Алтан эрэгтэй бөг ── */}
+    {/* Гадна тойрог - алтан хүрээ */}
+    <circle cx="21" cy="34" r="14.5" fill="url(#gold-main)" />
+    {/* Гаднах захын тод зураас */}
     <circle
-      cx="18"
-      cy="30"
-      r="12"
-      stroke="#C8A84B"
-      strokeWidth="2.2"
+      cx="21"
+      cy="34"
+      r="14.5"
+      stroke="#FDE68A"
+      strokeWidth="0.5"
       fill="none"
+      opacity="0.6"
     />
+    {/* Дотор сүүдэр - гүн эффект */}
+    <circle cx="21" cy="34" r="11" fill="#6B2D1A" opacity="0.85" />
+    {/* Алтан дотоод хүрээ */}
     <circle
-      cx="18"
-      cy="30"
-      r="8"
-      stroke="#E8C96A"
-      strokeWidth="1.2"
+      cx="21"
+      cy="34"
+      r="11"
+      stroke="#D97706"
+      strokeWidth="0.4"
       fill="none"
+      opacity="0.8"
     />
-    {[0, 45, 90, 135, 180, 225, 270, 315].map((deg, i) => {
-      const rad = (deg * Math.PI) / 180;
+    {/* Дотор нүх - харанхуй */}
+    <circle cx="21" cy="34" r="9.5" fill="#2D1810" opacity="0.95" />
+    {/* Гялбааны тусгал - дээд хэсэг */}
+    <ellipse
+      cx="17"
+      cy="25"
+      rx="6"
+      ry="3.5"
+      fill="url(#gold-shine)"
+      transform="rotate(-25,17,25)"
+    />
+    {/* Доод сүүдэр */}
+    <ellipse
+      cx="25"
+      cy="42"
+      rx="5"
+      ry="2.5"
+      fill="#92400E"
+      opacity="0.4"
+      transform="rotate(-15,25,42)"
+    />
+    {/* Хажуугийн гялбаа */}
+    <ellipse cx="8" cy="34" rx="2" ry="5" fill="#FEF3C7" opacity="0.35" />
+    {/* Дизайн мөр - алтан бөгийн хэвлэл */}
+    <circle
+      cx="21"
+      cy="34"
+      r="12.8"
+      stroke="#FBBF24"
+      strokeWidth="0.3"
+      strokeDasharray="2 3"
+      fill="none"
+      opacity="0.5"
+    />
+
+    {/* ── УРДАХ БӨГ: Цагаан алтан эмэгтэй бөг + алмаз ── */}
+    {/* Сүүдэр */}
+    <ellipse cx="39" cy="27.5" rx="14" ry="2.5" fill="#78716C" opacity="0.2" />
+    {/* Гадна тойрог */}
+    <circle cx="39" cy="26" r="13.5" fill="url(#silver-main)" />
+    <circle
+      cx="39"
+      cy="26"
+      r="13.5"
+      stroke="#E7E5E4"
+      strokeWidth="0.5"
+      fill="none"
+      opacity="0.7"
+    />
+    {/* Дотор - гүн */}
+    <circle cx="39" cy="26" r="10.2" fill="#3D3532" opacity="0.88" />
+    <circle
+      cx="39"
+      cy="26"
+      r="10.2"
+      stroke="#A8A29E"
+      strokeWidth="0.3"
+      fill="none"
+      opacity="0.6"
+    />
+    {/* Нүх */}
+    <circle cx="39" cy="26" r="8.8" fill="#1C1917" opacity="0.95" />
+    {/* Гялбаа */}
+    <ellipse
+      cx="35"
+      cy="17.5"
+      rx="5.5"
+      ry="3"
+      fill="url(#silver-shine)"
+      transform="rotate(-20,35,17.5)"
+    />
+    {/* Хажуугийн гялбаа */}
+    <ellipse cx="27.5" cy="26" rx="1.8" ry="5" fill="white" opacity="0.3" />
+
+    {/* Алмаз чулуу - дээд хэсэгт */}
+    {/* Алмазны суурь - crown setting */}
+    <path d="M39 10 L36 14.5 L39 13 L42 14.5Z" fill="#D97706" />
+    <path d="M36 14.5 L39 13 L42 14.5 L39 16.5Z" fill="#FBBF24" />
+    {/* Прониус (prong) - алмазны барьцаа */}
+    <rect
+      x="38.2"
+      y="9"
+      width="1.6"
+      height="3.5"
+      rx="0.8"
+      fill="url(#silver-main)"
+    />
+    <rect
+      x="35.5"
+      y="11.5"
+      width="1.4"
+      height="3"
+      rx="0.7"
+      fill="url(#silver-main)"
+      transform="rotate(-35,36.2,13)"
+    />
+    <rect
+      x="41"
+      y="11.5"
+      width="1.4"
+      height="3"
+      rx="0.7"
+      fill="url(#silver-main)"
+      transform="rotate(35,41.7,13)"
+    />
+    {/* Алмазны биет - олон талт тусгал */}
+    <polygon
+      points="39,8 36.5,11 37.5,15.5 40.5,15.5 41.5,11"
+      fill="url(#diamond)"
+    />
+    <polygon points="39,8 36.5,11 39,12.5" fill="white" opacity="0.6" />
+    <polygon points="39,8 41.5,11 39,12.5" fill="#BFDBFE" opacity="0.5" />
+    <polygon points="36.5,11 37.5,15.5 39,12.5" fill="#7DD3FC" opacity="0.4" />
+    <polygon points="41.5,11 40.5,15.5 39,12.5" fill="#0EA5E9" opacity="0.3" />
+    {/* Алмазны гялбаа */}
+    <circle cx="37.8" cy="9.5" r="0.7" fill="white" opacity="0.95" />
+    <circle cx="40.5" cy="10" r="0.4" fill="white" opacity="0.8" />
+
+    {/* Жижиг алмазнууд - хажуудаа */}
+    {[-28, -14, 14, 28].map((ang, i) => {
+      const r = (ang * Math.PI) / 180;
+      const cx = 39 + Math.cos(r - Math.PI / 2) * 12;
+      const cy = 26 + Math.sin(r - Math.PI / 2) * 12;
       return (
-        <circle
+        <g key={i}>
+          <circle cx={cx} cy={cy} r="1.6" fill="url(#gem-pink)" />
+          <circle
+            cx={cx - 0.4}
+            cy={cy - 0.4}
+            r="0.5"
+            fill="white"
+            opacity="0.8"
+          />
+        </g>
+      );
+    })}
+
+    {/* Мөнгөн нарийн хэвлэлийн шугам */}
+    <circle
+      cx="39"
+      cy="26"
+      r="11.8"
+      stroke="#D6D3D1"
+      strokeWidth="0.3"
+      strokeDasharray="1.5 2.5"
+      fill="none"
+      opacity="0.6"
+    />
+
+    {/* ── Нийлсэн газрын гялбаа ── */}
+    <ellipse
+      cx="30"
+      cy="30"
+      rx="3"
+      ry="1.5"
+      fill="#FDE68A"
+      opacity="0.2"
+      transform="rotate(-10,30,30)"
+    />
+
+    {/* Гэрлийн цацраг - дурлалтай эффект */}
+    {[0, 45, 90, 135, 180, 225, 270, 315].map((deg, i) => {
+      const r = (deg * Math.PI) / 180;
+      return (
+        <line
           key={i}
-          cx={18 + 10.5 * Math.cos(rad)}
-          cy={30 + 10.5 * Math.sin(rad)}
-          r="0.9"
-          fill="#D4AF37"
-          opacity="0.8"
+          x1={39 + Math.cos(r) * 7}
+          y1={8 + Math.sin(r) * 7}
+          x2={39 + Math.cos(r) * 9}
+          y2={8 + Math.sin(r) * 9}
+          stroke="#FEF9C3"
+          strokeWidth="0.6"
+          opacity={i % 2 === 0 ? 0.7 : 0.4}
+          strokeLinecap="round"
         />
       );
     })}
-    <circle
-      cx="34"
-      cy="22"
-      r="12"
-      stroke="#C8A84B"
-      strokeWidth="2.2"
-      fill="none"
-    />
-    <circle
-      cx="34"
-      cy="22"
-      r="8"
-      stroke="#E8C96A"
-      strokeWidth="1.2"
-      fill="none"
-    />
-    {[0, 45, 90, 135, 180, 225, 270, 315].map((deg, i) => {
-      const rad = (deg * Math.PI) / 180;
-      return (
-        <circle
-          key={i}
-          cx={34 + 10.5 * Math.cos(rad)}
-          cy={22 + 10.5 * Math.sin(rad)}
-          r="0.9"
-          fill="#D4AF37"
-          opacity="0.8"
-        />
-      );
-    })}
+
+    {/* Тоос - sparkle эффект */}
+    <circle cx="10" cy="15" r="1" fill="#FDE68A" opacity="0.6" />
+    <circle cx="52" cy="18" r="0.8" fill="#FDE68A" opacity="0.5" />
+    <circle cx="6" cy="42" r="0.7" fill="#F9A8D4" opacity="0.5" />
+    <circle cx="55" cy="38" r="1" fill="#FDE68A" opacity="0.4" />
     <path
-      d="M34 13 L35.2 9.5 L36.4 13 L40 14 L36.4 15 L35.2 18.5 L34 15 L30.5 14 Z"
-      fill="#F5D878"
-      opacity="0.9"
+      d="M8 12 L8.6 13.8 L10.5 14 L8.6 14.2 L8 16 L7.4 14.2 L5.5 14 L7.4 13.8Z"
+      fill="#FEF3C7"
+      opacity="0.75"
     />
-    <circle cx="15" cy="21" r="1.1" fill="#F5D878" opacity="0.7" />
-    <circle cx="41" cy="30" r="0.8" fill="#F5D878" opacity="0.6" />
+    <path
+      d="M51 15 L51.5 16.5 L53 16.7 L51.5 16.9 L51 18.5 L50.5 16.9 L49 16.7 L50.5 16.5Z"
+      fill="#FEF3C7"
+      opacity="0.65"
+    />
   </svg>
 );
 
-// ─── ORNAMENTS ───
+// ─── FloralDivider ───
 const FloralDivider = ({ className = "" }: { className?: string }) => (
   <svg
     viewBox="0 0 280 32"
@@ -358,6 +876,7 @@ const FloralDivider = ({ className = "" }: { className?: string }) => (
   </svg>
 );
 
+// ─── CardWaveDecor ───
 const CardWaveDecor = ({ flip = false }: { flip?: boolean }) => (
   <svg
     viewBox="0 0 360 28"
@@ -402,6 +921,7 @@ const CardWaveDecor = ({ flip = false }: { flip?: boolean }) => (
   </svg>
 );
 
+// ─── SmallDivider ───
 const SmallDivider = () => (
   <svg viewBox="0 0 160 20" fill="none" style={{ width: 160, height: 20 }}>
     <defs>
@@ -521,7 +1041,7 @@ function GallerySwiper({ urls }: { urls: string[] }) {
               maxWidth: 300,
               height: 220,
               borderRadius: 20,
-              border: "1px solid rgba(232,180,200,0.35)",
+              border: `1px solid ${active === i ? "rgba(232,180,200,0.6)" : "rgba(232,180,200,0.25)"}`,
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
               transform: active === i ? "scale(1)" : "scale(0.93)",
               boxShadow:
@@ -592,48 +1112,32 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
       className="min-h-screen"
       style={{
         background:
-          "linear-gradient(135deg, #FDF0F5 0%, #FDF6F0 40%, #F5F0FD 100%)",
-        fontFamily: "'Cormorant Garamond', 'Georgia', serif",
+          "linear-gradient(135deg,#FDF0F5 0%,#FDF6F0 40%,#F5F0FD 100%)",
+        fontFamily: "'Cormorant Garamond','Georgia',serif",
       }}
     >
       <MusicMan />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap');
-        * { box-sizing: border-box; }
-        @keyframes gallery-progress { from { width:0% } to { width:100% } }
-        @keyframes fade-up {
-          from { opacity:0; transform:translateY(20px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        @keyframes petal-spin { from { transform:rotate(0deg) } to { transform:rotate(360deg) } }
-        .fade-up { animation: fade-up 0.85s cubic-bezier(0.22,1,0.36,1) both; }
-        .fade-1  { animation-delay: 0.1s; }
-        .fade-2  { animation-delay: 0.28s; }
-        .fade-3  { animation-delay: 0.46s; }
-        .label-sm {
-          font-family: 'Jost', sans-serif;
-          font-weight: 400;
-          letter-spacing: 0.32em;
-          text-transform: uppercase;
-          font-size: 9px;
-          color: rgba(196,160,176,0.9);
-        }
+        * { box-sizing:border-box; }
+        @keyframes gallery-progress { from{width:0%} to{width:100%} }
+        @keyframes fade-up { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+        @keyframes petal-spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        .fade-up { animation:fade-up 0.85s cubic-bezier(0.22,1,0.36,1) both; }
+        .fade-1  { animation-delay:0.1s; }
+        .fade-2  { animation-delay:0.28s; }
+        .fade-3  { animation-delay:0.46s; }
+        .label-sm { font-family:'Jost',sans-serif; font-weight:400; letter-spacing:0.32em; text-transform:uppercase; font-size:9px; color:rgba(196,160,176,0.9); }
         .glass-card {
-          background: rgba(255,255,255,0.62);
-          backdrop-filter: blur(14px);
-          -webkit-backdrop-filter: blur(14px);
-          border: 1px solid rgba(232,180,200,0.38);
-          border-radius: 24px;
-          box-shadow:
-            0 8px 32px rgba(196,160,176,0.16),
-            0 1px 0 rgba(255,255,255,0.9) inset,
-            0 -1px 0 rgba(232,180,200,0.12) inset;
+          background:rgba(255,255,255,0.62); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+          border:1px solid rgba(232,180,200,0.38); border-radius:24px;
+          box-shadow:0 8px 32px rgba(196,160,176,0.16),0 1px 0 rgba(255,255,255,0.9) inset,0 -1px 0 rgba(232,180,200,0.12) inset;
         }
         .icon-box {
-          width: 40px; height: 40px; border-radius: 16px; flex-shrink: 0;
-          display: flex; align-items: center; justify-content: center;
-          background: linear-gradient(135deg, #F9D5E5 0%, #FDF0F5 100%);
-          box-shadow: 0 2px 8px rgba(196,160,176,0.18);
+          width:40px; height:40px; border-radius:16px; flex-shrink:0;
+          display:flex; align-items:center; justify-content:center;
+          background:linear-gradient(135deg,#F9D5E5 0%,#FDF0F5 100%);
+          box-shadow:0 2px 8px rgba(196,160,176,0.18);
         }
       `}</style>
 
@@ -650,7 +1154,7 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
             className="w-full h-full flex items-center justify-center relative overflow-hidden"
             style={{
               background:
-                "linear-gradient(135deg, #F9D5E5 0%, #FDF6F0 50%, #E5D5F9 100%)",
+                "linear-gradient(135deg,#F9D5E5 0%,#FDF6F0 50%,#E5D5F9 100%)",
             }}
           >
             <div className="absolute inset-0 opacity-10">
@@ -702,20 +1206,18 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
             </div>
           </div>
         )}
-        {/* Gradient fade bottom */}
         <div
           className="absolute inset-0"
           style={{
-            background: "linear-gradient(to top, #FDF0F5 0%, transparent 55%)",
+            background: "linear-gradient(to top,#FDF0F5 0%,transparent 55%)",
           }}
         />
-        {/* Top label */}
         <div className="absolute top-5 left-0 right-0 flex items-center justify-center gap-3 px-8">
           <div
             className="h-px flex-1"
             style={{
               background:
-                "linear-gradient(to right, transparent, rgba(255,255,255,0.5))",
+                "linear-gradient(to right,transparent,rgba(255,255,255,0.5))",
             }}
           />
           <span
@@ -733,7 +1235,7 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
             className="h-px flex-1"
             style={{
               background:
-                "linear-gradient(to left, transparent, rgba(255,255,255,0.5))",
+                "linear-gradient(to left,transparent,rgba(255,255,255,0.5))",
             }}
           />
         </div>
@@ -745,50 +1247,46 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
           className="fade-up fade-1 inline-flex items-center justify-center mb-5 bg-white/70 backdrop-blur-sm p-3 rounded-full border border-yellow-200/50"
           style={{
             boxShadow:
-              "0 2px 16px rgba(212,175,55,0.18), 0 1px 0 rgba(255,255,255,0.9) inset",
+              "0 2px 16px rgba(212,175,55,0.18),0 1px 0 rgba(255,255,255,0.9) inset",
           }}
         >
           <IcRing />
         </div>
-
         <h1
           className="fade-up fade-1 font-light italic leading-tight"
           style={{
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: "'Playfair Display',serif",
             color: "#7B3F5E",
             fontSize: "clamp(2.4rem,10vw,3.2rem)",
           }}
         >
           {wedding.male_name}
         </h1>
-
         <div className="fade-up fade-2 flex items-center justify-center gap-3 my-5">
           <div
             className="h-px w-10"
             style={{
-              background: "linear-gradient(to right, transparent, #E8B4C8)",
+              background: "linear-gradient(to right,transparent,#E8B4C8)",
             }}
           />
           <IcHeart />
           <div
             className="h-px w-10"
             style={{
-              background: "linear-gradient(to left, transparent, #E8B4C8)",
+              background: "linear-gradient(to left,transparent,#E8B4C8)",
             }}
           />
         </div>
-
         <h1
           className="fade-up fade-2 font-light italic leading-tight"
           style={{
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: "'Playfair Display',serif",
             color: "#7B3F5E",
             fontSize: "clamp(2.4rem,10vw,3.2rem)",
           }}
         >
           {wedding.female_name}
         </h1>
-
         <div className="fade-up fade-3 flex justify-center mt-5">
           <FloralDivider />
         </div>
@@ -801,7 +1299,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
             <div className="pt-2 px-2">
               <CardWaveDecor />
             </div>
-
             {wedding.description1 && (
               <div className="px-6 pt-3 pb-5 text-center relative">
                 <svg
@@ -844,7 +1341,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                 </svg>
               </div>
             )}
-
             {wedding.description1 && wedding.organizer && (
               <div className="px-5 py-1">
                 <svg
@@ -917,7 +1413,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                 </svg>
               </div>
             )}
-
             {wedding.organizer && (
               <div className="px-6 py-5">
                 <div className="flex items-center justify-center gap-2 mb-3">
@@ -925,7 +1420,7 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                     className="h-px w-8"
                     style={{
                       background:
-                        "linear-gradient(to right, transparent, #E8B4C8)",
+                        "linear-gradient(to right,transparent,#E8B4C8)",
                     }}
                   />
                   <p className="label-sm">Той иелері</p>
@@ -933,7 +1428,7 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                     className="h-px w-8"
                     style={{
                       background:
-                        "linear-gradient(to left, transparent, #E8B4C8)",
+                        "linear-gradient(to left,transparent,#E8B4C8)",
                     }}
                   />
                 </div>
@@ -950,7 +1445,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                 </div>
               </div>
             )}
-
             <div className="pb-2 px-2">
               <CardWaveDecor flip />
             </div>
@@ -965,14 +1459,14 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
             <div
               className="h-px flex-1"
               style={{
-                background: "linear-gradient(to right, transparent, #E8B4C8)",
+                background: "linear-gradient(to right,transparent,#E8B4C8)",
               }}
             />
             <p className="label-sm">Фотоальбом</p>
             <div
               className="h-px flex-1"
               style={{
-                background: "linear-gradient(to left, transparent, #E8B4C8)",
+                background: "linear-gradient(to left,transparent,#E8B4C8)",
               }}
             />
           </div>
@@ -996,7 +1490,7 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
               className="absolute top-0 left-0 w-1 h-full rounded-l-3xl"
               style={{
                 background:
-                  "linear-gradient(to bottom, #F9D5E5, #E8B4C8, #F9D5E5)",
+                  "linear-gradient(to bottom,#F9D5E5,#E8B4C8,#F9D5E5)",
               }}
             />
             <p
@@ -1016,14 +1510,14 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
             <div
               className="h-px flex-1"
               style={{
-                background: "linear-gradient(to right, transparent, #E8B4C8)",
+                background: "linear-gradient(to right,transparent,#E8B4C8)",
               }}
             />
             <SmallDivider />
             <div
               className="h-px flex-1"
               style={{
-                background: "linear-gradient(to left, transparent, #E8B4C8)",
+                background: "linear-gradient(to left,transparent,#E8B4C8)",
               }}
             />
           </div>
@@ -1094,7 +1588,7 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
               target="_blank"
               className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-white transition-all hover:opacity-90"
               style={{
-                background: "linear-gradient(135deg, #7B3F5E, #C4A0B0)",
+                background: "linear-gradient(135deg,#7B3F5E,#C4A0B0)",
                 boxShadow: "0 4px 16px rgba(123,63,94,0.28)",
                 fontFamily: "'Jost',sans-serif",
                 fontSize: 10,
@@ -1102,7 +1596,7 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                 textTransform: "uppercase",
               }}
             >
-              <IcInstagram color="white" /> Instagram
+              <IcInstagram white /> Instagram
             </a>
           )}
         </div>
@@ -1115,15 +1609,13 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
             className="h-[2px]"
             style={{
               background:
-                "linear-gradient(to right, #F9D5E5, #C4A0B0, #D5D5F9, #C4A0B0, #F9D5E5)",
+                "linear-gradient(to right,#F9D5E5,#C4A0B0,#D5D5F9,#C4A0B0,#F9D5E5)",
             }}
           />
           <div className="px-2 pt-1">
             <CardWaveDecor />
           </div>
-
           <div className="p-5 space-y-4">
-            {/* Date & Time */}
             {(date || time) && (
               <div className="flex items-center gap-4">
                 <div className="icon-box">
@@ -1168,8 +1660,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                 </div>
               </div>
             )}
-
-            {/* Venue */}
             {(wedding.venue_name || wedding.venue_address) && (
               <div
                 className="flex items-start gap-4 pt-3 border-t"
@@ -1212,8 +1702,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                 </div>
               </div>
             )}
-
-            {/* Phone */}
             {wedding.phone && (
               <div
                 className="flex items-center gap-4 pt-3 border-t"
@@ -1238,8 +1726,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                 </div>
               </div>
             )}
-
-            {/* Extras */}
             {extras.length > 0 && (
               <div
                 className="pt-3 border-t space-y-2.5"
@@ -1274,8 +1760,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
                 ))}
               </div>
             )}
-
-            {/* Extra photo */}
             {wedding.photo5_url && (
               <div
                 className="pt-3 border-t"
@@ -1294,7 +1778,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
               </div>
             )}
           </div>
-
           <div className="px-2 pb-2">
             <CardWaveDecor flip />
           </div>

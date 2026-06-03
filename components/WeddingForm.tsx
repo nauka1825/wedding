@@ -41,20 +41,20 @@ const TEMPLATES: {
     preview: "bg-gradient-to-br from-rose-100 to-pink-200",
     accent: "border-rose-400 ring-rose-200",
   },
-  {
-    id: "luxury",
-    name: "Luxury",
-    desc: "Қара · Алтын · Сәнді",
-    preview: "bg-gradient-to-br from-neutral-800 to-amber-900",
-    accent: "border-amber-500 ring-amber-200",
-  },
   // {
-  //   id: "bohemian",
-  //   name: "Bohemian",
-  //   desc: "Тас · Жасыл · Табиғат",
-  //   preview: "bg-gradient-to-br from-stone-200 to-emerald-100",
-  //   accent: "border-emerald-500 ring-emerald-200",
+  //   id: "luxury",
+  //   name: "Luxury",
+  //   desc: "Қара · Алтын · Сәнді",
+  //   preview: "bg-gradient-to-br from-neutral-800 to-amber-900",
+  //   accent: "border-amber-500 ring-amber-200",
   // },
+  {
+    id: "bohemian",
+    name: "Bohemian",
+    desc: "Тас · Жасыл · Табиғат",
+    preview: "bg-gradient-to-br from-stone-200 to-emerald-100",
+    accent: "border-emerald-500 ring-emerald-200",
+  },
   // {
   //   id: "azure",
   //   name: "Azure",
@@ -174,16 +174,16 @@ function SuccessModal({ onClose }: { onClose: () => void }) {
               className="flex items-center gap-2 text-sm text-slate-700 font-[Josefin_Sans,sans-serif] hover:text-sky-600 transition-colors"
             >
               <HiOutlinePhone className="w-4 h-4 text-sky-400 flex-shrink-0" />
-              +7 700 123 45 67
+              +97699521825 арқылы қоңырау шалу
             </a>
             <a
-              href="https://wa.me/77001234567"
+              href="https://www.facebook.com/naurizbyek.khuatbyekuli?mibextid=ZbWKwL"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-slate-700 font-[Josefin_Sans,sans-serif] hover:text-sky-600 transition-colors"
             >
               <span className="text-green-500 text-base leading-none">💬</span>
-              WhatsApp арқылы жазу
+              Facebook арқылы жазу
             </a>
           </div>
 
@@ -555,7 +555,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
             <input
               value={f.organizer}
               onChange={upd("organizer")}
-              placeholder="Руслан-Ләйлә"
+              placeholder="Руслан & Ләйлә"
               className={INPUT}
             />
           </div>
@@ -798,7 +798,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                       i === 0
                         ? "Дресс-код: ақ-қызғылт"
                         : i === 1
-                          ? "Тегін паркинг бар"
+                          ? "уақытында келулеріңізді сұраймыз"
                           : ""
                     }
                   />

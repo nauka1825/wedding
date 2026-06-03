@@ -420,7 +420,7 @@ export default function WeddingFormWomen({
             <input
               value={f.organizer}
               onChange={upd("organizer")}
-              placeholder="Руслан-Ләйлә"
+              placeholder="Руслан & Ләйлә"
               className={INPUT}
             />
           </div>
