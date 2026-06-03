@@ -6,10 +6,10 @@ import MusicPlayer from "../MusicPlayer";
 
 const DEFAULT_WEDDING: Wedding = {
   id: "preview",
-  created_at: "2025-01-01T00:00:00.000Z",
+  created_at: "2026-01-01T00:00:00.000Z",
   male_name: "",
   female_name: "Альбина",
-  wedding_date: "2025-09-14T17:00",
+  wedding_date: "2026-09-14T17:00",
   venue_name: "Sky Palace",
   venue_address: "Баян-Өлгий, Улаанбаатар",
   organizer: "Руслан мен Ләйлә",

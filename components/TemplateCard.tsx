@@ -44,6 +44,46 @@ const TEMPLATE_STYLES = {
     badge: "Azure",
     btn: "border-sky-200 text-sky-700 hover:bg-sky-100",
   },
+  sage: {
+    bg: "bg-green-50",
+    border: "border-green-200",
+    accent: "bg-green-400",
+    name: "bg-green-100 text-green-700",
+    title: "text-green-900",
+    sub: "text-green-500",
+    badge: "Sage",
+    btn: "border-green-200 text-green-700 hover:bg-green-50",
+  },
+  blush: {
+    bg: "bg-pink-50",
+    border: "border-pink-200",
+    accent: "bg-pink-400",
+    name: "bg-pink-100 text-pink-600",
+    title: "text-pink-900",
+    sub: "text-pink-400",
+    badge: "Blush",
+    btn: "border-pink-200 text-pink-700 hover:bg-pink-100",
+  },
+  midnight: {
+    bg: "bg-slate-900",
+    border: "border-slate-700",
+    accent: "bg-indigo-400",
+    name: "bg-slate-800 text-indigo-300",
+    title: "text-slate-100",
+    sub: "text-slate-400",
+    badge: "Midnight",
+    btn: "border-slate-700 text-slate-300 hover:bg-slate-800",
+  },
+  terracotta: {
+    bg: "bg-orange-50",
+    border: "border-orange-200",
+    accent: "bg-orange-400",
+    name: "bg-orange-100 text-orange-700",
+    title: "text-orange-900",
+    sub: "text-orange-500",
+    badge: "Terracotta",
+    btn: "border-orange-200 text-orange-700 hover:bg-orange-50",
+  },
 };
 
 export default function TemplateCard({ wedding }: { wedding: Wedding }) {
@@ -63,77 +103,95 @@ export default function TemplateCard({ wedding }: { wedding: Wedding }) {
 
   return (
     <div
-      className={`rounded-2xl border overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 ${style.bg} ${style.border}`}
+      className={`rounded-xl border overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer active:scale-[0.98] ${style.bg} ${style.border}`}
+      onClick={() => router.push(`/weddings/${wedding.id}`)}
     >
-      {/* Colored left accent bar via top strip */}
-      <div className={`h-1 w-full ${style.accent} opacity-60`} />
+      {/* Top accent */}
+      <div className={`h-0.5 w-full ${style.accent} opacity-70`} />
 
       {/* Photo */}
-      {wedding.main_photo_url && (
-        <div className="relative w-full h-40 overflow-hidden">
+      {wedding.main_photo_url ? (
+        <div className="relative w-full aspect-[4/3] overflow-hidden">
           <Image
             src={wedding.main_photo_url}
             alt="Гол зураг"
             fill
             className="object-cover hover:scale-105 transition-transform duration-500"
           />
-          <div className="absolute top-3 right-3">
+          {/* Badge over image */}
+          <div className="absolute top-2 right-2">
             <span
-              className={`text-[10px] px-2 py-1 rounded-full font-josefin tracking-wide backdrop-blur-sm ${style.name}`}
+              className={`text-[9px] px-2 py-0.5 rounded-full backdrop-blur-sm font-semibold tracking-wide ${style.name}`}
+              style={{ fontFamily: "'Jost', sans-serif" }}
             >
               {style.badge}
             </span>
           </div>
         </div>
+      ) : (
+        /* No photo placeholder */
+        <div
+          className={`w-full aspect-[4/3] flex items-center justify-center ${style.accent} opacity-10`}
+        >
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.2"
+            className="opacity-40"
+          >
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+        </div>
       )}
 
       {/* Body */}
-      <div className="p-4">
+      <div className="p-2.5">
         {/* Names */}
         <h2
-          className={`font-playfair text-xl font-light leading-tight ${style.title}`}
+          className={`font-light leading-tight truncate ${style.title}`}
+          style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontStyle: "italic",
+            fontSize: "13px",
+          }}
         >
-          {wedding.male_name} & {wedding.female_name}
+          {wedding.female_name || wedding.male_name}
         </h2>
 
-        {/* Date & Venue */}
-        <div className="mt-1.5 space-y-0.5">
-          {date && (
-            <p className={`text-xs font-josefin tracking-wide ${style.sub}`}>
-              📅 {date}
-            </p>
-          )}
-          {wedding.venue_name && (
-            <p className={`text-xs font-josefin ${style.sub}`}>
-              📍 {wedding.venue_name}
-            </p>
-          )}
-        </div>
-
-        {/* Divider */}
-        <div className={`h-px my-3 border-t ${style.border}`} />
-
-        {/* Meta info */}
-        <div className="space-y-1">
-          <p className={`text-xs font-josefin ${style.sub} truncate`}>
-            <span className="opacity-50">ID: </span>
-            {wedding.id}
+        {/* Date */}
+        {date && (
+          <p
+            className={`mt-0.5 truncate ${style.sub}`}
+            style={{
+              fontFamily: "'Jost', sans-serif",
+              fontSize: "10px",
+              letterSpacing: "0.02em",
+            }}
+          >
+            {date}
           </p>
-          {wedding.phone && (
-            <p className={`text-xs font-josefin ${style.sub}`}>
-              <span className="opacity-50">📞 </span>
-              {wedding.phone}
-            </p>
-          )}
-        </div>
+        )}
 
-        {/* Button */}
-        <button
-          onClick={() => router.push(`/weddings/${wedding.id}`)}
-          className={`mt-4 w-full text-center text-[11px] py-2.5 px-4 rounded-xl border font-josefin tracking-widest uppercase transition-colors ${style.btn}`}
+        {/* Venue */}
+        {wedding.venue_name && (
+          <p
+            className={`truncate ${style.sub}`}
+            style={{ fontFamily: "'Jost', sans-serif", fontSize: "10px" }}
+          >
+            {wedding.venue_name}
+          </p>
+        )}
+
+        {/* View button */}
+        <div
+          className={`mt-2 w-full text-center py-1.5 rounded-lg border text-[9px] tracking-widest uppercase transition-colors ${style.btn}`}
+          style={{ fontFamily: "'Jost', sans-serif" }}
         >
-          Дэлгэрэнгүй харах →
-        </button>
+          Харах →
+        </div>
       </div>
     </div>
   );
