@@ -49,8 +49,8 @@ export function formatDate(dateStr: string | null): string | null {
   if (!dateStr) return null
   const [year, month, day] = dateStr.split('T')[0].split('-')
   const months = [
-    'қаңтар', 'ақпан', 'наурыз', 'сәуір', 'мамыр', 'маусым',
-    'шілде', 'тамыз', 'қыркүйек', 'қазан', 'қараша', 'желтоқсан'
+    'қаңтардың', 'ақпанның', 'наурыздың', 'сәуірдің', 'мамырдың', 'маусымның',
+    'шілденің', 'тамыздың', 'қыркүйектің', 'қазанның', 'қарашаның', 'желтоқсанның'
   ]
-  return `${year} жылы ${months[parseInt(month) - 1]}дың ${parseInt(day)}-і`
+  return `${year} жылы ${months[parseInt(month) - 1]} ${parseInt(day)} күні`
 }

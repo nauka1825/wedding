@@ -6,7 +6,7 @@ import MusicPlayer from "../MusicPlayer";
 
 const DEFAULT_WEDDING: Wedding = {
   id: "preview",
-  created_at: new Date().toISOString(),
+  created_at: "2025-01-01T00:00:00.000Z",
   male_name: "",
   female_name: "Альбина",
   wedding_date: "2025-09-14T17:00",
@@ -34,7 +34,14 @@ const DEFAULT_WEDDING: Wedding = {
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     const el = ref.current;
     if (!el) return;
     const obs = new IntersectionObserver(
@@ -48,8 +55,9 @@ function useInView(threshold = 0.15) {
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [threshold]);
-  return { ref, inView };
+  }, [mounted, threshold]);
+
+  return { ref, inView: mounted ? inView : false };
 }
 
 function FadeIn({
