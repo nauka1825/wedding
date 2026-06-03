@@ -1309,7 +1309,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
         borderColor="border-rose-100"
       />
 
-      {/* ═══ FOOTER ═══ */}
       <div className="text-center py-12 mt-4">
         <div className="flex justify-center mb-5">
           <FloralDivider />

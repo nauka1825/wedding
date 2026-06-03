@@ -31,7 +31,6 @@ export default async function WeddingDetailPage({
       >
         <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&family=Jost:wght@300;400&display=swap');`}</style>
 
-        {/* Decorative ring */}
         <div className="relative flex items-center justify-center mb-2">
           <div
             className="absolute w-24 h-24 rounded-full border"
@@ -105,7 +104,7 @@ export default async function WeddingDetailPage({
             transition: "all 0.2s ease",
           }}
         >
-          ← қайта бастаңыз
+          ← қайта бастаңыз.
         </a>
 
         <style>{`
