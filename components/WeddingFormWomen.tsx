@@ -1,104 +1,30 @@
 "use client";
 import { useState, ChangeEvent } from "react";
+import { supabase, uploadImage, Template, Wedding } from "@/lib/supabase";
+import Template4 from "./templates/Template4";
 import {
-  HiOutlineSparkles,
-  HiOutlineHeart,
   HiOutlineCamera,
   HiOutlinePhotograph,
   HiOutlineUsers,
-  HiOutlineChatAlt2,
   HiOutlineLocationMarker,
+  HiOutlineInformationCircle,
+  HiOutlineChatAlt2,
   HiOutlineCalendar,
   HiOutlineClock,
   HiOutlinePhone,
-  HiOutlineInformationCircle,
-  HiOutlineLink,
-  HiOutlineUserGroup,
   HiOutlineCheckCircle,
+  HiOutlinePencilAlt,
+  HiOutlineEye,
 } from "react-icons/hi";
-import { supabase, uploadImage, Template, Wedding } from "@/lib/supabase";
-import Template1 from "./templates/Template1";
-import Template2 from "./templates/Template2";
-import Template3 from "./templates/Template3";
-import Template4 from "./templates/Template4";
-import Template5 from "./templates/Template5";
-import Template6 from "./templates/Template6";
-import Template7 from "./templates/Template7";
-import Template8 from "./templates/Template8";
-
-const TEMPLATES: {
-  id: Template;
-  name: string;
-  desc: string;
-  preview: string;
-  accent: string;
-}[] = [
-  {
-    id: "romantic",
-    name: "Romantic",
-    desc: "Ақ · Қызғылт · Гүлді",
-    preview: "bg-gradient-to-br from-rose-100 to-pink-200",
-    accent: "border-rose-400 ring-rose-200",
-  },
-  {
-    id: "luxury",
-    name: "Luxury",
-    desc: "Қара · Алтын · Сәнді",
-    preview: "bg-gradient-to-br from-neutral-800 to-amber-900",
-    accent: "border-amber-500 ring-amber-200",
-  },
-  // {
-  //   id: "bohemian",
-  //   name: "Bohemian",
-  //   desc: "Тас · Жасыл · Табиғат",
-  //   preview: "bg-gradient-to-br from-stone-200 to-emerald-100",
-  //   accent: "border-emerald-500 ring-emerald-200",
-  // },
-  // {
-  //   id: "azure",
-  //   name: "Azure",
-  //   desc: "Ақ · Көк · Нәзік",
-  //   preview: "bg-gradient-to-br from-sky-100 to-blue-200",
-  //   accent: "border-sky-400 ring-sky-200",
-  // },
-  // {
-  //   id: "sage",
-  //   name: "Sage",
-  //   desc: "Жасылдау · Табиғи · Тыныш",
-  //   preview: "bg-gradient-to-br from-green-50 to-emerald-200",
-  //   accent: "border-green-400 ring-green-200",
-  // },
-  // {
-  //   id: "blush",
-  //   name: "Blush",
-  //   desc: "Нәзік · Қызғылт · Романтик",
-  //   preview: "bg-gradient-to-br from-pink-50 to-rose-100",
-  //   accent: "border-pink-300 ring-pink-100",
-  // },
-  // {
-  //   id: "midnight",
-  //   name: "Midnight",
-  //   desc: "Аспан · Қара көк · Кеш",
-  //   preview: "bg-gradient-to-br from-slate-800 to-indigo-950",
-  //   accent: "border-indigo-400 ring-indigo-900",
-  // },
-  // {
-  //   id: "terracotta",
-  //   name: "Terracotta",
-  //   desc: "Балшық · Қызылдау · Жылы",
-  //   preview: "bg-gradient-to-br from-orange-100 to-red-200",
-  //   accent: "border-orange-400 ring-orange-200",
-  // },
-];
 
 const INPUT =
-  "w-full border border-sky-200/60 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 bg-white/70 backdrop-blur-sm transition-all placeholder:text-slate-300 text-slate-700 font-[Josefin_Sans,sans-serif]";
+  "w-full rounded-2xl border border-sky-200/60 bg-white/70 backdrop-blur-sm px-4 py-3 text-sm text-slate-700 placeholder:text-slate-300 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 focus:outline-none transition-all font-[Josefin_Sans,sans-serif]";
 
 const LABEL =
-  "block text-[10px] text-sky-500 font-[Josefin_Sans,sans-serif] uppercase tracking-widest mb-1.5 font-semibold";
+  "block mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-sky-500 font-[Josefin_Sans,sans-serif]";
 
 const SECTION =
-  "bg-white/60 backdrop-blur-md rounded-3xl p-5 border border-sky-100/70 shadow-sm shadow-sky-100/30 space-y-4";
+  "rounded-3xl border border-sky-100/70 bg-white/60 backdrop-blur-md p-5 shadow-sm shadow-sky-100/30 space-y-4";
 
 const SECTION_TITLE =
   "text-[11px] text-sky-600 font-[Josefin_Sans,sans-serif] uppercase tracking-widest font-semibold mb-0";
@@ -111,7 +37,7 @@ const EMPTY_WEDDING: Omit<Wedding, "id" | "created_at"> = {
   venue_address: null,
   organizer: null,
   phone: null,
-  template: "romantic",
+  template: "azure",
   main_photo_url: null,
   gallery_urls: null,
   photo3_url: null,
@@ -128,8 +54,12 @@ const EMPTY_WEDDING: Omit<Wedding, "id" | "created_at"> = {
   extra5: null,
 };
 
-export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
-  const [template, setTemplate] = useState<Template>("romantic");
+export default function WeddingFormWomen({
+  onSuccess,
+}: {
+  onSuccess?: () => void;
+}) {
+  const template: Template = "azure";
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{ ok: boolean; msg: string } | null>(
     null,
@@ -161,7 +91,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setF((prev) => ({ ...prev, [k]: e.target.value }));
 
-  // File states — ref-ийн оронд state ашиглана (Preview-д алдагдахгүй)
+  // File states
   const [mainFile, setMainFile] = useState<File | null>(null);
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [p3File, setP3File] = useState<File | null>(null);
@@ -177,8 +107,8 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
 
   const previewWedding: Omit<Wedding, "id" | "created_at"> = {
     ...EMPTY_WEDDING,
-    male_name: f.maleName || "Жасұлан",
-    female_name: f.femaleName || "Альбина",
+    male_name: f.maleName,
+    female_name: f.femaleName,
     wedding_date: f.date ? (f.time ? `${f.date}T${f.time}` : f.date) : null,
     venue_name: f.venueName || null,
     venue_address: f.venueAddress || null,
@@ -202,11 +132,8 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
   };
 
   const handleSubmit = async () => {
-    if (!f.maleName.trim() || !f.femaleName.trim()) {
-      setStatus({
-        ok: false,
-        msg: "Жігіт пен қыздың атын міндетті түрде енгізіңіз.",
-      });
+    if (!f.femaleName.trim()) {
+      setStatus({ ok: false, msg: "Қыздың атын міндетті түрде енгізіңіз." });
       return;
     }
     setLoading(true);
@@ -280,18 +207,6 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
     setLoading(false);
   };
 
-  const renderPreview = () => {
-    const w = previewWedding as Wedding;
-    if (template === "luxury") return <Template2 wedding={w} />;
-    if (template === "bohemian") return <Template3 wedding={w} />;
-    if (template === "azure") return <Template4 wedding={w} />;
-    if (template === "sage") return <Template5 wedding={w} />;
-    if (template === "blush") return <Template6 wedding={w} />;
-    if (template === "midnight") return <Template7 wedding={w} />;
-    if (template === "terracotta") return <Template8 wedding={w} />;
-    return <Template1 wedding={w} />;
-  };
-
   return (
     <div className="min-h-screen">
       {/* Tab switcher */}
@@ -304,7 +219,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
               : "text-slate-400 hover:text-sky-500"
           }`}
         >
-          <HiOutlineCamera className="w-4 h-4" />
+          <HiOutlinePencilAlt className="w-4 h-4" />
           Толтыру
         </button>
         <button
@@ -315,19 +230,19 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
               : "text-slate-400 hover:text-sky-500"
           }`}
         >
-          <HiOutlineCheckCircle className="w-4 h-4" />
+          <HiOutlineEye className="w-4 h-4" />
           Алдын ала қарау
         </button>
       </div>
 
       {showPreview ? (
         <div>
-          {renderPreview()}
+          <Template4 wedding={previewWedding as Wedding} />
           <div className="p-4 pb-8 bg-white/80 backdrop-blur-md border-t border-sky-100 space-y-3">
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="w-full py-4 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-[Josefin_Sans,sans-serif] text-sm tracking-widest uppercase rounded-2xl hover:opacity-90 transition-opacity disabled:opacity-50 shadow-lg shadow-sky-200"
+              className="w-full rounded-2xl py-4 text-sm font-[Josefin_Sans,sans-serif] tracking-widest uppercase text-white bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 shadow-lg shadow-sky-200/50 transition-all hover:opacity-90 active:scale-[0.99] disabled:opacity-50"
             >
               {loading ? "⏳ Сақталуда..." : "💾 Сақтау"}
             </button>
@@ -346,69 +261,20 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
         </div>
       ) : (
         <div className="px-4 py-5 space-y-4 pb-10">
-          {/* Үлгі таңдау */}
+          {/* Қыздың аты */}
           <div className={SECTION}>
             <div className="flex items-center gap-2 mb-1">
-              <HiOutlineSparkles className="w-4 h-4 text-sky-400" />
-              <p className={SECTION_TITLE}>Үлгі таңдау</p>
+              <HiOutlineUsers className="w-4 h-4 text-sky-400" />
+              <p className={SECTION_TITLE}>Қыздың аты</p>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              {TEMPLATES.map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setTemplate(t.id)}
-                  className={`relative flex gap-3 items-center rounded-2xl overflow-hidden border-2 transition-all p-3 bg-white/80 ${
-                    template === t.id
-                      ? `${t.accent} ring-2`
-                      : "border-sky-100/70 hover:border-sky-200"
-                  }`}
-                >
-                  <div
-                    className={`${t.preview} h-12 w-12 rounded-xl flex-shrink-0`}
-                  />
-                  <div className="text-left">
-                    <p className="font-[Josefin_Sans,sans-serif] font-semibold text-[11px] text-slate-700 tracking-wide">
-                      {t.name}
-                    </p>
-                    <p className="text-[10px] text-slate-400 mt-0.5 leading-tight">
-                      {t.desc}
-                    </p>
-                  </div>
-                  {template === t.id && (
-                    <span className="absolute top-2 right-2 bg-sky-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
-                      ✓
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Жұптың аты */}
-          <div className={SECTION}>
-            <div className="flex items-center gap-2 mb-1">
-              <HiOutlineHeart className="w-4 h-4 text-sky-400" />
-              <p className={SECTION_TITLE}>Жұптың аты</p>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className={LABEL}>Жігіттің аты *</label>
-                <input
-                  value={f.maleName}
-                  onChange={upd("maleName")}
-                  placeholder="Жасұлан"
-                  className={INPUT}
-                />
-              </div>
-              <div>
-                <label className={LABEL}>Қыздың аты *</label>
-                <input
-                  value={f.femaleName}
-                  onChange={upd("femaleName")}
-                  placeholder="Альбина"
-                  className={INPUT}
-                />
-              </div>
+            <div>
+              <label className={LABEL}>Қыздың аты *</label>
+              <input
+                value={f.femaleName}
+                onChange={upd("femaleName")}
+                placeholder="Альбина"
+                className={INPUT}
+              />
             </div>
           </div>
 
@@ -422,7 +288,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
               value={f.desc1}
               onChange={upd("desc1")}
               rows={4}
-              placeholder="Құрметті қонақтар! Сіздерді үйлену тойымызға шақырамыз..."
+              placeholder="Сіз(дер)ді аяулы қызымыз Альбинаның ұзату тойына арналған салтанатты ақ дастарханымыздың қадірлі қонағы болуға шақырамыз."
               className={INPUT + " resize-none leading-relaxed"}
             />
           </div>
@@ -468,7 +334,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
           {/* Той иелері */}
           <div className={SECTION}>
             <div className="flex items-center gap-2 mb-1">
-              <HiOutlineUserGroup className="w-4 h-4 text-sky-400" />
+              <HiOutlineUsers className="w-4 h-4 text-sky-400" />
               <p className={SECTION_TITLE}>Той иелері</p>
             </div>
             <input
@@ -523,109 +389,6 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 ))}
               </div>
             )}
-          </div>
-
-          {/* Қосымша мәтін */}
-          <div className={SECTION}>
-            <div className="flex items-center gap-2 mb-1">
-              <HiOutlineChatAlt2 className="w-4 h-4 text-sky-400" />
-              <p className={SECTION_TITLE}>Қосымша мәтін</p>
-            </div>
-            <textarea
-              value={f.desc2}
-              onChange={upd("desc2")}
-              rows={4}
-              placeholder="Құрметті жақыным! Жуырда біздің өміріміздегі ең бақытты күн болмақ..."
-              className={INPUT + " resize-none leading-relaxed"}
-            />
-          </div>
-
-          {/* Жұптың суреттері */}
-          <div className={SECTION}>
-            <div className="flex items-center gap-2 mb-1">
-              <HiOutlineUsers className="w-4 h-4 text-sky-400" />
-              <p className={SECTION_TITLE}>Жұптың суреттері</p>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                {
-                  file: p3File,
-                  setFile: setP3File,
-                  preview: p3Preview,
-                  setPreview: setP3Preview,
-                  label: "Жігіт сурет",
-                  icon: "🤵",
-                },
-                {
-                  file: p4File,
-                  setFile: setP4File,
-                  preview: p4Preview,
-                  setPreview: setP4Preview,
-                  label: "Қыз сурет",
-                  icon: "👰",
-                },
-              ].map((item, i) => (
-                <div key={i}>
-                  <label className={LABEL}>{item.label}</label>
-                  <label className="flex flex-col items-center justify-center border-2 border-dashed border-sky-200/70 rounded-2xl cursor-pointer hover:border-sky-400 hover:bg-sky-50/20 transition-all overflow-hidden aspect-[3/4]">
-                    {item.preview ? (
-                      <img
-                        src={item.preview}
-                        alt="preview"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="text-center px-2">
-                        <p className="text-3xl mb-2">{item.icon}</p>
-                        <p className="text-[10px] text-slate-300 font-[Josefin_Sans,sans-serif] leading-tight">
-                          {item.label}
-                        </p>
-                      </div>
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          item.setFile(file);
-                          item.setPreview(URL.createObjectURL(file));
-                        }
-                      }}
-                    />
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Instagram */}
-          <div className={SECTION}>
-            <div className="flex items-center gap-2 mb-1">
-              <HiOutlineLink className="w-4 h-4 text-sky-400" />
-              <p className={SECTION_TITLE}>Instagram сілтемелері</p>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className={LABEL}>📸 Instagram 1</label>
-                <input
-                  value={f.link1}
-                  onChange={upd("link1")}
-                  placeholder="https://instagram.com/..."
-                  className={INPUT}
-                />
-              </div>
-              <div>
-                <label className={LABEL}>📸 Instagram 2</label>
-                <input
-                  value={f.link2}
-                  onChange={upd("link2")}
-                  placeholder="https://instagram.com/..."
-                  className={INPUT}
-                />
-              </div>
-            </div>
           </div>
 
           {/* Той мекенжайы */}
@@ -703,65 +466,15 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
               <HiOutlineInformationCircle className="w-4 h-4 text-sky-400" />
               <p className={SECTION_TITLE}>Қосымша ақпарат</p>
             </div>
-            <div className="space-y-3">
-              {(
-                ["extra1", "extra2", "extra3", "extra4", "extra5"] as const
-              ).map((k, i) => (
-                <div key={k}>
-                  <label className={LABEL}>Қосымша {i + 1}</label>
-                  <input
-                    value={f[k]}
-                    onChange={upd(k)}
-                    className={INPUT}
-                    placeholder={
-                      i === 0
-                        ? "Дресс-код: ақ-қызғылт"
-                        : i === 1
-                          ? "Тегін паркинг бар"
-                          : ""
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Қосымша сурет */}
-          <div className={SECTION}>
-            <div className="flex items-center gap-2 mb-1">
-              <HiOutlinePhotograph className="w-4 h-4 text-sky-400" />
-              <p className={SECTION_TITLE}>Қосымша сурет</p>
-            </div>
-            <label className="flex flex-col items-center justify-center border-2 border-dashed border-sky-200/70 rounded-2xl cursor-pointer hover:border-sky-400 hover:bg-sky-50/30 transition-all overflow-hidden">
-              {p5Preview ? (
-                <img
-                  src={p5Preview}
-                  alt="preview"
-                  className="w-full h-44 object-cover"
-                />
-              ) : (
-                <div className="py-8 text-center">
-                  <div className="w-12 h-12 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center mx-auto mb-3">
-                    <HiOutlinePhotograph className="w-5 h-5 text-sky-300" />
-                  </div>
-                  <p className="text-xs text-slate-400 font-[Josefin_Sans,sans-serif] tracking-wide">
-                    Суретті таңдаңыз
-                  </p>
-                </div>
-              )}
+            <div>
+              <label className={LABEL}>Қосымша 1</label>
               <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setP5File(file);
-                    setP5Preview(URL.createObjectURL(file));
-                  }
-                }}
+                value={f.extra1}
+                onChange={upd("extra1")}
+                className={INPUT}
+                placeholder="Дресс-код: ақ-қызғылт"
               />
-            </label>
+            </div>
           </div>
 
           {status && (
@@ -778,7 +491,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
 
           <button
             onClick={() => setShowPreview(true)}
-            className="w-full py-4 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-[Josefin_Sans,sans-serif] text-sm tracking-widest uppercase rounded-2xl hover:opacity-90 transition-opacity shadow-lg shadow-sky-200 flex items-center justify-center gap-2"
+            className="w-full py-4 bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 text-white font-[Josefin_Sans,sans-serif] text-sm tracking-widest uppercase rounded-2xl hover:opacity-90 transition-opacity shadow-lg shadow-sky-200 flex items-center justify-center gap-2"
           >
             <HiOutlineCheckCircle className="w-5 h-5" />
             Алдын ала қарау →

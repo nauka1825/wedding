@@ -25,6 +25,7 @@ export default function MessageSection({
   const [name, setName] = useState("");
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderRef = useRef<NodeJS.Timeout | null>(null);
@@ -33,12 +34,11 @@ export default function MessageSection({
     fetchMessages();
   }, [weddingId]);
 
-  // Auto swipe
   useEffect(() => {
     if (messages.length <= 1) return;
     sliderRef.current = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % Math.min(messages.length, 5));
-    }, 3000);
+    }, 3200);
     return () => {
       if (sliderRef.current) clearInterval(sliderRef.current);
     };
@@ -64,6 +64,8 @@ export default function MessageSection({
     if (!error) {
       setName("");
       setText("");
+      setSent(true);
+      setTimeout(() => setSent(false), 3000);
       await fetchMessages();
       setCurrentSlide(0);
     }
@@ -72,72 +74,99 @@ export default function MessageSection({
 
   const top5 = messages.slice(0, 5);
 
+  const inputBase =
+    "w-full rounded-2xl px-4 py-3 text-sm focus:outline-none transition-all font-[Josefin_Sans,sans-serif] placeholder:text-slate-300 text-slate-700";
+
   return (
     <div className="mx-5 mt-10 mb-2">
-      {/* Section title */}
-      <div className="flex items-center justify-center gap-3 mb-6">
+      {/* Section header */}
+      <div className="flex items-center gap-3 mb-7">
         <div
-          className="h-px flex-1 opacity-30"
-          style={{ background: accentColor }}
+          className="h-px flex-1"
+          style={{
+            background: `linear-gradient(to right, transparent, ${accentColor}40)`,
+          }}
         />
-        <p
-          className="text-xs font-[Josefin_Sans,sans-serif] tracking-[0.3em] uppercase opacity-60"
-          style={{ color: accentColor }}
-        >
-          Сэтгэгдэл үлдээх
-        </p>
+        <div className="flex items-center gap-2">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={accentColor}
+            strokeWidth="1.5"
+            opacity="0.6"
+          >
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          <p
+            className="text-[10px] font-[Josefin_Sans,sans-serif] tracking-[0.38em] uppercase"
+            style={{ color: accentColor, opacity: 0.65 }}
+          >
+            Тілек қалдыру
+          </p>
+        </div>
         <div
-          className="h-px flex-1 opacity-30"
-          style={{ background: accentColor }}
+          className="h-px flex-1"
+          style={{
+            background: `linear-gradient(to left, transparent, ${accentColor}40)`,
+          }}
         />
       </div>
 
-      {/* Swiper — top 5 messages */}
+      {/* Message slider */}
       {top5.length > 0 && (
         <div className="mb-6">
           <div
-            className="relative overflow-hidden rounded-2xl"
-            style={{ background: lightColor }}
+            className="relative overflow-hidden rounded-3xl border"
+            style={{
+              background: lightColor,
+              borderColor: `${accentColor}18`,
+              boxShadow: `0 4px 24px ${accentColor}0D`,
+            }}
           >
             <div
-              className="flex transition-transform duration-500 ease-in-out"
+              className="flex transition-transform duration-600 ease-in-out"
               style={{ transform: `translateX(-${currentSlide * 100}%)` }}
             >
-              {top5.map((m, i) => (
-                <div key={m.id} className="min-w-full px-6 py-5 text-center">
+              {top5.map((m) => (
+                <div key={m.id} className="min-w-full px-7 py-6 text-center">
+                  {/* Big quote */}
+                  <div className="flex justify-center mb-1">
+                    <svg width="28" height="20" viewBox="0 0 40 28" fill="none">
+                      <path
+                        d="M0 28V16C0 9.333 2.667 4.333 8 1L11 4C8.667 5.333 7 7.333 6 10H12V28H0ZM22 28V16C22 9.333 24.667 4.333 30 1L33 4C30.667 5.333 29 7.333 28 10H34V28H22Z"
+                        fill={accentColor}
+                        opacity="0.15"
+                      />
+                    </svg>
+                  </div>
                   <p
-                    className="text-2xl mb-3 opacity-30"
-                    style={{ color: accentColor }}
-                  >
-                    "
-                  </p>
-                  <p
-                    className="text-sm leading-relaxed italic mb-4"
-                    style={{ color: accentColor }}
+                    className="text-[15px] leading-relaxed italic mb-4 font-[Cormorant_Garamond,serif]"
+                    style={{ color: accentColor, opacity: 0.85 }}
                   >
                     {m.message}
                   </p>
                   <div className="flex items-center justify-center gap-2">
                     <div
-                      className="w-6 h-px opacity-40"
-                      style={{ background: accentColor }}
+                      className="w-6 h-px rounded-full"
+                      style={{ background: accentColor, opacity: 0.25 }}
                     />
                     <p
-                      className="text-[11px] font-[Josefin_Sans,sans-serif] tracking-widest uppercase opacity-60"
-                      style={{ color: accentColor }}
+                      className="text-[10px] font-[Josefin_Sans,sans-serif] tracking-[0.3em] uppercase"
+                      style={{ color: accentColor, opacity: 0.55 }}
                     >
                       {m.sender_name}
                     </p>
                     <div
-                      className="w-6 h-px opacity-40"
-                      style={{ background: accentColor }}
+                      className="w-6 h-px rounded-full"
+                      style={{ background: accentColor, opacity: 0.25 }}
                     />
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Dots */}
             {top5.length > 1 && (
               <div className="flex justify-center gap-1.5 pb-4">
                 {top5.map((_, i) => (
@@ -146,10 +175,10 @@ export default function MessageSection({
                     onClick={() => setCurrentSlide(i)}
                     className="rounded-full transition-all duration-300"
                     style={{
-                      width: currentSlide === i ? "20px" : "6px",
-                      height: "6px",
+                      width: currentSlide === i ? 20 : 6,
+                      height: 6,
                       background: accentColor,
-                      opacity: currentSlide === i ? 1 : 0.3,
+                      opacity: currentSlide === i ? 0.8 : 0.2,
                     }}
                   />
                 ))}
@@ -159,73 +188,195 @@ export default function MessageSection({
         </div>
       )}
 
-      {/* Write message form */}
+      {/* Write form */}
       <div
-        className="bg-white/70 backdrop-blur rounded-2xl p-5 border space-y-3"
-        style={{ borderColor: borderColor.replace("border-", "") }}
+        className="rounded-3xl p-5 border space-y-3"
+        style={{
+          background: "rgba(255,255,255,0.65)",
+          backdropFilter: "blur(14px)",
+          borderColor: `${accentColor}18`,
+          boxShadow: `0 4px 20px ${accentColor}08`,
+        }}
       >
-        <p
-          className="text-[11px] font-[Josefin_Sans,sans-serif] tracking-[0.25em] uppercase text-center mb-1"
-          style={{ color: accentColor, opacity: 0.7 }}
-        >
-          ✍️ Сэтгэгдэлээ бичих
-        </p>
+        {/* Form header */}
+        <div className="flex items-center justify-center gap-2 mb-1">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={accentColor}
+            strokeWidth="1.5"
+            opacity="0.55"
+          >
+            <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+          </svg>
+          <p
+            className="text-[10px] font-[Josefin_Sans,sans-serif] tracking-[0.35em] uppercase"
+            style={{ color: accentColor, opacity: 0.65 }}
+          >
+            Тілегіңізді жазыңыз
+          </p>
+        </div>
+
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Таны нэр"
-          className="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none bg-white placeholder:text-stone-300 font-[Josefin_Sans,sans-serif]"
+          placeholder="Сіздің атыңыз"
+          className={inputBase}
+          style={{
+            border: `1px solid ${accentColor}25`,
+            background: "rgba(255,255,255,0.80)",
+          }}
+          onFocus={(e) => (e.target.style.borderColor = `${accentColor}60`)}
+          onBlur={(e) => (e.target.style.borderColor = `${accentColor}25`)}
         />
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Хосуудад сэтгэлийн үг..."
+          placeholder="Жас жұпқа жылы тілектеріңізді жазыңыз..."
           rows={3}
-          className="w-full border border-stone-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none bg-white placeholder:text-stone-300 resize-none font-[Cormorant_Garamond,serif] text-base"
+          className={
+            inputBase +
+            " resize-none leading-relaxed font-[Cormorant_Garamond,serif] text-base"
+          }
+          style={{
+            border: `1px solid ${accentColor}25`,
+            background: "rgba(255,255,255,0.80)",
+          }}
+          onFocus={(e) => (e.target.style.borderColor = `${accentColor}60`)}
+          onBlur={(e) => (e.target.style.borderColor = `${accentColor}25`)}
         />
+
         <button
           onClick={handleSubmit}
           disabled={loading || !name.trim() || !text.trim()}
-          className="w-full py-3 rounded-xl text-white text-xs font-[Josefin_Sans,sans-serif] tracking-widest uppercase transition-opacity disabled:opacity-40 hover:opacity-90"
-          style={{ background: accentColor }}
+          className="w-full py-3.5 rounded-2xl text-white text-[11px] font-[Josefin_Sans,sans-serif] tracking-[0.3em] uppercase transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-35 flex items-center justify-center gap-2"
+          style={{
+            background: `linear-gradient(135deg, ${accentColor}, ${accentColor}CC)`,
+          }}
         >
-          {loading ? "⏳ Хадгалж байна..." : "💌 Илгээх"}
+          {sent ? (
+            <>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                strokeWidth="2"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Жіберілді!
+            </>
+          ) : loading ? (
+            <>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                strokeWidth="2"
+                style={{ animation: "spin 1s linear infinite" }}
+              >
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+              </svg>
+              Жіберілуде...
+            </>
+          ) : (
+            <>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                strokeWidth="1.8"
+              >
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
+              Жіберу
+            </>
+          )}
         </button>
       </div>
 
-      {/* All messages */}
+      {/* All messages toggle */}
       {messages.length > 0 && (
-        <div className="mt-5">
+        <div className="mt-4">
           <button
             onClick={() => setShowAll(!showAll)}
-            className="w-full py-2.5 rounded-xl border text-xs font-[Josefin_Sans,sans-serif] tracking-widest uppercase transition-all"
-            style={{ borderColor: accentColor + "40", color: accentColor }}
+            className="w-full py-3 rounded-2xl text-[10px] font-[Josefin_Sans,sans-serif] tracking-[0.3em] uppercase transition-all flex items-center justify-center gap-2 hover:opacity-80 active:scale-[0.98]"
+            style={{
+              border: `1px solid ${accentColor}28`,
+              color: accentColor,
+              background: "rgba(255,255,255,0.45)",
+            }}
           >
-            {showAll
-              ? "▲ Хураах"
-              : `▼ Бүх сэтгэгдэл харах (${messages.length})`}
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke={accentColor}
+              strokeWidth="2"
+              style={{
+                transform: showAll ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.3s",
+              }}
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+            {showAll ? "Жасыру" : `Барлық тілектер (${messages.length})`}
           </button>
 
           {showAll && (
-            <div className="mt-3 space-y-3">
-              {messages.map((m) => (
+            <div className="mt-3 space-y-2.5">
+              {messages.map((m, idx) => (
                 <div
                   key={m.id}
-                  className="bg-white/60 rounded-2xl px-4 py-4 border"
-                  style={{ borderColor: accentColor + "20" }}
+                  className="rounded-2xl px-4 py-4 border transition-all"
+                  style={{
+                    background: "rgba(255,255,255,0.58)",
+                    borderColor: `${accentColor}15`,
+                    animation: `fadeSlideIn 0.4s ease ${idx * 40}ms both`,
+                  }}
                 >
                   <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold"
+                        style={{
+                          background: `${accentColor}15`,
+                          color: accentColor,
+                        }}
+                      >
+                        {m.sender_name.charAt(0).toUpperCase()}
+                      </div>
+                      <p
+                        className="text-[11px] font-[Josefin_Sans,sans-serif] tracking-wide font-semibold"
+                        style={{ color: accentColor }}
+                      >
+                        {m.sender_name}
+                      </p>
+                    </div>
                     <p
-                      className="text-xs font-[Josefin_Sans,sans-serif] tracking-wide font-semibold"
-                      style={{ color: accentColor }}
+                      className="text-[10px] font-[Josefin_Sans,sans-serif]"
+                      style={{ color: `${accentColor}60` }}
                     >
-                      {m.sender_name}
-                    </p>
-                    <p className="text-[10px] text-stone-400 font-[Josefin_Sans,sans-serif]">
-                      {new Date(m.created_at).toLocaleDateString("mn-MN")}
+                      {new Date(m.created_at).toLocaleDateString("kk-KZ", {
+                        day: "numeric",
+                        month: "short",
+                      })}
                     </p>
                   </div>
-                  <p className="text-sm leading-relaxed font-[Cormorant_Garamond,serif] italic text-stone-600">
+                  <p
+                    className="text-[14px] leading-relaxed font-[Cormorant_Garamond,serif] italic"
+                    style={{ color: `${accentColor}CC` }}
+                  >
                     {m.message}
                   </p>
                 </div>
@@ -234,6 +385,17 @@ export default function MessageSection({
           )}
         </div>
       )}
+
+      <style>{`
+        @keyframes fadeSlideIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
