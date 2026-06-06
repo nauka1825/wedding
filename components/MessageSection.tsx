@@ -100,8 +100,8 @@ export default function MessageSection({
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
           <p
-            className="text-[10px] font-[Josefin_Sans,sans-serif] tracking-[0.38em] uppercase"
-            style={{ color: accentColor, opacity: 0.65 }}
+            className="text-[12px] font-[Josefin_Sans,sans-serif] tracking-[0.38em] uppercase"
+            style={{ color: accentColor, opacity: 0.65, fontWeight: 500 }}
           >
             Тілек қалдыру
           </p>
@@ -142,7 +142,7 @@ export default function MessageSection({
                     </svg>
                   </div>
                   <p
-                    className="text-[15px] leading-relaxed italic mb-4 font-[Cormorant_Garamond,serif]"
+                    className="text-[16px] leading-relaxed italic mb-4 font-[Cormorant_Garamond,serif]"
                     style={{ color: accentColor, opacity: 0.85 }}
                   >
                     {m.message}
@@ -251,7 +251,7 @@ export default function MessageSection({
         <button
           onClick={handleSubmit}
           disabled={loading || !name.trim() || !text.trim()}
-          className="w-full py-3.5 rounded-2xl text-white text-[11px] font-[Josefin_Sans,sans-serif] tracking-[0.3em] uppercase transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-35 flex items-center justify-center gap-2"
+          className="w-full py-3.5 rounded-2xl text-white text-[12px] font-[Josefin_Sans,sans-serif] tracking-[0.3em] uppercase transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-35 flex items-center justify-center gap-2"
           style={{
             background: `linear-gradient(135deg, ${accentColor}, ${accentColor}CC)`,
           }}

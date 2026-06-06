@@ -720,10 +720,10 @@ function Label({ children }: { children: React.ReactNode }) {
   return (
     <p
       style={{
-        fontSize: 9,
+        fontSize: 12,
         letterSpacing: "0.38em",
         fontFamily: "'Cinzel',serif",
-        fontWeight: 400,
+        fontWeight: 600,
         color: "rgba(160,118,40,0.75)",
         margin: "0 0 10px 0",
         textTransform: "uppercase",
@@ -849,7 +849,7 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
       style={{ justifyContent: "center" }}
     >
       <FaLeaf
-        size={8}
+        size={9}
         style={{ color: "rgba(201,168,76,0.45)", transform: "scaleX(-1)" }}
       />
       <div
@@ -862,11 +862,12 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
       />
       <p
         style={{
-          fontSize: 9,
+          fontSize: 12,
           letterSpacing: "0.42em",
           fontFamily: "'Cinzel',serif",
           color: "rgba(160,118,40,0.65)",
           textTransform: "uppercase",
+          fontWeight: 500,
           margin: 0,
         }}
       >
@@ -960,6 +961,7 @@ function DateTimeBlock({
               letterSpacing: "0.02em",
               lineHeight: 1.3,
               margin: 0,
+              fontWeight: 500,
             }}
           >
             {date}
@@ -1197,10 +1199,10 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
             </svg>
             <p
               style={{
-                fontSize: 8.5,
+                fontSize: 10,
                 letterSpacing: "0.45em",
                 fontFamily: "'Cinzel',serif",
-                fontWeight: 400,
+                fontWeight: 500,
                 color: "rgba(160,118,40,0.7)",
                 margin: 0,
                 textTransform: "uppercase",
@@ -1243,7 +1245,7 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
                   style={{
                     fontFamily: "'Cinzel', serif",
                     fontSize: "clamp(0.78rem,3.5vw,0.95rem)",
-                    fontWeight: 400,
+                    fontWeight: 600,
                     letterSpacing: "0.2em",
                     textTransform: "uppercase",
                     color: "#7a5820",
@@ -1263,7 +1265,7 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
                 style={{
                   fontFamily: "'Cinzel', serif",
                   fontSize: "clamp(0.78rem,3.5vw,0.95rem)",
-                  fontWeight: 400,
+                  fontWeight: 600,
                   letterSpacing: "0.2em",
                   textTransform: "uppercase",
                   color: "#7a5820",
@@ -1479,12 +1481,12 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
             <p
               style={{
                 fontFamily: "'Cinzel',serif",
-                fontSize: "clamp(0.6rem,3vw,0.78rem)",
+                fontSize: "clamp(0.8rem,3vw,0.78rem)",
                 letterSpacing: "0.18em",
                 color: "rgba(100,78,45,0.75)",
                 lineHeight: 2,
                 textTransform: "uppercase",
-                fontWeight: 400,
+                fontWeight: 600,
                 margin: 0,
               }}
             >
@@ -1493,12 +1495,12 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
             <p
               style={{
                 fontFamily: "'Cinzel',serif",
-                fontSize: "clamp(0.6rem,3vw,0.78rem)",
+                fontSize: "clamp(0.8rem,3vw,0.78rem)",
                 letterSpacing: "0.18em",
                 color: "rgba(100,78,45,0.75)",
                 lineHeight: 2,
                 textTransform: "uppercase",
-                fontWeight: 400,
+                fontWeight: 600,
                 margin: 0,
               }}
             >
@@ -1507,12 +1509,12 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
             <p
               style={{
                 fontFamily: "'Cinzel',serif",
-                fontSize: "clamp(0.6rem,3vw,0.78rem)",
+                fontSize: "clamp(0.8rem,3vw,0.78rem)",
                 letterSpacing: "0.18em",
                 color: "rgba(100,78,45,0.75)",
                 lineHeight: 2,
                 textTransform: "uppercase",
-                fontWeight: 400,
+                fontWeight: 600,
                 margin: 0,
               }}
             >
@@ -1523,7 +1525,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
               style={{
                 fontFamily: "'Cormorant Garamond',Georgia,serif",
                 fontSize: "clamp(2rem,9vw,3rem)",
-                fontWeight: 300,
+                fontWeight: 500,
                 fontStyle: "italic",
                 lineHeight: 1.1,
                 letterSpacing: "0.04em",
@@ -1535,12 +1537,12 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
             <p
               style={{
                 fontFamily: "'Cinzel',serif",
-                fontSize: "clamp(0.6rem,3vw,0.78rem)",
+                fontSize: "clamp(0.8rem,3vw,0.78rem)",
                 letterSpacing: "0.18em",
                 color: "rgba(100,78,45,0.75)",
                 lineHeight: 2,
                 textTransform: "uppercase",
-                fontWeight: 400,
+                fontWeight: 600,
                 margin: 0,
               }}
             >
@@ -1551,7 +1553,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
               style={{
                 fontFamily: "'Cormorant Garamond',Georgia,serif",
                 fontSize: "clamp(2rem,9vw,3rem)",
-                fontWeight: 300,
+                fontWeight: 500,
                 fontStyle: "italic",
                 lineHeight: 1.1,
                 letterSpacing: "0.04em",
@@ -1563,12 +1565,12 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
             <p
               style={{
                 fontFamily: "'Cinzel',serif",
-                fontSize: "clamp(0.55rem,2.6vw,0.72rem)",
+                fontSize: "clamp(0.8rem,2.6vw,0.72rem)",
                 letterSpacing: "0.14em",
                 color: "rgba(100,78,45,0.65)",
                 lineHeight: 1.9,
                 textTransform: "uppercase",
-                fontWeight: 400,
+                fontWeight: 600,
                 margin: 0,
               }}
             >
@@ -1581,24 +1583,11 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           </div>
 
           {wedding.photo3_url && (
-            <div
-              className="overflow-hidden aspect-[3/4]"
-              style={{
-                border: "0.5px solid rgba(201,168,76,0.3)",
-                borderRadius: 14,
-                boxShadow:
-                  "0 6px 24px rgba(0,0,0,0.07),0 1px 4px rgba(0,0,0,0.04)",
-              }}
-            >
+            <div className="overflow-hidden px-5 aspect-[3/4]">
               <img
                 src={wedding.photo3_url}
                 alt="Ер"
                 className="w-full h-full object-cover"
-                style={{
-                  display: "block",
-                  border: "none",
-                  filter: "brightness(0.9) saturate(0.88)",
-                }}
               />
             </div>
           )}
@@ -1614,10 +1603,11 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
               <p
                 className="fade-up fade-3 mt-2 uppercase"
                 style={{
-                  fontSize: "9px",
+                  fontSize: "10px",
                   letterSpacing: "0.44em",
                   fontFamily: "'Cinzel', serif",
                   color: "rgba(160,118,40,0.65)",
+                  fontWeight: 500,
                 }}
               >
                 {date}
@@ -1626,7 +1616,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           )}
 
           {wedding.wedding_date && (
-            <div className="fade-up fade-3 mt-1 px-5 mb-2">
+            <div className="fade-up fade-3 mt-2 px-5 mb-2">
               <AnimatedCalendar dateStr={wedding.wedding_date} />
             </div>
           )}
@@ -1682,7 +1672,8 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                     />
                     <p
                       style={{
-                        fontSize: 13,
+                        fontSize: 14,
+                        fontWeight: 500,
                         fontFamily: "'Cinzel',serif",
                         wordBreak: "break-word",
                         letterSpacing: "0.04em",
@@ -1721,6 +1712,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                         color: "#2e2720",
                         letterSpacing: "0.02em",
                         lineHeight: 1.65,
+                        fontWeight: 500,
                       }}
                     >
                       {e}
@@ -1773,7 +1765,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           <p
             className="shimmer-gold uppercase mt-4"
             style={{
-              fontSize: 11,
+              fontSize: 14,
               fontFamily: "'Cinzel',serif",
               letterSpacing: "0.4em",
             }}
@@ -1784,7 +1776,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
             <p
               className="mt-2"
               style={{
-                fontSize: 10,
+                fontSize: 12,
                 fontFamily: "'Cinzel',serif",
                 letterSpacing: "0.24em",
                 color: "rgba(160,118,40,0.45)",
