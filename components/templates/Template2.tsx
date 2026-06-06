@@ -2,18 +2,13 @@
 import { useEffect, useRef, useState } from "react";
 import { formatDate, Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
-import MusicMan from "../MusicMan";
 import {
-  FaInstagram,
   FaHeart,
   FaStar,
-  FaPhone,
   FaMapMarkerAlt,
   FaClock,
   FaLeaf,
 } from "react-icons/fa";
-import { BsQuote } from "react-icons/bs";
-import FloralInitialAvatar from "./FloralInitialAvatar";
 import Template2Music from "../template2Music";
 
 // ─── useInView hook ───
@@ -134,7 +129,6 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
         stroke="rgba(201,168,76,0.8)"
         strokeWidth="0.8"
         strokeLinecap="round"
-        style={{ transition: "transform 0.2s linear" }}
       />
       <circle cx="40" cy="40" r="2.5" fill="#C9A84C" />
       <circle cx="40" cy="40" r="1.2" fill="#fff" />
@@ -165,7 +159,6 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
   const year = d.getFullYear();
   const month = d.getMonth();
   const day = d.getDate();
-
   const firstDow = (() => {
     const v = new Date(year, month, 1).getDay();
     return v === 0 ? 6 : v - 1;
@@ -178,31 +171,13 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
   while (cells.length % 7 !== 0) cells.push(null);
 
   return (
-    <div style={{ position: "relative", width: "full", margin: "0 auto" }}>
+    <div style={{ position: "relative", margin: "0 auto" }}>
       <style>{`
-        @keyframes cal-drop {
-          0%   { opacity:0; transform:translateY(-18px) scale(0.92); }
-          60%  { transform:translateY(3px) scale(1.02); }
-          100% { opacity:1; transform:translateY(0) scale(1); }
-        }
-        @keyframes day-pop {
-          0%   { opacity:0; transform:scale(0.5); }
-          65%  { transform:scale(1.18); }
-          100% { opacity:1; transform:scale(1); }
-        }
-        @keyframes heart-beat {
-          0%,100% { transform:scale(1); }
-          30%     { transform:scale(1.3); }
-          60%     { transform:scale(0.88); }
-        }
-        @keyframes ring-draw {
-          0%   { stroke-dashoffset:550; opacity:0.2; }
-          100% { stroke-dashoffset:0;   opacity:0.65; }
-        }
-        @keyframes dot-in {
-          0%   { opacity:0; transform:scale(0); }
-          100% { opacity:1; transform:scale(1); }
-        }
+        @keyframes cal-drop { 0%{opacity:0;transform:translateY(-18px) scale(0.92)} 60%{transform:translateY(3px) scale(1.02)} 100%{opacity:1;transform:translateY(0) scale(1)} }
+        @keyframes day-pop { 0%{opacity:0;transform:scale(0.5)} 65%{transform:scale(1.18)} 100%{opacity:1;transform:scale(1)} }
+        @keyframes heart-beat { 0%,100%{transform:scale(1)} 30%{transform:scale(1.3)} 60%{transform:scale(0.88)} }
+        @keyframes ring-draw { 0%{stroke-dashoffset:550;opacity:0.2} 100%{stroke-dashoffset:0;opacity:0.65} }
+        @keyframes dot-in { 0%{opacity:0;transform:scale(0)} 100%{opacity:1;transform:scale(1)} }
         .cal-ring { stroke-dasharray:550; animation:ring-draw 1.2s cubic-bezier(0.4,0,0.2,1) 0.2s forwards; }
         .cal-wrap  { animation:cal-drop 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both; }
         .day-pop   { animation:day-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.55s both; }
@@ -261,34 +236,6 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
             style={{ animationDelay: `${0.9 + i * 0.07}s` }}
           />
         ))}
-        {[
-          [84, 6],
-          [4, 107],
-          [164, 107],
-        ].map(([sx, sy], i) => (
-          <g
-            key={i}
-            className="dot-in"
-            style={{ animationDelay: `${1.2 + i * 0.1}s` }}
-          >
-            <line
-              x1={sx - 3}
-              y1={sy}
-              x2={sx + 3}
-              y2={sy}
-              stroke="rgba(201,168,76,0.55)"
-              strokeWidth="0.7"
-            />
-            <line
-              x1={sx}
-              y1={sy - 3}
-              x2={sx}
-              y2={sy + 3}
-              stroke="rgba(201,168,76,0.55)"
-              strokeWidth="0.7"
-            />
-          </g>
-        ))}
       </svg>
 
       <div
@@ -296,7 +243,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
         style={{
           position: "relative",
           zIndex: 2,
-          background: "#fff",
+          background: "#ffffff",
           border: "0.5px solid rgba(201,168,76,0.28)",
           borderRadius: 20,
           overflow: "hidden",
@@ -304,45 +251,22 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
             "0 8px 32px rgba(0,0,0,0.07),0 2px 8px rgba(201,168,76,0.1)",
         }}
       >
+        {/* Header */}
         <div
           style={{
             background:
-              "linear-gradient(135deg,#BF953F,#C9A84C 40%,#F0D878 65%,#C9A84C)",
+              "linear-gradient(135deg,#FAF3DC 0%,#F5E9C0 50%,#FAF3DC 100%)",
             padding: "14px 16px 12px",
             textAlign: "center",
             position: "relative",
           }}
         >
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              opacity: 0.07,
-              pointerEvents: "none",
-            }}
-          >
-            <svg width="100%" height="100%">
-              <defs>
-                <pattern
-                  id="hatch2"
-                  x="0"
-                  y="0"
-                  width="8"
-                  height="8"
-                  patternUnits="userSpaceOnUse"
-                >
-                  <path d="M0,8 L8,0" stroke="white" strokeWidth="0.5" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#hatch2)" />
-            </svg>
-          </div>
           <p
             style={{
               fontFamily: "'Cinzel',serif",
               fontSize: 10,
               letterSpacing: "0.38em",
-              color: "rgba(255,255,255,0.92)",
+              color: "rgba(122,88,32,0.9)",
               textTransform: "uppercase",
               margin: 0,
               position: "relative",
@@ -352,10 +276,10 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
             {KAZ_MONTHS[month]} · {year}
           </p>
         </div>
-
+        {/* Day headers */}
         <div
           style={{
-            background: "rgba(201,168,76,0.07)",
+            background: "rgba(201,168,76,0.05)",
             borderBottom: "0.5px solid rgba(201,168,76,0.12)",
           }}
         >
@@ -379,8 +303,8 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
             ))}
           </div>
         </div>
-
-        <div style={{ padding: "6px 8px 10px" }}>
+        {/* Days grid */}
+        <div style={{ padding: "6px 8px 10px", background: "#ffffff" }}>
           <div
             style={{
               display: "grid",
@@ -613,38 +537,6 @@ function GallerySwiper({ urls }: { urls: string[] }) {
   );
 }
 
-// ─── Corners ───
-function Corners({
-  size = 6,
-  opacity = 0.4,
-}: {
-  size?: number;
-  opacity?: number;
-}) {
-  const s = `${size * 4}px`;
-  const st = { width: s, height: s, opacity };
-  return (
-    <>
-      <div
-        className="absolute top-0 left-0 border-t border-l border-amber-400"
-        style={{ ...st, transform: "translate(-1px,-1px)" }}
-      />
-      <div
-        className="absolute top-0 right-0 border-t border-r border-amber-400"
-        style={{ ...st, transform: "translate(1px,-1px)" }}
-      />
-      <div
-        className="absolute bottom-0 left-0 border-b border-l border-amber-400"
-        style={{ ...st, transform: "translate(-1px,1px)" }}
-      />
-      <div
-        className="absolute bottom-0 right-0 border-b border-r border-amber-400"
-        style={{ ...st, transform: "translate(1px,1px)" }}
-      />
-    </>
-  );
-}
-
 // ─── GoldDivider ───
 function GoldDivider({ className = "" }: { className?: string }) {
   return (
@@ -758,47 +650,6 @@ function Card({
       }}
     >
       {children}
-    </div>
-  );
-}
-
-// ─── RotatingOrnament ───
-function RotatingOrnament({
-  position,
-  size = 200,
-  opacity = 0.07,
-}: {
-  position: "top-right" | "bottom-left";
-  size?: number;
-  opacity?: number;
-}) {
-  const isTopRight = position === "top-right";
-  return (
-    <div
-      className="fixed pointer-events-none z-0"
-      style={{
-        width: size,
-        height: size,
-        top: isTopRight ? -size * 0.1 : "auto",
-        bottom: isTopRight ? "auto" : -size * 0.3,
-        right: isTopRight ? -size * 0.3 : "auto",
-        left: isTopRight ? "auto" : -size * 0.3,
-        opacity,
-        animation: "spin-slow 22s linear infinite",
-        animationDirection: isTopRight ? "normal" : "reverse",
-      }}
-    >
-      <img
-        src="/images/hee.jpg"
-        alt=""
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "contain",
-          display: "block",
-          border: "none",
-        }}
-      />
     </div>
   );
 }
@@ -934,7 +785,256 @@ function DateTimeBlock({
   );
 }
 
-// ─── NEW: OrganizerBlock — scroll-triggered animated "Той иелері" section ───
+// ─── ScrollRevealSection — баруун/зүүн талаас гарч ирэх ───
+function ScrollRevealSection({
+  children,
+  direction = "left",
+  delay = 0,
+  className = "",
+  style = {},
+}: {
+  children: React.ReactNode;
+  direction?: "left" | "right" | "up";
+  delay?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const { ref, visible } = useInView(0.12);
+  const translateMap = {
+    left: "translateX(-48px)",
+    right: "translateX(48px)",
+    up: "translateY(32px)",
+  };
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translate(0,0)" : translateMap[direction],
+        transition: `opacity 0.75s cubic-bezier(0.22,1,0.36,1) ${delay}s, transform 0.75s cubic-bezier(0.22,1,0.36,1) ${delay}s`,
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ─── InvitationHero — scroll-triggered invitation text section ───
+function InvitationHero({
+  maleName,
+  femaleName,
+}: {
+  maleName: string;
+  femaleName: string;
+}) {
+  const { ref, visible } = useInView(0.1);
+
+  return (
+    <div
+      ref={ref}
+      className="text-center px-6 mt-4 mb-2"
+      style={{ background: "#ffffff" }}
+    >
+      <style>{`
+        @keyframes inv-slide-left {
+          0%   { opacity:0; transform:translateX(-52px); }
+          100% { opacity:1; transform:translateX(0); }
+        }
+        @keyframes inv-slide-right {
+          0%   { opacity:0; transform:translateX(52px); }
+          100% { opacity:1; transform:translateX(0); }
+        }
+        @keyframes inv-fade-up {
+          0%   { opacity:0; transform:translateY(28px); }
+          100% { opacity:1; transform:translateY(0); }
+        }
+        @keyframes inv-name-pop {
+          0%   { opacity:0; transform:scale(0.85) translateY(16px); filter:blur(6px); }
+          70%  { filter:blur(0); }
+          100% { opacity:1; transform:scale(1) translateY(0); filter:blur(0); }
+        }
+        .inv-from-left  { animation: inv-slide-left  0.8s cubic-bezier(0.22,1,0.36,1) both; }
+        .inv-from-right { animation: inv-slide-right 0.8s cubic-bezier(0.22,1,0.36,1) both; }
+        .inv-fade-up    { animation: inv-fade-up     0.7s cubic-bezier(0.22,1,0.36,1) both; }
+        .inv-name-pop   { animation: inv-name-pop    0.9s cubic-bezier(0.34,1.4,0.64,1) both; }
+      `}</style>
+
+      {/* Жоғарғы мәтін — зүүн талаас */}
+      <p
+        className="inv-from-left"
+        style={{
+          fontFamily: "'Cinzel',serif",
+          fontSize: 11,
+          letterSpacing: "0.2em",
+          color: "rgba(100,78,45,0.7)",
+          lineHeight: 2,
+          textTransform: "uppercase",
+          fontWeight: 600,
+          margin: 0,
+          animationDelay: visible ? "0s" : "0s",
+          animationPlayState: visible ? "running" : "paused",
+        }}
+      >
+        Құрметті ағайын-туыс, құда-жекжат,
+      </p>
+
+      <p
+        className="inv-from-right"
+        style={{
+          fontFamily: "'Cinzel',serif",
+          fontSize: 11,
+          letterSpacing: "0.2em",
+          color: "rgba(100,78,45,0.7)",
+          lineHeight: 2,
+          textTransform: "uppercase",
+          fontWeight: 600,
+          margin: 0,
+          animationDelay: visible ? "0.08s" : "0s",
+          animationPlayState: visible ? "running" : "paused",
+        }}
+      >
+        дос-жаран, әріптестер мен көршілер!
+      </p>
+
+      <p
+        className="inv-from-left"
+        style={{
+          fontFamily: "'Cinzel',serif",
+          fontSize: 11,
+          letterSpacing: "0.2em",
+          color: "rgba(100,78,45,0.7)",
+          lineHeight: 2.2,
+          textTransform: "uppercase",
+          fontWeight: 600,
+          margin: "4px 0 0",
+          animationDelay: visible ? "0.18s" : "0s",
+          animationPlayState: visible ? "running" : "paused",
+        }}
+      >
+        Сіздерді ұлымыз
+      </p>
+
+      {/* Ер есімі — pop */}
+      <p
+        className="shimmer-gold inv-name-pop"
+        style={{
+          fontFamily: "'Cormorant Garamond',Georgia,serif",
+          fontSize: "clamp(2rem,9vw,3rem)",
+          fontWeight: 500,
+          fontStyle: "italic",
+          lineHeight: 1.1,
+          letterSpacing: "0.04em",
+          margin: "4px 0 6px",
+          animationDelay: visible ? "0.3s" : "0s",
+          animationPlayState: visible ? "running" : "paused",
+        }}
+      >
+        {maleName}
+      </p>
+
+      {/* Connector line */}
+      <div
+        className="inv-fade-up"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 10,
+          margin: "2px 0",
+          animationDelay: visible ? "0.42s" : "0s",
+          animationPlayState: visible ? "running" : "paused",
+        }}
+      >
+        <div
+          style={{
+            height: 1,
+            width: 32,
+            background:
+              "linear-gradient(to right,transparent,rgba(201,168,76,0.5))",
+          }}
+        />
+        <p
+          style={{
+            fontFamily: "'Cinzel',serif",
+            fontSize: 10,
+            letterSpacing: "0.3em",
+            color: "rgba(100,78,45,0.6)",
+            textTransform: "uppercase",
+            fontWeight: 600,
+            margin: 0,
+          }}
+        >
+          пен келініміз
+        </p>
+        <div
+          style={{
+            height: 1,
+            width: 32,
+            background:
+              "linear-gradient(to left,transparent,rgba(201,168,76,0.5))",
+          }}
+        />
+      </div>
+
+      {/* Әйел есімі — pop */}
+      <p
+        className="shimmer-gold inv-name-pop"
+        style={{
+          fontFamily: "'Cormorant Garamond',Georgia,serif",
+          fontSize: "clamp(2rem,9vw,3rem)",
+          fontWeight: 500,
+          fontStyle: "italic",
+          lineHeight: 1.1,
+          letterSpacing: "0.04em",
+          margin: "6px 0 10px",
+          animationDelay: visible ? "0.52s" : "0s",
+          animationPlayState: visible ? "running" : "paused",
+        }}
+      >
+        {femaleName}
+      </p>
+
+      {/* Соңғы мәтін — оң талаас */}
+      <p
+        className="inv-from-right"
+        style={{
+          fontFamily: "'Cinzel',serif",
+          fontSize: 11,
+          letterSpacing: "0.13em",
+          color: "rgba(100,78,45,0.6)",
+          lineHeight: 1.95,
+          textTransform: "uppercase",
+          fontWeight: 600,
+          margin: 0,
+          animationDelay: visible ? "0.66s" : "0s",
+          animationPlayState: visible ? "running" : "paused",
+        }}
+      >
+        дің үйлену тойына арналған салтанатты ақ
+        <br />
+        дастарханымыздың қадірлі қонағы
+        <br />
+        болуға шақырамыз!
+      </p>
+
+      {/* Доод чимэглэл */}
+      <div
+        className="inv-fade-up"
+        style={{
+          marginTop: 16,
+          animationDelay: visible ? "0.8s" : "0s",
+          animationPlayState: visible ? "running" : "paused",
+        }}
+      >
+        <FloralDots />
+      </div>
+    </div>
+  );
+}
+
+// ─── OrganizerBlock ───
 function OrganizerParticle({
   delay,
   duration,
@@ -966,64 +1066,37 @@ function OrganizerParticle({
 
 function OrganizerBlock({ organizer }: { organizer: string }) {
   const { ref, visible } = useInView(0.2);
-
-  // Split lines for staggered reveal
   const lines = organizer.split("\n").filter(Boolean);
 
   return (
     <div ref={ref} className="mx-5 mt-8 py-2">
       <style>{`
-        @keyframes organizer-reveal {
-          0%   { opacity: 0; transform: translateY(32px) scale(0.96); filter: blur(4px); }
-          60%  { filter: blur(0px); }
-          100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
-        }
-        @keyframes organizer-line {
-          0%   { opacity: 0; transform: translateX(-20px); }
-          100% { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes organizer-float {
-          0%,100% { transform: translateY(0) scale(1); opacity: 0.5; }
-          50%     { transform: translateY(-60px) scale(0.6); opacity: 0; }
-        }
-        @keyframes organizer-shimmer-border {
-          0%   { background-position: 0% 50%; }
-          100% { background-position: 200% 50%; }
-        }
-        @keyframes organizer-glow {
-          0%,100% { box-shadow: 0 0 0px rgba(201,168,76,0); }
-          50%     { box-shadow: 0 0 32px rgba(201,168,76,0.18), 0 4px 24px rgba(201,168,76,0.10); }
-        }
-        .org-card-enter {
-          animation: organizer-reveal 0.9s cubic-bezier(0.22,1,0.36,1) both;
-        }
-        .org-line-enter {
-          animation: organizer-line 0.6s cubic-bezier(0.22,1,0.36,1) both;
-        }
-        .org-glow {
-          animation: organizer-glow 3s ease-in-out 1s infinite;
-        }
+        @keyframes organizer-reveal { 0%{opacity:0;transform:translateY(32px) scale(0.96);filter:blur(4px)} 60%{filter:blur(0)} 100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)} }
+        @keyframes organizer-line   { 0%{opacity:0;transform:translateX(-20px)} 100%{opacity:1;transform:translateX(0)} }
+        @keyframes organizer-float  { 0%,100%{transform:translateY(0) scale(1);opacity:0.5} 50%{transform:translateY(-60px) scale(0.6);opacity:0} }
+        @keyframes organizer-glow   { 0%,100%{box-shadow:0 0 0px rgba(201,168,76,0)} 50%{box-shadow:0 0 32px rgba(201,168,76,0.18),0 4px 24px rgba(201,168,76,0.10)} }
+        .org-card-enter { animation: organizer-reveal 0.9s cubic-bezier(0.22,1,0.36,1) both; }
+        .org-line-enter { animation: organizer-line 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+        .org-glow       { animation: organizer-glow 3s ease-in-out 1s infinite; }
       `}</style>
 
       <GoldDivider className="mb-6" />
 
       <div
-        className={`org-card-enter org-glow`}
+        className="org-card-enter org-glow"
         style={{
           animationPlayState: visible ? "running" : "paused",
           position: "relative",
           overflow: "hidden",
           borderRadius: 20,
           padding: "28px 24px 24px",
-          background:
-            "linear-gradient(145deg, #FFFDF7 0%, #FBF4E0 50%, #FFFBF0 100%)",
+          background: "#ffffff",
           border: "1px solid rgba(201,168,76,0.22)",
           boxShadow:
             "0 4px 32px rgba(201,168,76,0.08), 0 1px 6px rgba(0,0,0,0.04)",
           textAlign: "center",
         }}
       >
-        {/* Floating particles */}
         {visible &&
           [
             { delay: 0, duration: 4.5, x: 10, size: 40 },
@@ -1033,65 +1106,31 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
             { delay: 1.8, duration: 5.2, x: 70, size: 24 },
           ].map((p, i) => <OrganizerParticle key={i} {...p} />)}
 
-        {/* Corner ornaments */}
-        <svg
-          style={{ position: "absolute", top: 10, left: 12, opacity: 0.3 }}
-          width="22"
-          height="22"
-          viewBox="0 0 22 22"
-        >
-          <path
-            d="M2,20 Q2,2 20,2"
-            stroke="#C9A84C"
-            strokeWidth="0.8"
-            fill="none"
-          />
-          <circle cx="2" cy="2" r="1.5" fill="#C9A84C" />
-        </svg>
-        <svg
-          style={{ position: "absolute", top: 10, right: 12, opacity: 0.3 }}
-          width="22"
-          height="22"
-          viewBox="0 0 22 22"
-        >
-          <path
-            d="M20,20 Q20,2 2,2"
-            stroke="#C9A84C"
-            strokeWidth="0.8"
-            fill="none"
-          />
-          <circle cx="20" cy="2" r="1.5" fill="#C9A84C" />
-        </svg>
-        <svg
-          style={{ position: "absolute", bottom: 10, left: 12, opacity: 0.3 }}
-          width="22"
-          height="22"
-          viewBox="0 0 22 22"
-        >
-          <path
-            d="M2,2 Q2,20 20,20"
-            stroke="#C9A84C"
-            strokeWidth="0.8"
-            fill="none"
-          />
-          <circle cx="2" cy="20" r="1.5" fill="#C9A84C" />
-        </svg>
-        <svg
-          style={{ position: "absolute", bottom: 10, right: 12, opacity: 0.3 }}
-          width="22"
-          height="22"
-          viewBox="0 0 22 22"
-        >
-          <path
-            d="M20,2 Q20,20 2,20"
-            stroke="#C9A84C"
-            strokeWidth="0.8"
-            fill="none"
-          />
-          <circle cx="20" cy="20" r="1.5" fill="#C9A84C" />
-        </svg>
+        {/* Corner SVGs */}
+        {[
+          ["top:10px", "left:12px", "M2,20 Q2,2 20,2", "2", "2"],
+          ["top:10px", "right:12px", "M20,20 Q20,2 2,2", "20", "2"],
+          ["bottom:10px", "left:12px", "M2,2 Q2,20 20,20", "2", "20"],
+          ["bottom:10px", "right:12px", "M20,2 Q20,20 2,20", "20", "20"],
+        ].map(([pos1, pos2, path, cx, cy], i) => (
+          <svg
+            key={i}
+            style={{
+              position: "absolute",
+              [pos1.split(":")[0]]: pos1.split(":")[1],
+              [pos2.split(":")[0]]: pos2.split(":")[1],
+              opacity: 0.3,
+            }}
+            width="22"
+            height="22"
+            viewBox="0 0 22 22"
+          >
+            <path d={path} stroke="#C9A84C" strokeWidth="0.8" fill="none" />
+            <circle cx={cx} cy={cy} r="1.5" fill="#C9A84C" />
+          </svg>
+        ))}
 
-        {/* Background watermark rings */}
+        {/* Watermark rings */}
         <div
           style={{
             position: "absolute",
@@ -1105,12 +1144,6 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
             height="100%"
             style={{ position: "absolute", inset: 0 }}
           >
-            <defs>
-              <radialGradient id="org-ring-grad" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="rgba(201,168,76,0.04)" />
-                <stop offset="100%" stopColor="rgba(201,168,76,0)" />
-              </radialGradient>
-            </defs>
             <ellipse
               cx="50%"
               cy="50%"
@@ -1132,8 +1165,8 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
           </svg>
         </div>
 
-        {/* Label */}
         <div style={{ position: "relative", zIndex: 1 }}>
+          {/* Title row */}
           <div
             style={{
               display: "flex",
@@ -1148,7 +1181,7 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
                 height: 1,
                 width: 28,
                 background:
-                  "linear-gradient(to right, transparent, rgba(201,168,76,0.5))",
+                  "linear-gradient(to right,transparent,rgba(201,168,76,0.5))",
               }}
             />
             <svg viewBox="0 0 20 18" width="16" height="14">
@@ -1185,12 +1218,11 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
                 height: 1,
                 width: 28,
                 background:
-                  "linear-gradient(to left, transparent, rgba(201,168,76,0.5))",
+                  "linear-gradient(to left,transparent,rgba(201,168,76,0.5))",
               }}
             />
           </div>
 
-          {/* Organizer text — each line staggered */}
           <div
             style={{
               display: "flex",
@@ -1199,14 +1231,99 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
               alignItems: "center",
             }}
           >
-            {lines.length > 0 ? (
-              lines.map((line, i) => (
+            {(() => {
+              const items = lines.length > 0 ? lines : [organizer];
+              // 2 мөр байвал хооронд нь & сепаратор оруулна
+              if (items.length === 2) {
+                return (
+                  <>
+                    <p
+                      className="org-line-enter"
+                      style={{
+                        fontFamily: "'Cinzel',serif",
+                        fontSize: 14,
+                        fontWeight: 600,
+                        letterSpacing: "0.2em",
+                        textTransform: "uppercase",
+                        color: "#7a5820",
+                        lineHeight: 1.9,
+                        wordBreak: "break-word",
+                        margin: 0,
+                        animationDelay: visible ? "0.2s" : "0s",
+                        animationPlayState: visible ? "running" : "paused",
+                      }}
+                    >
+                      {items[0]}
+                    </p>
+                    {/* & separator */}
+                    <div
+                      className="org-line-enter"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        animationDelay: visible ? "0.3s" : "0s",
+                        animationPlayState: visible ? "running" : "paused",
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: 1,
+                          width: 24,
+                          background:
+                            "linear-gradient(to right,transparent,rgba(201,168,76,0.5))",
+                        }}
+                      />
+                      <span
+                        style={{
+                          fontFamily: "'Cormorant Garamond',Georgia,serif",
+                          fontSize: 26,
+                          fontStyle: "italic",
+                          color: "rgba(201,168,76,0.75)",
+                          lineHeight: 1,
+                          fontWeight: 400,
+                        }}
+                      >
+                        &amp;
+                      </span>
+                      <div
+                        style={{
+                          height: 1,
+                          width: 24,
+                          background:
+                            "linear-gradient(to left,transparent,rgba(201,168,76,0.5))",
+                        }}
+                      />
+                    </div>
+                    <p
+                      className="org-line-enter"
+                      style={{
+                        fontFamily: "'Cinzel',serif",
+                        fontSize: 14,
+                        fontWeight: 600,
+                        letterSpacing: "0.2em",
+                        textTransform: "uppercase",
+                        color: "#7a5820",
+                        lineHeight: 1.9,
+                        wordBreak: "break-word",
+                        margin: 0,
+                        animationDelay: visible ? "0.42s" : "0s",
+                        animationPlayState: visible ? "running" : "paused",
+                      }}
+                    >
+                      {items[1]}
+                    </p>
+                  </>
+                );
+              }
+              // 2-оос өөр тооны үед жагсаалтаар харуулна
+              return items.map((line, i) => (
                 <p
                   key={i}
                   className="org-line-enter"
                   style={{
-                    fontFamily: "'Cinzel', serif",
-                    fontSize: "clamp(0.78rem,3.5vw,0.95rem)",
+                    fontFamily: "'Cinzel',serif",
+                    fontSize: 14,
                     fontWeight: 600,
                     letterSpacing: "0.2em",
                     textTransform: "uppercase",
@@ -1220,29 +1337,10 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
                 >
                   {line}
                 </p>
-              ))
-            ) : (
-              <p
-                className="org-line-enter"
-                style={{
-                  fontFamily: "'Cinzel', serif",
-                  fontSize: "clamp(0.78rem,3.5vw,0.95rem)",
-                  fontWeight: 600,
-                  letterSpacing: "0.2em",
-                  textTransform: "uppercase",
-                  color: "#7a5820",
-                  lineHeight: 2.1,
-                  wordBreak: "break-word",
-                  margin: 0,
-                  animationPlayState: visible ? "running" : "paused",
-                }}
-              >
-                {organizer}
-              </p>
-            )}
+              ));
+            })()}
           </div>
 
-          {/* Bottom dot row */}
           <div
             style={{
               display: "flex",
@@ -1270,13 +1368,53 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
   );
 }
 
+// ─── RotatingOrnament ───
+function RotatingOrnament({
+  position,
+  size = 200,
+  opacity = 0.07,
+}: {
+  position: "top-right" | "bottom-left";
+  size?: number;
+  opacity?: number;
+}) {
+  const isTopRight = position === "top-right";
+  return (
+    <div
+      className="fixed pointer-events-none z-0"
+      style={{
+        width: size,
+        height: size,
+        top: isTopRight ? -size * 0.1 : "auto",
+        bottom: isTopRight ? "auto" : -size * 0.3,
+        right: isTopRight ? -size * 0.3 : "auto",
+        left: isTopRight ? "auto" : -size * 0.3,
+        opacity,
+        animation: "spin-slow 22s linear infinite",
+        animationDirection: isTopRight ? "normal" : "reverse",
+      }}
+    >
+      <img
+        src="/images/hee.jpg"
+        alt=""
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "contain",
+          display: "block",
+          border: "none",
+        }}
+      />
+    </div>
+  );
+}
+
 // ─── MAIN ───
 export default function Template2({ wedding }: { wedding: Wedding }) {
   const date = formatDate(wedding.wedding_date);
   const time = wedding.wedding_date?.includes("T")
     ? wedding.wedding_date.split("T")[1].slice(0, 5)
     : null;
-
   const extras = [
     wedding.extra1,
     wedding.extra2,
@@ -1292,26 +1430,11 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
         * { box-sizing:border-box; }
         img { border:none !important; outline:none !important; }
         body,#__next { background:#ffffff !important; }
-        @keyframes shimmer-gold {
-          0%  { background-position:-200% center; }
-          100%{ background-position:200% center; }
-        }
-        @keyframes fade-up {
-          from{ opacity:0; transform:translateY(16px); }
-          to  { opacity:1; transform:translateY(0); }
-        }
-        @keyframes spin-slow {
-          from{ transform:rotate(0deg); }
-          to  { transform:rotate(360deg); }
-        }
-        @keyframes float-gentle {
-          0%,100%{ transform:translateY(0); }
-          50%    { transform:translateY(-4px); }
-        }
-        @keyframes petal-spin {
-          from{ transform:rotate(0deg); }
-          to  { transform:rotate(360deg); }
-        }
+        @keyframes shimmer-gold { 0%{background-position:-200% center} 100%{background-position:200% center} }
+        @keyframes fade-up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes spin-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes float-gentle { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+        @keyframes petal-spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
         .shimmer-gold {
           background:linear-gradient(90deg,#B8832A 15%,#F0D878 42%,#D4A940 58%,#B8832A 85%);
           background-size:200% auto;
@@ -1322,28 +1445,8 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
         .fade-1  { animation-delay:0.1s; }
         .fade-2  { animation-delay:0.25s; }
         .fade-3  { animation-delay:0.4s; }
-        .float-heart { animation:float-gentle 3.5s ease-in-out infinite; }
-        @keyframes tick-in {
-          0%   { opacity:0; transform:scale(0.6) rotate(-15deg); }
-          70%  { transform:scale(1.08) rotate(2deg); }
-          100% { opacity:1; transform:scale(1) rotate(0deg); }
-        }
-        @keyframes reveal-up {
-          from { opacity:0; transform:translateY(22px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        @keyframes clock-hand {
-          from { transform:rotate(0deg); }
-          to   { transform:rotate(360deg); }
-        }
-        @keyframes second-hand {
-          from { transform:rotate(0deg); }
-          to   { transform:rotate(360deg); }
-        }
-        @keyframes number-slide {
-          0%   { opacity:0; transform:translateY(8px); }
-          100% { opacity:1; transform:translateY(0); }
-        }
+        @keyframes tick-in { 0%{opacity:0;transform:scale(0.6) rotate(-15deg)} 70%{transform:scale(1.08) rotate(2deg)} 100%{opacity:1;transform:scale(1) rotate(0deg)} }
+        @keyframes reveal-up { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
         .reveal-up { animation:reveal-up 0.7s cubic-bezier(0.22,1,0.36,1) both; }
         .tick-in   { animation:tick-in 0.65s cubic-bezier(0.34,1.56,0.64,1) both; }
       `}</style>
@@ -1377,23 +1480,6 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                   "linear-gradient(135deg,#FDF8EE 0%,#FAF3D8 50%,#F5EDD0 100%)",
               }}
             >
-              <div className="absolute inset-0 opacity-10">
-                <svg width="100%" height="100%">
-                  <defs>
-                    <pattern
-                      id="dots"
-                      x="0"
-                      y="0"
-                      width="30"
-                      height="30"
-                      patternUnits="userSpaceOnUse"
-                    >
-                      <circle cx="15" cy="15" r="1" fill="#C9A84C" />
-                    </pattern>
-                  </defs>
-                  <rect width="100%" height="100%" fill="url(#dots)" />
-                </svg>
-              </div>
               <div className="relative flex items-center justify-center">
                 <svg
                   width="120"
@@ -1437,227 +1523,170 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           />
         </div>
 
-        {/* Names + Calendar */}
-        <div className="text-center -mt-14 relative z-10 pb-2">
-          <div className="fade-up fade-1 px-6 mt-2 mb-1 text-center">
-            <p
-              style={{
-                fontFamily: "'Cinzel',serif",
-                fontSize: "clamp(0.8rem,3vw,0.78rem)",
-                letterSpacing: "0.18em",
-                color: "rgba(100,78,45,0.75)",
-                lineHeight: 2,
-                textTransform: "uppercase",
-                fontWeight: 600,
-                margin: 0,
-              }}
-            >
-              Құрметті ағайын-туыс, құда-жекжат,
-            </p>
-            <p
-              style={{
-                fontFamily: "'Cinzel',serif",
-                fontSize: "clamp(0.8rem,3vw,0.78rem)",
-                letterSpacing: "0.18em",
-                color: "rgba(100,78,45,0.75)",
-                lineHeight: 2,
-                textTransform: "uppercase",
-                fontWeight: 600,
-                margin: 0,
-              }}
-            >
-              дос-жаран, әріптестер мен көршілер!
-            </p>
-            <p
-              style={{
-                fontFamily: "'Cinzel',serif",
-                fontSize: "clamp(0.8rem,3vw,0.78rem)",
-                letterSpacing: "0.18em",
-                color: "rgba(100,78,45,0.75)",
-                lineHeight: 2,
-                textTransform: "uppercase",
-                fontWeight: 600,
-                margin: 0,
-              }}
-            >
-              СІЗДЕРДІ ҰЛЫМЫЗ
-            </p>
-            <p
-              className="shimmer-gold"
-              style={{
-                fontFamily: "'Cormorant Garamond',Georgia,serif",
-                fontSize: "clamp(2rem,9vw,3rem)",
-                fontWeight: 500,
-                fontStyle: "italic",
-                lineHeight: 1.1,
-                letterSpacing: "0.04em",
-                margin: "2px 0 6px",
-              }}
-            >
-              {wedding.male_name}
-            </p>
-            <p
-              style={{
-                fontFamily: "'Cinzel',serif",
-                fontSize: "clamp(0.8rem,3vw,0.78rem)",
-                letterSpacing: "0.18em",
-                color: "rgba(100,78,45,0.75)",
-                lineHeight: 2,
-                textTransform: "uppercase",
-                fontWeight: 600,
-                margin: 0,
-              }}
-            >
-              ПЕН КЕЛІНІМІЗ
-            </p>
-            <p
-              className="shimmer-gold"
-              style={{
-                fontFamily: "'Cormorant Garamond',Georgia,serif",
-                fontSize: "clamp(2rem,9vw,3rem)",
-                fontWeight: 500,
-                fontStyle: "italic",
-                lineHeight: 1.1,
-                letterSpacing: "0.04em",
-                margin: "2px 0 10px",
-              }}
-            >
-              {wedding.female_name}
-            </p>
-            <p
-              style={{
-                fontFamily: "'Cinzel',serif",
-                fontSize: "clamp(0.8rem,2.6vw,0.72rem)",
-                letterSpacing: "0.14em",
-                color: "rgba(100,78,45,0.65)",
-                lineHeight: 1.9,
-                textTransform: "uppercase",
-                fontWeight: 600,
-                margin: 0,
-              }}
-            >
-              ДІҢ ҮЙЛЕНУ ТОЙЫНА АРНАЛҒАН САЛТАНАТТЫ АҚ
-              <br />
-              ДАСТАРХАНЫМЫЗДЫҢ ҚАДІРЛІ ҚОНАҒЫ
-              <br />
-              БОЛУҒА ШАҚЫРАМЫЗ!
-            </p>
-          </div>
+        {/* ═══ INVITATION HERO — scroll animation ═══ */}
+        <div className="-mt-14 relative z-10" style={{ background: "#ffffff" }}>
+          <InvitationHero
+            maleName={wedding.male_name}
+            femaleName={wedding.female_name}
+          />
+        </div>
 
-          {wedding.photo3_url && (
-            <div className="overflow-hidden p-5 aspect-[3/4]">
+        {/* ═══ PHOTO 3 ═══ */}
+        {wedding.photo3_url && (
+          <ScrollRevealSection
+            direction="up"
+            delay={0}
+            style={{ overflow: "hidden", padding: "0 20px", marginTop: 8 }}
+          >
+            <div
+              style={{
+                borderRadius: 16,
+                overflow: "hidden",
+                border: "0.5px solid rgba(201,168,76,0.2)",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
+              }}
+            >
               <img
                 src={wedding.photo3_url}
                 alt="Ер"
-                className="w-full h-full object-cover"
+                className="w-full object-cover"
+                style={{
+                  display: "block",
+                  border: "none",
+                  maxHeight: 480,
+                  objectPosition: "center top",
+                }}
               />
             </div>
-          )}
+          </ScrollRevealSection>
+        )}
 
-          {/* ══ IMPROVED Той иелері block ══ */}
-          {wedding.organizer && (
+        {/* ═══ ТОЙ ИЕЛЕРІ ═══ */}
+        {wedding.organizer && (
+          <ScrollRevealSection direction="left" delay={0.05}>
             <OrganizerBlock organizer={wedding.organizer} />
-          )}
+          </ScrollRevealSection>
+        )}
 
-          {date && (
-            <>
-              <FloralDots />
-              <p
-                className="fade-up fade-3 mt-4 uppercase"
-                style={{
-                  fontSize: "10px",
-                  letterSpacing: "0.44em",
-                  fontFamily: "'Cinzel', serif",
-                  color: "rgba(160,118,40,0.65)",
-                  fontWeight: 700,
-                }}
-              >
-                {date}
-              </p>
-            </>
-          )}
+        {/* ═══ DATE LABEL ═══ */}
+        {date && (
+          <ScrollRevealSection
+            direction="up"
+            delay={0}
+            style={{ textAlign: "center", marginTop: 20 }}
+          >
+            <FloralDots />
+            <p
+              className="fade-up fade-3 mt-3 uppercase"
+              style={{
+                fontSize: 10,
+                letterSpacing: "0.44em",
+                fontFamily: "'Cinzel',serif",
+                color: "rgba(160,118,40,0.65)",
+                fontWeight: 700,
+              }}
+            >
+              {date}
+            </p>
+          </ScrollRevealSection>
+        )}
 
-          {wedding.wedding_date && (
-            <div className="fade-up fade-3 mt-4 px-5">
-              <AnimatedCalendar dateStr={wedding.wedding_date} />
-            </div>
-          )}
-        </div>
+        {/* ═══ CALENDAR ═══ */}
+        {wedding.wedding_date && (
+          <ScrollRevealSection
+            direction="right"
+            delay={0.05}
+            style={{ marginTop: 16, padding: "0 20px" }}
+          >
+            <AnimatedCalendar dateStr={wedding.wedding_date} />
+          </ScrollRevealSection>
+        )}
 
-        <div style={{ padding: "0 32px", marginTop: 20 }}>
+        <div style={{ padding: "0 32px", marginTop: 24 }}>
           <GoldDivider />
         </div>
 
+        {/* ═══ GALLERY ═══ */}
         {!!wedding.gallery_urls?.length && (
-          <div className="mt-10">
+          <ScrollRevealSection
+            direction="up"
+            delay={0}
+            style={{ marginTop: 32 }}
+          >
             <p
-              className="shimmer-gold my-2  flex justify-center w-full"
-              style={{
-                fontSize: 11,
-                fontFamily: "'Cinzel',serif",
-                color: "rgba(100, 78, 45, 0.75)",
-              }}
+              className="shimmer-gold my-2 flex justify-center w-full"
+              style={{ fontSize: 11, fontFamily: "'Cinzel',serif" }}
             >
               ❤️ Біздің махаббатымыздың естеліктері ❤️
             </p>
             <SectionHeader>Суреттер жиынтығы</SectionHeader>
             <GallerySwiper urls={wedding.gallery_urls} />
-          </div>
+          </ScrollRevealSection>
         )}
 
-        {/* Info card */}
+        {/* ═══ INFO CARD ═══ */}
         <div className="mx-5 mt-10 mb-2">
           <GoldDivider className="mb-6" />
           <Card className="p-6 space-y-5">
-            {(date || time) && <DateTimeBlock date={date} time={time} />}
+            {(date || time) && (
+              <ScrollRevealSection direction="up" delay={0}>
+                <DateTimeBlock date={date} time={time} />
+              </ScrollRevealSection>
+            )}
 
             {(wedding.venue_name || wedding.venue_address) && (
-              <div
-                className="text-center border-t pt-5"
-                style={{ borderColor: "rgba(201,168,76,0.1)" }}
+              <ScrollRevealSection
+                direction="left"
+                delay={0.1}
+                style={{
+                  borderTop: "0.5px solid rgba(201,168,76,0.1)",
+                  paddingTop: 20,
+                }}
               >
-                <Label>Мекен жайымыз</Label>
-                <FloralDots />
-                {wedding.venue_name && (
-                  <p
-                    className="font-light italic mt-3"
-                    style={{
-                      fontSize: 24,
-                      wordBreak: "break-word",
-                      color: "#111009",
-                      lineHeight: 1.35,
-                      letterSpacing: "0.01em",
-                    }}
-                  >
-                    {wedding.venue_name}
-                  </p>
-                )}
-                {wedding.venue_address && (
-                  <div className="flex items-start justify-center gap-1.5 mt-2">
-                    <FaMapMarkerAlt
-                      size={11}
-                      style={{
-                        color: "rgba(201,168,76,0.75)",
-                        flexShrink: 0,
-                        marginTop: 3,
-                      }}
-                    />
+                <div className="text-center">
+                  <Label>Мекен жайымыз</Label>
+                  <FloralDots />
+                  {wedding.venue_name && (
                     <p
+                      className="font-light italic mt-3"
                       style={{
-                        fontSize: 14,
-                        fontWeight: 500,
-                        fontFamily: "'Cinzel',serif",
+                        fontSize: 24,
                         wordBreak: "break-word",
-                        letterSpacing: "0.04em",
-                        color: "#5c4e3d",
-                        lineHeight: 1.6,
+                        color: "#111009",
+                        lineHeight: 1.35,
+                        letterSpacing: "0.01em",
                       }}
                     >
-                      {wedding.venue_address}
+                      {wedding.venue_name}
                     </p>
-                  </div>
-                )}
-              </div>
+                  )}
+                  {wedding.venue_address && (
+                    <div className="flex items-start justify-center gap-1.5 mt-2">
+                      <FaMapMarkerAlt
+                        size={11}
+                        style={{
+                          color: "rgba(201,168,76,0.75)",
+                          flexShrink: 0,
+                          marginTop: 3,
+                        }}
+                      />
+                      <p
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 500,
+                          fontFamily: "'Cinzel',serif",
+                          wordBreak: "break-word",
+                          letterSpacing: "0.04em",
+                          color: "#5c4e3d",
+                          lineHeight: 1.6,
+                        }}
+                      >
+                        {wedding.venue_address}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </ScrollRevealSection>
             )}
 
             {extras.length > 0 && (
@@ -1666,45 +1695,59 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                 style={{ borderColor: "rgba(201,168,76,0.1)" }}
               >
                 {extras.map((e, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <FaStar
-                      size={16}
-                      style={{
-                        color: "rgba(201,168,76,0.6)",
-                        flexShrink: 0,
-                        marginTop: 5,
-                      }}
-                    />
-                    <p
-                      className="leading-relaxed"
-                      style={{
-                        fontSize: 16,
-                        fontFamily: "'Cinzel',serif",
-                        wordBreak: "break-word",
-                        color: "#2e2720",
-                        letterSpacing: "0.02em",
-                        lineHeight: 1.65,
-                        fontWeight: 500,
-                      }}
-                    >
-                      {e}
-                    </p>
-                  </div>
+                  <ScrollRevealSection
+                    key={i}
+                    direction={i % 2 === 0 ? "left" : "right"}
+                    delay={i * 0.08}
+                  >
+                    <div className="flex items-start gap-3">
+                      <FaStar
+                        size={16}
+                        style={{
+                          color: "rgba(201,168,76,0.6)",
+                          flexShrink: 0,
+                          marginTop: 5,
+                        }}
+                      />
+                      <p
+                        className="leading-relaxed"
+                        style={{
+                          fontSize: 16,
+                          fontFamily: "'Cinzel',serif",
+                          wordBreak: "break-word",
+                          color: "#2e2720",
+                          letterSpacing: "0.02em",
+                          lineHeight: 1.65,
+                          fontWeight: 500,
+                        }}
+                      >
+                        {e}
+                      </p>
+                    </div>
+                  </ScrollRevealSection>
                 ))}
               </div>
             )}
           </Card>
         </div>
 
-        <MessageSection
-          weddingId={wedding.id}
-          accentColor="#A07028"
-          lightColor="#FDFAF0"
-          borderColor="border-amber-100"
-        />
+        {/* ═══ MESSAGES ═══ */}
+        <ScrollRevealSection direction="up" delay={0}>
+          <MessageSection
+            weddingId={wedding.id}
+            accentColor="#A07028"
+            lightColor="#FDFAF0"
+            borderColor="border-amber-100"
+          />
+        </ScrollRevealSection>
 
+        {/* ═══ PHOTO 5 ═══ */}
         {wedding.photo5_url && (
-          <div className="mt-10 mb-0 w-full" style={{ overflow: "hidden" }}>
+          <ScrollRevealSection
+            direction="up"
+            delay={0}
+            style={{ marginTop: 40, overflow: "hidden" }}
+          >
             <GoldDivider className="mb-6 mx-8" />
             <div
               style={{
@@ -1712,8 +1755,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                 overflow: "hidden",
                 borderTop: "0.5px solid rgba(201,168,76,0.25)",
                 borderBottom: "0.5px solid rgba(201,168,76,0.25)",
-                boxShadow:
-                  "0 8px 40px rgba(0,0,0,0.09),0 2px 10px rgba(201,168,76,0.08)",
+                boxShadow: "0 8px 40px rgba(0,0,0,0.09)",
               }}
             >
               <img
@@ -1727,56 +1769,31 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                 }}
               />
             </div>
-          </div>
+          </ScrollRevealSection>
         )}
 
         {/* ═══ FOOTER ═══ */}
         <div className="text-center py-12 mt-4">
           <GoldDivider className="mb-5 mx-8" />
-          <p
-            className="mt-4"
-            style={{
-              fontSize: 12,
-              fontFamily: "'Playfair Display', serif",
-              fontStyle: "italic",
-              color: "#67748E",
-            }}
-          >
-            Біз екеуміз тек екеуміз
-          </p>
-          <p
-            className="mt-2"
-            style={{
-              fontSize: 12,
-              fontFamily: "'Playfair Display', serif",
-              fontStyle: "italic",
-              color: "#67748E",
-            }}
-          >
-            Жүректермен бір екенбіз
-          </p>
-          <p
-            className="mt-2"
-            style={{
-              fontSize: 12,
-              fontFamily: "'Playfair Display', serif",
-              fontStyle: "italic",
-              color: "#67748E",
-            }}
-          >
-            Мен сен үшін сен мен үшін
-          </p>
-          <p
-            className="mt-2"
-            style={{
-              fontSize: 12,
-              fontFamily: "'Playfair Display', serif",
-              fontStyle: "italic",
-              color: "#67748E",
-            }}
-          >
-            Жаралған екенбіз
-          </p>
+          {[
+            "Біз екеуміз тек екеуміз",
+            "Жүректермен бір екенбіз",
+            "Мен сен үшін сен мен үшін",
+            "Жаралған екенбіз",
+          ].map((line, i) => (
+            <p
+              key={i}
+              className={i === 0 ? "mt-4" : "mt-2"}
+              style={{
+                fontSize: 12,
+                fontFamily: "'Playfair Display',serif",
+                fontStyle: "italic",
+                color: "#67748E",
+              }}
+            >
+              {line}
+            </p>
+          ))}
           <FloralDots />
           <p
             className="shimmer-gold uppercase mt-4"

@@ -3,7 +3,7 @@ import { FaPlay, FaPause } from "react-icons/fa";
 
 export default function Template2Music() {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [playing, setPlaying] = useState(true);
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     const audio = audioRef.current;
