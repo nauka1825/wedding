@@ -1637,17 +1637,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                 color: "rgba(100, 78, 45, 0.75)",
               }}
             >
-              Біздің махаббатымыздың естеліктері
-            </p>
-            <p
-              className="uppercase mb-2  flex justify-center w-full"
-              style={{
-                fontSize: 14,
-                fontFamily: "'Cinzel',serif",
-                color: "red",
-              }}
-            >
-              ❤️
+              ❤️ Біздің махаббатымыздың естеліктері ❤️
             </p>
             <SectionHeader>Суреттер жиынтығы</SectionHeader>
             <GallerySwiper urls={wedding.gallery_urls} />
