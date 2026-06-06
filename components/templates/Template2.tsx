@@ -1630,9 +1630,9 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
         {!!wedding.gallery_urls?.length && (
           <div className="mt-10">
             <p
-              className="shimmer-gold uppercase my-2  flex justify-center w-full"
+              className="shimmer-gold my-2  flex justify-center w-full"
               style={{
-                fontSize: 14,
+                fontSize: 11,
                 fontFamily: "'Cinzel',serif",
                 color: "rgba(100, 78, 45, 0.75)",
               }}
