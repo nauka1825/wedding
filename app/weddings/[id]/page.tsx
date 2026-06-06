@@ -7,6 +7,53 @@ import Template5 from "@/components/templates/Template5";
 import Template6 from "@/components/templates/Template6";
 import Template7 from "@/components/templates/Template7";
 import Template8 from "@/components/templates/Template8";
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
+  const { data: wedding } = await supabase
+    .from("weddings")
+    .select("*")
+    .eq("id", params.id)
+    .single();
+
+  if (!wedding) {
+    return {
+      title: "Онлайн урилга",
+      description: "Хуримын урилга",
+    };
+  }
+
+  const image =
+    wedding.photo3_url || wedding.main_photo_url || wedding.photo5_url;
+
+  return {
+    title: `${wedding.male_name} & ${wedding.female_name}`,
+    description: "Хуримын урилга",
+
+    openGraph: {
+      title: `${wedding.male_name} & ${wedding.female_name}`,
+      description: "Хуримын урилга",
+      images: image
+        ? [
+            {
+              url: image,
+              width: 1200,
+              height: 630,
+            },
+          ]
+        : [],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      images: image ? [image] : [],
+    },
+  };
+}
 
 export default async function WeddingDetailPage({
   params,

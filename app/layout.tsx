@@ -8,6 +8,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https:ulgiitoi.mn"),
   title: "Online шақыру",
   description: "Үйлену тойына арналған шақыру жасау қызметі",
 };
