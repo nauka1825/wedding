@@ -99,11 +99,11 @@ export default function MessageSection({
           <p
             style={{
               fontFamily: "'Cinzel', serif",
-              fontSize: 10,
+              fontSize: 12,
               letterSpacing: "0.38em",
               textTransform: "uppercase",
               color: accentColor,
-              opacity: 0.65,
+              opacity: 1,
               fontWeight: 500,
               margin: 0,
             }}
@@ -150,11 +150,11 @@ export default function MessageSection({
                   <p
                     style={{
                       fontFamily: "'Cormorant Garamond', Georgia, serif",
-                      fontSize: 17,
+                      fontSize: 19,
                       lineHeight: 1.7,
                       fontStyle: "italic",
                       color: accentColor,
-                      opacity: 0.85,
+                      opacity: 1,
                       marginBottom: 14,
                     }}
                   >
@@ -164,16 +164,16 @@ export default function MessageSection({
                   <div className="flex items-center justify-center gap-2">
                     <div
                       className="w-5 h-px"
-                      style={{ background: accentColor, opacity: 0.25 }}
+                      style={{ background: accentColor, opacity: 1 }}
                     />
                     <p
                       style={{
                         fontFamily: "'Cinzel', serif",
-                        fontSize: 9,
+                        fontSize: 11,
                         letterSpacing: "0.3em",
                         textTransform: "uppercase",
                         color: accentColor,
-                        opacity: 0.55,
+                        opacity: 1,
                         margin: 0,
                       }}
                     >
@@ -181,7 +181,7 @@ export default function MessageSection({
                     </p>
                     <div
                       className="w-5 h-px"
-                      style={{ background: accentColor, opacity: 0.25 }}
+                      style={{ background: accentColor, opacity: 1 }}
                     />
                   </div>
                 </div>
@@ -213,7 +213,7 @@ export default function MessageSection({
       <div
         className="rounded-2xl p-5 border space-y-3"
         style={{
-          background: "rgba(255,255,255,0.72)",
+          background: "rgba(255,255,255,0.97)",
           backdropFilter: "blur(14px)",
           borderColor: `${accentColor}18`,
           boxShadow: `0 4px 20px ${accentColor}08`,
@@ -235,11 +235,11 @@ export default function MessageSection({
           <p
             style={{
               fontFamily: "'Cinzel', serif",
-              fontSize: 9,
+              fontSize: 11,
               letterSpacing: "0.35em",
               textTransform: "uppercase",
               color: accentColor,
-              opacity: 0.65,
+              opacity: 1,
               margin: 0,
             }}
           >
@@ -256,7 +256,7 @@ export default function MessageSection({
             width: "100%",
             borderRadius: 14,
             padding: "11px 16px",
-            fontSize: 14,
+            fontSize: 16,
             fontFamily: "'Cinzel', serif",
             letterSpacing: "0.04em",
             color: "#3d3020",
@@ -279,7 +279,7 @@ export default function MessageSection({
             width: "100%",
             borderRadius: 14,
             padding: "11px 16px",
-            fontSize: 15,
+            fontSize: 17,
             fontFamily: "'Cormorant Garamond', Georgia, serif",
             fontStyle: "italic",
             lineHeight: 1.65,
@@ -305,7 +305,7 @@ export default function MessageSection({
             background: `linear-gradient(135deg, ${accentColor}, ${accentColor}CC)`,
             color: "#fff",
             fontFamily: "'Cinzel', serif",
-            fontSize: 10,
+            fontSize: 12,
             letterSpacing: "0.3em",
             textTransform: "uppercase",
             border: "none",
@@ -377,9 +377,9 @@ export default function MessageSection({
               borderRadius: 14,
               border: `1px solid ${accentColor}28`,
               color: accentColor,
-              background: "rgba(255,255,255,0.45)",
+              background: "rgba(255,255,255,0.9)",
               fontFamily: "'Cinzel', serif",
-              fontSize: 9,
+              fontSize: 11,
               letterSpacing: "0.3em",
               textTransform: "uppercase",
               display: "flex",
@@ -416,7 +416,7 @@ export default function MessageSection({
                     borderRadius: 14,
                     padding: "14px 16px",
                     border: `1px solid ${accentColor}15`,
-                    background: "rgba(255,255,255,0.6)",
+                    background: "rgba(255,255,255,0.97)",
                     animation: `msg-fadeIn 0.4s ease ${idx * 40}ms both`,
                   }}
                 >
@@ -443,7 +443,7 @@ export default function MessageSection({
                           alignItems: "center",
                           justifyContent: "center",
                           fontFamily: "'Cinzel', serif",
-                          fontSize: 11,
+                          fontSize: 13,
                           fontWeight: 600,
                         }}
                       >
@@ -452,7 +452,7 @@ export default function MessageSection({
                       <p
                         style={{
                           fontFamily: "'Cinzel', serif",
-                          fontSize: 10,
+                          fontSize: 12,
                           letterSpacing: "0.1em",
                           fontWeight: 600,
                           color: accentColor,
@@ -465,8 +465,8 @@ export default function MessageSection({
                     <p
                       style={{
                         fontFamily: "'Cinzel', serif",
-                        fontSize: 9,
-                        color: `${accentColor}60`,
+                        fontSize: 11,
+                        color: accentColor,
                         margin: 0,
                       }}
                     >
@@ -479,10 +479,10 @@ export default function MessageSection({
                   <p
                     style={{
                       fontFamily: "'Cormorant Garamond', Georgia, serif",
-                      fontSize: 15,
+                      fontSize: 17,
                       lineHeight: 1.65,
                       fontStyle: "italic",
-                      color: `${accentColor}CC`,
+                      color: accentColor,
                       margin: 0,
                     }}
                   >

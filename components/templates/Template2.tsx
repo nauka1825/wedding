@@ -264,9 +264,9 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
           <p
             style={{
               fontFamily: "'Cinzel',serif",
-              fontSize: 10,
+              fontSize: 14,
               letterSpacing: "0.38em",
-              color: "rgba(122,88,32,0.9)",
+              color: "#5a3e0a",
               textTransform: "uppercase",
               margin: 0,
               position: "relative",
@@ -293,9 +293,9 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
                   textAlign: "center",
                   padding: "5px 0",
                   fontFamily: "'Cinzel',serif",
-                  fontSize: 7.5,
+                  fontSize: 11.5,
                   letterSpacing: "0.04em",
-                  color: "rgba(160,118,40,0.65)",
+                  color: "rgba(120,80,20,0.90)",
                 }}
               >
                 {d}
@@ -356,7 +356,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
                         className="day-pop"
                         style={{
                           fontFamily: "'Cinzel',serif",
-                          fontSize: 11,
+                          fontSize: 15,
                           fontWeight: 500,
                           color: "#A07028",
                           position: "relative",
@@ -386,7 +386,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
                   <span
                     style={{
                       fontFamily: "'Cinzel',serif",
-                      fontSize: 10,
+                      fontSize: 14,
                       color: isWeekend
                         ? "rgba(201,168,76,0.55)"
                         : "rgba(70,55,40,0.5)",
@@ -613,11 +613,11 @@ function Label({ children }: { children: React.ReactNode }) {
   return (
     <p
       style={{
-        fontSize: 12,
+        fontSize: 16,
         letterSpacing: "0.38em",
         fontFamily: "'Cinzel',serif",
         fontWeight: 600,
-        color: "rgba(160,118,40,0.75)",
+        color: "rgba(120,80,20,0.95)",
         margin: "0 0 10px 0",
         textTransform: "uppercase",
       }}
@@ -668,17 +668,17 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
       <div
         className="h-px"
         style={{
-          width: 30,
+          width: 25,
           background:
             "linear-gradient(to right,transparent,rgba(201,168,76,0.35))",
         }}
       />
       <p
         style={{
-          fontSize: 9,
+          fontSize: 12,
           letterSpacing: "0.42em",
           fontFamily: "'Cinzel',serif",
-          color: "rgba(160,118,40,0.65)",
+          color: "rgba(120,80,20,0.90)",
           textTransform: "uppercase",
           fontWeight: 500,
           margin: 0,
@@ -743,9 +743,9 @@ function DateTimeBlock({
             <p
               style={{
                 fontFamily: "'Cinzel',serif",
-                fontSize: 18,
+                fontSize: 22,
                 letterSpacing: "0.32em",
-                color: "#7a5820",
+                color: "#4a2e05",
                 fontWeight: 500,
                 margin: 0,
                 lineHeight: 1,
@@ -769,7 +769,7 @@ function DateTimeBlock({
             className="font-light italic"
             style={{
               fontFamily: "'Cormorant Garamond',Georgia,serif",
-              fontSize: 22,
+              fontSize: 26,
               color: "#111009",
               letterSpacing: "0.02em",
               lineHeight: 1.3,
@@ -785,7 +785,7 @@ function DateTimeBlock({
   );
 }
 
-// ─── ScrollRevealSection — баруун/зүүн талаас гарч ирэх ───
+// ─── ScrollRevealSection ───
 function ScrollRevealSection({
   children,
   direction = "left",
@@ -821,7 +821,7 @@ function ScrollRevealSection({
   );
 }
 
-// ─── InvitationHero — scroll-triggered invitation text section ───
+// ─── InvitationHero ───
 function InvitationHero({
   maleName,
   femaleName,
@@ -861,19 +861,17 @@ function InvitationHero({
         .inv-name-pop   { animation: inv-name-pop    0.9s cubic-bezier(0.34,1.4,0.64,1) both; }
       `}</style>
 
-      {/* Жоғарғы мәтін — зүүн талаас */}
       <p
         className="inv-from-left"
         style={{
           fontFamily: "'Cinzel',serif",
-          fontSize: 11,
+          fontSize: 15,
           letterSpacing: "0.2em",
-          color: "rgba(100,78,45,0.7)",
+          color: "rgba(60,42,15,0.95)",
           lineHeight: 2,
           textTransform: "uppercase",
           fontWeight: 600,
           margin: 0,
-          animationDelay: visible ? "0s" : "0s",
           animationPlayState: visible ? "running" : "paused",
         }}
       >
@@ -884,9 +882,9 @@ function InvitationHero({
         className="inv-from-right"
         style={{
           fontFamily: "'Cinzel',serif",
-          fontSize: 11,
+          fontSize: 15,
           letterSpacing: "0.2em",
-          color: "rgba(100,78,45,0.7)",
+          color: "rgba(60,42,15,0.95)",
           lineHeight: 2,
           textTransform: "uppercase",
           fontWeight: 600,
@@ -902,9 +900,9 @@ function InvitationHero({
         className="inv-from-left"
         style={{
           fontFamily: "'Cinzel',serif",
-          fontSize: 11,
+          fontSize: 15,
           letterSpacing: "0.2em",
-          color: "rgba(100,78,45,0.7)",
+          color: "rgba(60,42,15,0.95)",
           lineHeight: 2.2,
           textTransform: "uppercase",
           fontWeight: 600,
@@ -916,7 +914,6 @@ function InvitationHero({
         Сіздерді ұлымыз
       </p>
 
-      {/* Ер есімі — pop */}
       <p
         className="shimmer-gold inv-name-pop"
         style={{
@@ -934,7 +931,6 @@ function InvitationHero({
         {maleName}
       </p>
 
-      {/* Connector line */}
       <div
         className="inv-fade-up"
         style={{
@@ -958,9 +954,9 @@ function InvitationHero({
         <p
           style={{
             fontFamily: "'Cinzel',serif",
-            fontSize: 10,
+            fontSize: 14,
             letterSpacing: "0.3em",
-            color: "rgba(100,78,45,0.6)",
+            color: "rgba(60,42,15,0.88)",
             textTransform: "uppercase",
             fontWeight: 600,
             margin: 0,
@@ -978,7 +974,6 @@ function InvitationHero({
         />
       </div>
 
-      {/* Әйел есімі — pop */}
       <p
         className="shimmer-gold inv-name-pop"
         style={{
@@ -996,14 +991,13 @@ function InvitationHero({
         {femaleName}
       </p>
 
-      {/* Соңғы мәтін — оң талаас */}
       <p
         className="inv-from-right"
         style={{
           fontFamily: "'Cinzel',serif",
-          fontSize: 11,
+          fontSize: 15,
           letterSpacing: "0.13em",
-          color: "rgba(100,78,45,0.6)",
+          color: "rgba(60,42,15,0.88)",
           lineHeight: 1.95,
           textTransform: "uppercase",
           fontWeight: 600,
@@ -1019,7 +1013,6 @@ function InvitationHero({
         болуға шақырамыз!
       </p>
 
-      {/* Доод чимэглэл */}
       <div
         className="inv-fade-up"
         style={{
@@ -1064,7 +1057,15 @@ function OrganizerParticle({
   );
 }
 
-function OrganizerBlock({ organizer }: { organizer: string }) {
+function OrganizerBlock({
+  organizer,
+  maleParents,
+  femaleParents,
+}: {
+  organizer: string;
+  maleParents?: string | null;
+  femaleParents?: string | null;
+}) {
   const { ref, visible } = useInView(0.2);
   const lines = organizer.split("\n").filter(Boolean);
 
@@ -1106,7 +1107,6 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
             { delay: 1.8, duration: 5.2, x: 70, size: 24 },
           ].map((p, i) => <OrganizerParticle key={i} {...p} />)}
 
-        {/* Corner SVGs */}
         {[
           ["top:10px", "left:12px", "M2,20 Q2,2 20,2", "2", "2"],
           ["top:10px", "right:12px", "M20,20 Q20,2 2,2", "20", "2"],
@@ -1130,7 +1130,6 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
           </svg>
         ))}
 
-        {/* Watermark rings */}
         <div
           style={{
             position: "absolute",
@@ -1166,7 +1165,6 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
         </div>
 
         <div style={{ position: "relative", zIndex: 1 }}>
-          {/* Title row */}
           <div
             style={{
               display: "flex",
@@ -1194,11 +1192,11 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
             </svg>
             <p
               style={{
-                fontSize: 10,
+                fontSize: 14,
                 letterSpacing: "0.45em",
                 fontFamily: "'Cinzel',serif",
                 fontWeight: 500,
-                color: "rgba(160,118,40,0.7)",
+                color: "rgba(120,80,20,0.92)",
                 margin: 0,
                 textTransform: "uppercase",
               }}
@@ -1222,7 +1220,24 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
               }}
             />
           </div>
-
+          <p
+            className="org-line-enter"
+            style={{
+              fontFamily: "'Cinzel',serif",
+              fontSize: 16,
+              fontWeight: 500,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              color: "#4a2e05",
+              lineHeight: 1.9,
+              wordBreak: "break-word",
+              margin: 0,
+              animationDelay: visible ? "0.2s" : "0s",
+              animationPlayState: visible ? "running" : "paused",
+            }}
+          >
+            Ата анасы
+          </p>
           <div
             style={{
               display: "flex",
@@ -1233,7 +1248,6 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
           >
             {(() => {
               const items = lines.length > 0 ? lines : [organizer];
-              // 2 мөр байвал хооронд нь & сепаратор оруулна
               if (items.length === 2) {
                 return (
                   <>
@@ -1241,11 +1255,11 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
                       className="org-line-enter"
                       style={{
                         fontFamily: "'Cinzel',serif",
-                        fontSize: 14,
+                        fontSize: 18,
                         fontWeight: 600,
                         letterSpacing: "0.2em",
                         textTransform: "uppercase",
-                        color: "#7a5820",
+                        color: "#4a2e05",
                         lineHeight: 1.9,
                         wordBreak: "break-word",
                         margin: 0,
@@ -1255,7 +1269,6 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
                     >
                       {items[0]}
                     </p>
-                    {/* & separator */}
                     <div
                       className="org-line-enter"
                       style={{
@@ -1277,11 +1290,11 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
                       <span
                         style={{
                           fontFamily: "'Cormorant Garamond',Georgia,serif",
-                          fontSize: 26,
+                          fontSize: 30,
                           fontStyle: "italic",
                           color: "rgba(201,168,76,0.75)",
                           lineHeight: 1,
-                          fontWeight: 400,
+                          fontWeight: 500,
                         }}
                       >
                         &amp;
@@ -1299,11 +1312,11 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
                       className="org-line-enter"
                       style={{
                         fontFamily: "'Cinzel',serif",
-                        fontSize: 14,
+                        fontSize: 18,
                         fontWeight: 600,
                         letterSpacing: "0.2em",
                         textTransform: "uppercase",
-                        color: "#7a5820",
+                        color: "#4a2e05",
                         lineHeight: 1.9,
                         wordBreak: "break-word",
                         margin: 0,
@@ -1316,18 +1329,17 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
                   </>
                 );
               }
-              // 2-оос өөр тооны үед жагсаалтаар харуулна
               return items.map((line, i) => (
                 <p
                   key={i}
                   className="org-line-enter"
                   style={{
                     fontFamily: "'Cinzel',serif",
-                    fontSize: 14,
+                    fontSize: 18,
                     fontWeight: 600,
                     letterSpacing: "0.2em",
                     textTransform: "uppercase",
-                    color: "#7a5820",
+                    color: "#4a2e05",
                     lineHeight: 1.9,
                     wordBreak: "break-word",
                     margin: 0,
@@ -1362,6 +1374,182 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
               />
             ))}
           </div>
+
+          {/* ── Эцэг-шешесі ── */}
+          {(maleParents || femaleParents) && (
+            <div
+              style={{
+                marginTop: 22,
+                borderTop: "0.5px solid rgba(201,168,76,0.18)",
+                paddingTop: 18,
+              }}
+            >
+              {/* "Ата-аналар" label */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  marginBottom: 14,
+                }}
+              >
+                <div
+                  style={{
+                    height: 1,
+                    width: 22,
+                    background:
+                      "linear-gradient(to right,transparent,rgba(201,168,76,0.45))",
+                  }}
+                />
+                <p
+                  style={{
+                    fontSize: 11,
+                    letterSpacing: "0.38em",
+                    fontFamily: "'Cinzel',serif",
+                    fontWeight: 500,
+                    color: "rgba(120,80,20,0.85)",
+                    margin: 0,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Ата-аналары
+                </p>
+                <div
+                  style={{
+                    height: 1,
+                    width: 22,
+                    background:
+                      "linear-gradient(to left,transparent,rgba(201,168,76,0.45))",
+                  }}
+                />
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 14,
+                  alignItems: "center",
+                }}
+              >
+                {maleParents && (
+                  <div
+                    className="org-line-enter"
+                    style={{
+                      textAlign: "center",
+                      animationDelay: visible ? "0.55s" : "0s",
+                      animationPlayState: visible ? "running" : "paused",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontSize: 10,
+                        letterSpacing: "0.32em",
+                        fontFamily: "'Cinzel',serif",
+                        color: "rgba(160,110,40,0.75)",
+                        textTransform: "uppercase",
+                        margin: "0 0 4px",
+                        fontWeight: 500,
+                      }}
+                    >
+                      Күйеу жақ
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "'Cinzel',serif",
+                        fontSize: 14,
+                        fontWeight: 600,
+                        letterSpacing: "0.15em",
+                        textTransform: "uppercase",
+                        color: "#4a2e05",
+                        lineHeight: 1.75,
+                        wordBreak: "break-word",
+                        margin: 0,
+                      }}
+                    >
+                      {maleParents}
+                    </p>
+                  </div>
+                )}
+
+                {maleParents && femaleParents && (
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 10 }}
+                  >
+                    <div
+                      style={{
+                        height: 1,
+                        width: 20,
+                        background:
+                          "linear-gradient(to right,transparent,rgba(201,168,76,0.4))",
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontFamily: "'Cormorant Garamond',Georgia,serif",
+                        fontSize: 22,
+                        fontStyle: "italic",
+                        color: "rgba(201,168,76,0.7)",
+                        lineHeight: 1,
+                        fontWeight: 500,
+                      }}
+                    >
+                      &amp;
+                    </span>
+                    <div
+                      style={{
+                        height: 1,
+                        width: 20,
+                        background:
+                          "linear-gradient(to left,transparent,rgba(201,168,76,0.4))",
+                      }}
+                    />
+                  </div>
+                )}
+
+                {femaleParents && (
+                  <div
+                    className="org-line-enter"
+                    style={{
+                      textAlign: "center",
+                      animationDelay: visible ? "0.68s" : "0s",
+                      animationPlayState: visible ? "running" : "paused",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontSize: 10,
+                        letterSpacing: "0.32em",
+                        fontFamily: "'Cinzel',serif",
+                        color: "rgba(160,110,40,0.75)",
+                        textTransform: "uppercase",
+                        margin: "0 0 4px",
+                        fontWeight: 500,
+                      }}
+                    >
+                      Келін жақ
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "'Cinzel',serif",
+                        fontSize: 14,
+                        fontWeight: 600,
+                        letterSpacing: "0.15em",
+                        textTransform: "uppercase",
+                        color: "#4a2e05",
+                        lineHeight: 1.75,
+                        wordBreak: "break-word",
+                        margin: 0,
+                      }}
+                    >
+                      {femaleParents}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -1523,7 +1711,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           />
         </div>
 
-        {/* ═══ INVITATION HERO — scroll animation ═══ */}
+        {/* ═══ INVITATION HERO ═══ */}
         <div className="mt-10 relative z-10" style={{ background: "#ffffff" }}>
           <InvitationHero
             maleName={wedding.male_name}
@@ -1564,7 +1752,11 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
         {/* ═══ ТОЙ ИЕЛЕРІ ═══ */}
         {wedding.organizer && (
           <ScrollRevealSection direction="left" delay={0.05}>
-            <OrganizerBlock organizer={wedding.organizer} />
+            <OrganizerBlock
+              organizer={wedding.organizer}
+              // maleParents={wedding.male_parents}
+              // femaleParents={wedding.female_parents}
+            />
           </ScrollRevealSection>
         )}
 
@@ -1579,10 +1771,10 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
             <p
               className="fade-up fade-3 mt-3 uppercase"
               style={{
-                fontSize: 10,
+                fontSize: 14,
                 letterSpacing: "0.44em",
                 fontFamily: "'Cinzel',serif",
-                color: "rgba(160,118,40,0.65)",
+                color: "rgba(120,80,20,0.90)",
                 fontWeight: 700,
               }}
             >
@@ -1615,7 +1807,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           >
             <p
               className="shimmer-gold my-2 flex justify-center w-full"
-              style={{ fontSize: 11, fontFamily: "'Cinzel',serif" }}
+              style={{ fontSize: 15, fontFamily: "'Cinzel',serif" }}
             >
               ❤️ Біздің махаббатымыздың естеліктері ❤️
             </p>
@@ -1650,7 +1842,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                     <p
                       className="font-light italic mt-3"
                       style={{
-                        fontSize: 24,
+                        fontSize: 28,
                         wordBreak: "break-word",
                         color: "#111009",
                         lineHeight: 1.35,
@@ -1672,12 +1864,12 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                       />
                       <p
                         style={{
-                          fontSize: 14,
+                          fontSize: 18,
                           fontWeight: 500,
                           fontFamily: "'Cinzel',serif",
                           wordBreak: "break-word",
                           letterSpacing: "0.04em",
-                          color: "#5c4e3d",
+                          color: "#2e2010",
                           lineHeight: 1.6,
                         }}
                       >
@@ -1712,7 +1904,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                       <p
                         className="leading-relaxed"
                         style={{
-                          fontSize: 16,
+                          fontSize: 20,
                           fontFamily: "'Cinzel',serif",
                           wordBreak: "break-word",
                           color: "#2e2720",
@@ -1785,10 +1977,10 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
               key={i}
               className={i === 0 ? "mt-4" : "mt-2"}
               style={{
-                fontSize: 12,
+                fontSize: 16,
                 fontFamily: "'Playfair Display',serif",
                 fontStyle: "italic",
-                color: "#67748E",
+                color: "#3d4a5c",
               }}
             >
               {line}
@@ -1798,7 +1990,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           <p
             className="shimmer-gold uppercase mt-4"
             style={{
-              fontSize: 14,
+              fontSize: 18,
               fontFamily: "'Cinzel',serif",
               letterSpacing: "0.4em",
             }}
@@ -1809,10 +2001,10 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
             <p
               className="mt-2"
               style={{
-                fontSize: 14,
+                fontSize: 18,
                 fontFamily: "'Cinzel',serif",
                 letterSpacing: "0.24em",
-                color: "rgba(160,118,40,0.45)",
+                color: "rgba(120,80,20,0.75)",
               }}
             >
               {date}
