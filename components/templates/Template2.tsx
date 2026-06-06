@@ -863,7 +863,7 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
       />
       <p
         style={{
-          fontSize: 12,
+          fontSize: 9,
           letterSpacing: "0.42em",
           fontFamily: "'Cinzel',serif",
           color: "rgba(160,118,40,0.65)",
