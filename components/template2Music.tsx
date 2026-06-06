@@ -1,20 +1,37 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaPlay, FaPause } from "react-icons/fa";
 
 export default function Template2Music() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(true);
 
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (!audio) return;
+
+    audio
+      .play()
+      .then(() => {
+        setPlaying(true);
+      })
+      .catch(() => {
+        console.log("Autoplay blocked");
+      });
+  }, []);
+
   const toggle = () => {
-    if (!audioRef.current) return;
+    const audio = audioRef.current;
 
-    if (playing) {
-      audioRef.current.pause();
+    if (!audio) return;
+
+    if (audio.paused) {
+      audio.play();
+      setPlaying(true);
     } else {
-      audioRef.current.play();
+      audio.pause();
+      setPlaying(false);
     }
-
-    setPlaying(!playing);
   };
 
   return (

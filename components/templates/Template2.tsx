@@ -539,7 +539,7 @@ function GallerySwiper({ urls }: { urls: string[] }) {
         onScroll={onScroll}
         onTouchStart={resetTimer}
         onMouseDown={resetTimer}
-        className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-5 pb-3"
+        className="flex gap-1 overflow-x-auto snap-x snap-mandatory px-5 pb-3"
         style={{ scrollbarWidth: "none" }}
       >
         {urls.map((url, i) => (
@@ -548,9 +548,9 @@ function GallerySwiper({ urls }: { urls: string[] }) {
             className="snap-center flex-shrink-0 overflow-hidden"
             style={{
               width: "75vw",
-              maxWidth: 320,
-              height: 250,
-              borderRadius: 14,
+              maxWidth: 380,
+              height: 300,
+              borderRadius: 12,
               border:
                 active === i
                   ? "1.5px solid rgba(201,168,76,0.7)"
@@ -1773,41 +1773,45 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
         <div className="text-center py-12 mt-4">
           <GoldDivider className="mb-5 mx-8" />
           <p
-            className="shimmer-gold uppercase mt-4"
+            className="mt-4"
             style={{
               fontSize: 12,
-              fontFamily: "'Cinzel',serif",
-              color: "rgba(100, 78, 45, 0.75)",
+              fontFamily: "'Playfair Display', serif",
+              fontStyle: "italic",
+              color: "#67748E",
             }}
           >
             Біз екеуміз тек екеуміз
           </p>
           <p
-            className="shimmer-gold uppercase mt-2"
+            className="mt-2"
             style={{
               fontSize: 12,
-              fontFamily: "'Cinzel',serif",
-              color: "rgba(100, 78, 45, 0.75)",
+              fontFamily: "'Playfair Display', serif",
+              fontStyle: "italic",
+              color: "#67748E",
             }}
           >
             Жүректермен бір екенбіз
           </p>
           <p
-            className="shimmer-gold uppercase mt-2"
+            className="mt-2"
             style={{
               fontSize: 12,
-              fontFamily: "'Cinzel',serif",
-              color: "rgba(100, 78, 45, 0.75)",
+              fontFamily: "'Playfair Display', serif",
+              fontStyle: "italic",
+              color: "#67748E",
             }}
           >
             Мен сен үшін сен мен үшін
           </p>
           <p
-            className="shimmer-gold uppercase mt-2"
+            className="mt-2"
             style={{
               fontSize: 12,
-              fontFamily: "'Cinzel',serif",
-              color: "rgba(100, 78, 45, 0.75)",
+              fontFamily: "'Playfair Display', serif",
+              fontStyle: "italic",
+              color: "#67748E",
             }}
           >
             Жаралған екенбіз
