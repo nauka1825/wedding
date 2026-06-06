@@ -553,14 +553,14 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                   label: "сурет1",
                   icon: "",
                 },
-                {
-                  file: p4File,
-                  setFile: setP4File,
-                  preview: p4Preview,
-                  setPreview: setP4Preview,
-                  label: "сурет2",
-                  icon: "",
-                },
+                // {
+                //   file: p4File,
+                //   setFile: setP4File,
+                //   preview: p4Preview,
+                //   setPreview: setP4Preview,
+                //   label: "сурет2",
+                //   icon: "",
+                // },
               ].map((item, i) => (
                 <div key={i}>
                   <label className={LABEL}>{item.label}</label>
