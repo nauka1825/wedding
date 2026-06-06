@@ -28,7 +28,7 @@ export async function generateMetadata({
   }
 
   const image =
-    wedding.photo3_url || wedding.main_photo_url || wedding.photo5_url;
+    wedding.main_photo_url || wedding.photo3_url || wedding.photo5_url;
 
   return {
     title: `${wedding.male_name} & ${wedding.female_name}`,

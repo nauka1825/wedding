@@ -1602,7 +1602,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
             <>
               <FloralDots />
               <p
-                className="fade-up fade-3 mt-2 uppercase"
+                className="fade-up fade-3 mt-4 uppercase"
                 style={{
                   fontSize: "10px",
                   letterSpacing: "0.44em",
@@ -1617,7 +1617,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           )}
 
           {wedding.wedding_date && (
-            <div className="fade-up fade-3 mt-2 px-5 mb-2">
+            <div className="fade-up fade-3 mt-4 px-5">
               <AnimatedCalendar dateStr={wedding.wedding_date} />
             </div>
           )}
@@ -1629,7 +1629,27 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
 
         {!!wedding.gallery_urls?.length && (
           <div className="mt-10">
-            <SectionHeader>Фото альбом</SectionHeader>
+            <p
+              className="shimmer-gold uppercase my-2  flex justify-center w-full"
+              style={{
+                fontSize: 14,
+                fontFamily: "'Cinzel',serif",
+                color: "rgba(100, 78, 45, 0.75)",
+              }}
+            >
+              Біздің махаббатымыздың естеліктері
+            </p>
+            <p
+              className="uppercase mb-2  flex justify-center w-full"
+              style={{
+                fontSize: 14,
+                fontFamily: "'Cinzel',serif",
+                color: "red",
+              }}
+            >
+              ❤️
+            </p>
+            <SectionHeader>Суреттер жиынтығы</SectionHeader>
             <GallerySwiper urls={wedding.gallery_urls} />
           </div>
         )}
@@ -1697,7 +1717,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                 {extras.map((e, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <FaStar
-                      size={9}
+                      size={16}
                       style={{
                         color: "rgba(201,168,76,0.6)",
                         flexShrink: 0,
@@ -1707,7 +1727,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                     <p
                       className="leading-relaxed"
                       style={{
-                        fontSize: 15,
+                        fontSize: 16,
                         fontFamily: "'Cinzel',serif",
                         wordBreak: "break-word",
                         color: "#2e2720",
@@ -1762,6 +1782,46 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
         {/* ═══ FOOTER ═══ */}
         <div className="text-center py-12 mt-4">
           <GoldDivider className="mb-5 mx-8" />
+          <p
+            className="shimmer-gold uppercase mt-4"
+            style={{
+              fontSize: 12,
+              fontFamily: "'Cinzel',serif",
+              color: "rgba(100, 78, 45, 0.75)",
+            }}
+          >
+            Біз екеуміз тек екеуміз
+          </p>
+          <p
+            className="shimmer-gold uppercase mt-2"
+            style={{
+              fontSize: 12,
+              fontFamily: "'Cinzel',serif",
+              color: "rgba(100, 78, 45, 0.75)",
+            }}
+          >
+            Жүректермен бір екенбіз
+          </p>
+          <p
+            className="shimmer-gold uppercase mt-2"
+            style={{
+              fontSize: 12,
+              fontFamily: "'Cinzel',serif",
+              color: "rgba(100, 78, 45, 0.75)",
+            }}
+          >
+            Мен сен үшін сен мен үшін
+          </p>
+          <p
+            className="shimmer-gold uppercase mt-2"
+            style={{
+              fontSize: 12,
+              fontFamily: "'Cinzel',serif",
+              color: "rgba(100, 78, 45, 0.75)",
+            }}
+          >
+            Жаралған екенбіз
+          </p>
           <FloralDots />
           <p
             className="shimmer-gold uppercase mt-4"
