@@ -56,8 +56,8 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
     >
       <defs>
         <radialGradient id="clock-bg" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#FFFDF5" />
-          <stop offset="100%" stopColor="#FAF3DC" />
+          <stop offset="0%" stopColor="#eef0f8" />
+          <stop offset="100%" stopColor="#eef0f8" />
         </radialGradient>
         <filter id="clock-shadow">
           <feDropShadow
@@ -74,7 +74,7 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
         r="36"
         fill="url(#clock-bg)"
         filter="url(#clock-shadow)"
-        stroke="rgba(201,168,76,0.4)"
+        stroke="rgba(37,43,66,0.4)"
         strokeWidth="0.8"
       />
       <circle
@@ -82,7 +82,7 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
         cy="40"
         r="33"
         fill="none"
-        stroke="rgba(201,168,76,0.15)"
+        stroke="rgba(37,43,66,0.15)"
         strokeWidth="0.4"
       />
       {Array.from({ length: 12 }, (_, i) => {
@@ -96,9 +96,7 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
             y1={40 + r1 * Math.sin(a)}
             x2={40 + r2 * Math.cos(a)}
             y2={40 + r2 * Math.sin(a)}
-            stroke={
-              i % 3 === 0 ? "rgba(160,118,40,0.7)" : "rgba(160,118,40,0.3)"
-            }
+            stroke={i % 3 === 0 ? "rgba(37,43,66,0.7)" : "rgba(37,43,66,0.3)"}
             strokeWidth={i % 3 === 0 ? 1.2 : 0.6}
           />
         );
@@ -108,7 +106,7 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
         y1="40"
         x2={40 + 15 * Math.cos(((hourDeg - 90) * Math.PI) / 180)}
         y2={40 + 15 * Math.sin(((hourDeg - 90) * Math.PI) / 180)}
-        stroke="#7a5820"
+        stroke="#252b42"
         strokeWidth="2.2"
         strokeLinecap="round"
       />
@@ -117,7 +115,7 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
         y1="40"
         x2={40 + 21 * Math.cos(((minDeg - 90) * Math.PI) / 180)}
         y2={40 + 21 * Math.sin(((minDeg - 90) * Math.PI) / 180)}
-        stroke="#A07028"
+        stroke="#252b42"
         strokeWidth="1.5"
         strokeLinecap="round"
       />
@@ -126,11 +124,11 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
         y1="40"
         x2={40 + 23 * Math.cos(((secDeg - 90) * Math.PI) / 180)}
         y2={40 + 23 * Math.sin(((secDeg - 90) * Math.PI) / 180)}
-        stroke="rgba(201,168,76,0.8)"
+        stroke="rgba(37,43,66,0.8)"
         strokeWidth="0.8"
         strokeLinecap="round"
       />
-      <circle cx="40" cy="40" r="2.5" fill="#C9A84C" />
+      <circle cx="40" cy="40" r="2.5" fill="#252b42" />
       <circle cx="40" cy="40" r="1.2" fill="#fff" />
     </svg>
   );
@@ -203,7 +201,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
           cy="107"
           r="90"
           fill="none"
-          stroke="rgba(201,168,76,0.55)"
+          stroke="rgba(37,43,66,0.55)"
           strokeWidth="0.8"
           strokeLinecap="round"
         />
@@ -212,7 +210,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
           cy="107"
           r="97"
           fill="none"
-          stroke="rgba(201,168,76,0.1)"
+          stroke="rgba(37,43,66,0.1)"
           strokeWidth="0.5"
         />
         {[
@@ -231,7 +229,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
             cx={cx}
             cy={cy}
             r="2"
-            fill="#C9A84C"
+            fill="#252b42"
             opacity="0.6"
             style={{ animationDelay: `${0.9 + i * 0.07}s` }}
           />
@@ -244,18 +242,17 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
           position: "relative",
           zIndex: 2,
           background: "#ffffff",
-          border: "0.5px solid rgba(201,168,76,0.28)",
+          border: "0.5px solid rgba(37,43,66,0.28)",
           borderRadius: 20,
           overflow: "hidden",
-          boxShadow:
-            "0 8px 32px rgba(0,0,0,0.07),0 2px 8px rgba(201,168,76,0.1)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.07),0 2px 8px rgba(37,43,66,0.1)",
         }}
       >
         {/* Header */}
         <div
           style={{
             background:
-              "linear-gradient(135deg,#FAF3DC 0%,#F5E9C0 50%,#FAF3DC 100%)",
+              "linear-gradient(135deg,#eef0f8 0%,#dde0ee 50%,#eef0f8 100%)",
             padding: "14px 16px 12px",
             textAlign: "center",
             position: "relative",
@@ -266,7 +263,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
               fontFamily: "'Cinzel',serif",
               fontSize: 14,
               letterSpacing: "0.38em",
-              color: "#5a3e0a",
+              color: "#252b42",
               textTransform: "uppercase",
               margin: 0,
               position: "relative",
@@ -279,8 +276,8 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
         {/* Day headers */}
         <div
           style={{
-            background: "rgba(201,168,76,0.05)",
-            borderBottom: "0.5px solid rgba(201,168,76,0.12)",
+            background: "rgba(37,43,66,0.05)",
+            borderBottom: "0.5px solid rgba(37,43,66,0.12)",
           }}
         >
           <div
@@ -295,7 +292,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
                   fontFamily: "'Cinzel',serif",
                   fontSize: 11.5,
                   letterSpacing: "0.04em",
-                  color: "rgba(120,80,20,0.90)",
+                  color: "rgba(37,43,66,0.90)",
                 }}
               >
                 {d}
@@ -347,8 +344,8 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
                       >
                         <path
                           d="M14,23 C14,23 2,15 2,7.5 C2,4.5 4.3,2.5 7.5,2.5 C10,2.5 12.2,4 14,6 C15.8,4 18,2.5 20.5,2.5 C23.7,2.5 26,4.5 26,7.5 C26,15 14,23 14,23Z"
-                          fill="rgba(201,168,76,0.15)"
-                          stroke="rgba(201,168,76,0.65)"
+                          fill="rgba(37,43,66,0.15)"
+                          stroke="rgba(37,43,66,0.65)"
                           strokeWidth="0.9"
                         />
                       </svg>
@@ -358,7 +355,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
                           fontFamily: "'Cinzel',serif",
                           fontSize: 15,
                           fontWeight: 500,
-                          color: "#A07028",
+                          color: "#252b42",
                           position: "relative",
                           zIndex: 1,
                           lineHeight: 1,
@@ -374,7 +371,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
                       <svg viewBox="0 0 12 11" width="10" height="10">
                         <path
                           d="M6,9.5 C6,9.5 0.5,6 0.5,3 C0.5,1.6 1.6,0.5 3,0.5 C4.2,0.5 5.2,1.3 6,2.2 C6.8,1.3 7.8,0.5 9,0.5 C10.4,0.5 11.5,1.6 11.5,3 C11.5,6 6,9.5 6,9.5Z"
-                          fill="#C9A84C"
+                          fill="#252b42"
                           opacity="0.9"
                         />
                       </svg>
@@ -388,8 +385,8 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
                       fontFamily: "'Cinzel',serif",
                       fontSize: 14,
                       color: isWeekend
-                        ? "rgba(201,168,76,0.55)"
-                        : "rgba(70,55,40,0.5)",
+                        ? "rgba(37,43,66,0.55)"
+                        : "rgba(37,43,66,0.45)",
                     }}
                   >
                     {cell}
@@ -477,14 +474,14 @@ function GallerySwiper({ urls }: { urls: string[] }) {
               borderRadius: 12,
               border:
                 active === i
-                  ? "1.5px solid rgba(201,168,76,0.7)"
-                  : "1px solid rgba(201,168,76,0.2)",
+                  ? "1.5px solid rgba(37,43,66,0.7)"
+                  : "1px solid rgba(37,43,66,0.2)",
               transition:
                 "transform 0.35s ease,box-shadow 0.35s ease,border-color 0.35s ease",
               transform: active === i ? "scale(1)" : "scale(0.92)",
               boxShadow:
                 active === i
-                  ? "0 10px 40px rgba(0,0,0,0.12),0 2px 8px rgba(201,168,76,0.15)"
+                  ? "0 10px 40px rgba(0,0,0,0.12),0 2px 8px rgba(37,43,66,0.15)"
                   : "0 2px 12px rgba(0,0,0,0.06)",
             }}
           >
@@ -516,7 +513,7 @@ function GallerySwiper({ urls }: { urls: string[] }) {
               style={{
                 width: active === i ? 22 : 6,
                 height: 2,
-                background: "rgba(201,168,76,0.3)",
+                background: "rgba(37,43,66,0.3)",
                 opacity: active === i ? 1 : 0.4,
               }}
             >
@@ -524,7 +521,7 @@ function GallerySwiper({ urls }: { urls: string[] }) {
                 <span
                   className="absolute inset-0"
                   style={{
-                    background: "#C9A84C",
+                    background: "#3d4f7c",
                     animation: "gold-progress 5s linear forwards",
                   }}
                 />
@@ -545,7 +542,7 @@ function GoldDivider({ className = "" }: { className?: string }) {
         className="h-px flex-1"
         style={{
           background:
-            "linear-gradient(to right,transparent,rgba(201,168,76,0.45))",
+            "linear-gradient(to right,transparent,rgba(37,43,66,0.45))",
         }}
       />
       <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -553,19 +550,19 @@ function GoldDivider({ className = "" }: { className?: string }) {
           style={{
             width: 4,
             height: 4,
-            background: "rgba(201,168,76,0.4)",
+            background: "rgba(37,43,66,0.4)",
             transform: "rotate(45deg)",
           }}
         />
         <FaStar
           size={8}
-          style={{ color: "rgba(201,168,76,0.65)", flexShrink: 0 }}
+          style={{ color: "rgba(37,43,66,0.65)", flexShrink: 0 }}
         />
         <div
           style={{
             width: 4,
             height: 4,
-            background: "rgba(201,168,76,0.4)",
+            background: "rgba(37,43,66,0.4)",
             transform: "rotate(45deg)",
           }}
         />
@@ -574,7 +571,7 @@ function GoldDivider({ className = "" }: { className?: string }) {
         className="h-px flex-1"
         style={{
           background:
-            "linear-gradient(to left,transparent,rgba(201,168,76,0.45))",
+            "linear-gradient(to left,transparent,rgba(37,43,66,0.45))",
         }}
       />
     </div>
@@ -600,7 +597,7 @@ function FloralDots() {
             width: i === 2 ? 5 : 3,
             height: i === 2 ? 5 : 3,
             borderRadius: "50%",
-            background: `rgba(201,168,76,${op})`,
+            background: `rgba(37,43,66,${op})`,
           }}
         />
       ))}
@@ -617,7 +614,7 @@ function Label({ children }: { children: React.ReactNode }) {
         letterSpacing: "0.38em",
         fontFamily: "'Cinzel',serif",
         fontWeight: 600,
-        color: "rgba(120,80,20,0.95)",
+        color: "rgba(37,43,66,0.95)",
         margin: "0 0 10px 0",
         textTransform: "uppercase",
       }}
@@ -642,7 +639,7 @@ function Card({
       className={`relative ${className}`}
       style={{
         background: "#ffffff",
-        border: "0.5px solid rgba(201,168,76,0.18)",
+        border: "0.5px solid rgba(37,43,66,0.18)",
         borderRadius: 16,
         boxShadow:
           "0 2px 20px rgba(0,0,0,0.05),0 1px 4px rgba(0,0,0,0.03),inset 0 0 0 1px rgba(255,255,255,0.8)",
@@ -663,14 +660,14 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
     >
       <FaLeaf
         size={9}
-        style={{ color: "rgba(201,168,76,0.45)", transform: "scaleX(-1)" }}
+        style={{ color: "rgba(37,43,66,0.45)", transform: "scaleX(-1)" }}
       />
       <div
         className="h-px"
         style={{
           width: 25,
           background:
-            "linear-gradient(to right,transparent,rgba(201,168,76,0.35))",
+            "linear-gradient(to right,transparent,rgba(37,43,66,0.35))",
         }}
       />
       <p
@@ -678,7 +675,7 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
           fontSize: 12,
           letterSpacing: "0.42em",
           fontFamily: "'Cinzel',serif",
-          color: "rgba(120,80,20,0.90)",
+          color: "rgba(37,43,66,0.90)",
           textTransform: "uppercase",
           fontWeight: 400,
           margin: 0,
@@ -691,10 +688,10 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
         style={{
           width: 30,
           background:
-            "linear-gradient(to left,transparent,rgba(201,168,76,0.35))",
+            "linear-gradient(to left,transparent,rgba(37,43,66,0.35))",
         }}
       />
-      <FaLeaf size={8} style={{ color: "rgba(201,168,76,0.45)" }} />
+      <FaLeaf size={8} style={{ color: "rgba(37,43,66,0.45)" }} />
     </div>
   );
 }
@@ -731,21 +728,21 @@ function DateTimeBlock({
               display: "inline-flex",
               alignItems: "center",
               gap: 8,
-              background: "linear-gradient(135deg,#FFFBF0,#FAF3DC)",
-              border: "0.5px solid rgba(201,168,76,0.35)",
+              background: "linear-gradient(135deg,#eef0f8,#eef0f8)",
+              border: "0.5px solid rgba(37,43,66,0.35)",
               borderRadius: 10,
               padding: "7px 18px",
               animationDelay: "0.2s",
               animationPlayState: visible ? "running" : "paused",
             }}
           >
-            <FaClock size={10} style={{ color: "#C9A84C" }} />
+            <FaClock size={10} style={{ color: "#252b42" }} />
             <p
               style={{
                 fontFamily: "'Cinzel',serif",
                 fontSize: 22,
                 letterSpacing: "0.32em",
-                color: "#4a2e05",
+                color: "#252b42",
                 fontWeight: 500,
                 margin: 0,
                 lineHeight: 1,
@@ -770,7 +767,7 @@ function DateTimeBlock({
             style={{
               fontFamily: "'Cormorant Garamond',Georgia,serif",
               fontSize: 26,
-              color: "#111009",
+              color: "#252b42",
               letterSpacing: "0.02em",
               lineHeight: 1.3,
               margin: 0,
@@ -821,7 +818,6 @@ function ScrollRevealSection({
   );
 }
 
-// ─── InvitationHero ───
 function InvitationHero({
   maleName,
   femaleName,
@@ -838,6 +834,8 @@ function InvitationHero({
       style={{ background: "#ffffff" }}
     >
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap');
+
         @keyframes inv-slide-left {
           0%   { opacity:0; transform:translateX(-52px); }
           100% { opacity:1; transform:translateX(0); }
@@ -864,48 +862,31 @@ function InvitationHero({
       <p
         className="inv-from-left"
         style={{
-          fontFamily: "'Cinzel',serif",
-          fontSize: 15,
-          letterSpacing: "0.2em",
-          color: "rgba(60,42,15,0.95)",
-          lineHeight: 2,
-          textTransform: "uppercase",
-          fontWeight: 600,
-          margin: 0,
-          animationPlayState: visible ? "running" : "paused",
-        }}
-      >
-        Құрметті ағайын-туыс, құда-жекжат,
-      </p>
+          fontFamily: "'Cormorant Garamond', Georgia, serif",
 
-      <p
-        className="inv-from-right"
-        style={{
-          fontFamily: "'Cinzel',serif",
           fontSize: 15,
           letterSpacing: "0.2em",
-          color: "rgba(60,42,15,0.95)",
+          color: "rgba(37,43,66,0.95)",
           lineHeight: 2,
           textTransform: "uppercase",
-          fontWeight: 600,
+          fontWeight: 700,
           margin: 0,
-          animationDelay: visible ? "0.08s" : "0s",
           animationPlayState: visible ? "running" : "paused",
         }}
       >
-        дос-жаран, әріптестер мен көршілер!
+        Құрметті ағайын-туыс, құда-жекжат, дос-жаран, әріптестер мен көршілер!
       </p>
 
       <p
         className="inv-from-left"
         style={{
-          fontFamily: "'Cinzel',serif",
+          fontFamily: "'Cormorant Garamond', Georgia, serif",
           fontSize: 15,
           letterSpacing: "0.2em",
-          color: "rgba(60,42,15,0.95)",
+          color: "rgba(37,43,66,0.95)",
           lineHeight: 2.2,
           textTransform: "uppercase",
-          fontWeight: 600,
+          fontWeight: 700,
           margin: "4px 0 0",
           animationDelay: visible ? "0.18s" : "0s",
           animationPlayState: visible ? "running" : "paused",
@@ -917,13 +898,13 @@ function InvitationHero({
       <p
         className="shimmer-gold inv-name-pop"
         style={{
-          fontFamily: "'Cormorant Garamond',Georgia,serif",
-          fontSize: "clamp(2rem,9vw,3rem)",
-          fontWeight: 500,
-          fontStyle: "italic",
-          lineHeight: 1.1,
-          letterSpacing: "0.04em",
-          margin: "4px 0 6px",
+          fontFamily: "'Great Vibes', cursive",
+          fontSize: "clamp(2.8rem,11vw,4.2rem)",
+          fontWeight: 400,
+          fontStyle: "normal",
+          lineHeight: 1.15,
+          letterSpacing: "0.02em",
+          margin: "8px 0 4px",
           animationDelay: visible ? "0.3s" : "0s",
           animationPlayState: visible ? "running" : "paused",
         }}
@@ -938,7 +919,7 @@ function InvitationHero({
           alignItems: "center",
           justifyContent: "center",
           gap: 10,
-          margin: "2px 0",
+          margin: "4px 0",
           animationDelay: visible ? "0.42s" : "0s",
           animationPlayState: visible ? "running" : "paused",
         }}
@@ -948,17 +929,17 @@ function InvitationHero({
             height: 1,
             width: 32,
             background:
-              "linear-gradient(to right,transparent,rgba(201,168,76,0.5))",
+              "linear-gradient(to right,transparent,rgba(37,43,66,0.5))",
           }}
         />
         <p
           style={{
-            fontFamily: "'Cinzel',serif",
+            fontFamily: "'Cormorant Garamond', Georgia, serif",
             fontSize: 14,
             letterSpacing: "0.3em",
-            color: "rgba(60,42,15,0.88)",
+            color: "rgba(37,43,66,0.88)",
             textTransform: "uppercase",
-            fontWeight: 600,
+            fontWeight: 700,
             margin: 0,
           }}
         >
@@ -969,7 +950,7 @@ function InvitationHero({
             height: 1,
             width: 32,
             background:
-              "linear-gradient(to left,transparent,rgba(201,168,76,0.5))",
+              "linear-gradient(to left,transparent,rgba(37,43,66,0.5))",
           }}
         />
       </div>
@@ -977,13 +958,13 @@ function InvitationHero({
       <p
         className="shimmer-gold inv-name-pop"
         style={{
-          fontFamily: "'Cormorant Garamond',Georgia,serif",
-          fontSize: "clamp(2rem,9vw,3rem)",
-          fontWeight: 500,
-          fontStyle: "italic",
-          lineHeight: 1.1,
-          letterSpacing: "0.04em",
-          margin: "6px 0 10px",
+          fontFamily: "'Great Vibes', cursive",
+          fontSize: "clamp(2.8rem,11vw,4.2rem)",
+          fontWeight: 400,
+          fontStyle: "normal",
+          lineHeight: 1.15,
+          letterSpacing: "0.02em",
+          margin: "4px 0 12px",
           animationDelay: visible ? "0.52s" : "0s",
           animationPlayState: visible ? "running" : "paused",
         }}
@@ -994,22 +975,19 @@ function InvitationHero({
       <p
         className="inv-from-right"
         style={{
-          fontFamily: "'Cinzel',serif",
+          fontFamily: "'Cormorant Garamond', Georgia, serif",
           fontSize: 15,
           letterSpacing: "0.13em",
-          color: "rgba(60,42,15,0.88)",
+          color: "rgba(37,43,66,0.88)",
           lineHeight: 1.95,
           textTransform: "uppercase",
-          fontWeight: 600,
+          fontWeight: 700,
           margin: 0,
           animationDelay: visible ? "0.66s" : "0s",
           animationPlayState: visible ? "running" : "paused",
         }}
       >
-        дің үйлену тойына арналған салтанатты ақ
-        <br />
-        дастарханымыздың қадірлі қонағы
-        <br />
+        дің үйлену тойына арналған салтанатты ақ дастарханымыздың қадірлі қонағы
         болуға шақырамыз!
       </p>
 
@@ -1049,7 +1027,7 @@ function OrganizerParticle({
         height: size,
         borderRadius: "50%",
         background:
-          "radial-gradient(circle, rgba(240,216,120,0.7) 0%, rgba(201,168,76,0.0) 70%)",
+          "radial-gradient(circle, rgba(37,43,66,0.7) 0%, rgba(37,43,66,0.0) 70%)",
         animation: `organizer-float ${duration}s ease-in-out ${delay}s infinite`,
         pointerEvents: "none",
       }}
@@ -1075,7 +1053,7 @@ function OrganizerBlock({
         @keyframes organizer-reveal { 0%{opacity:0;transform:translateY(32px) scale(0.96);filter:blur(4px)} 60%{filter:blur(0)} 100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)} }
         @keyframes organizer-line   { 0%{opacity:0;transform:translateX(-20px)} 100%{opacity:1;transform:translateX(0)} }
         @keyframes organizer-float  { 0%,100%{transform:translateY(0) scale(1);opacity:0.5} 50%{transform:translateY(-60px) scale(0.6);opacity:0} }
-        @keyframes organizer-glow   { 0%,100%{box-shadow:0 0 0px rgba(201,168,76,0)} 50%{box-shadow:0 0 32px rgba(201,168,76,0.18),0 4px 24px rgba(201,168,76,0.10)} }
+        @keyframes organizer-glow   { 0%,100%{box-shadow:0 0 0px rgba(37,43,66,0)} 50%{box-shadow:0 0 32px rgba(37,43,66,0.18),0 4px 24px rgba(37,43,66,0.10)} }
         .org-card-enter { animation: organizer-reveal 0.9s cubic-bezier(0.22,1,0.36,1) both; }
         .org-line-enter { animation: organizer-line 0.6s cubic-bezier(0.22,1,0.36,1) both; }
         .org-glow       { animation: organizer-glow 3s ease-in-out 1s infinite; }
@@ -1092,9 +1070,9 @@ function OrganizerBlock({
           borderRadius: 20,
           padding: "28px 24px 24px",
           background: "#ffffff",
-          border: "1px solid rgba(201,168,76,0.22)",
+          border: "1px solid rgba(37,43,66,0.22)",
           boxShadow:
-            "0 4px 32px rgba(201,168,76,0.08), 0 1px 6px rgba(0,0,0,0.04)",
+            "0 4px 32px rgba(37,43,66,0.08), 0 1px 6px rgba(0,0,0,0.04)",
           textAlign: "center",
         }}
       >
@@ -1125,8 +1103,8 @@ function OrganizerBlock({
             height="22"
             viewBox="0 0 22 22"
           >
-            <path d={path} stroke="#C9A84C" strokeWidth="0.8" fill="none" />
-            <circle cx={cx} cy={cy} r="1.5" fill="#C9A84C" />
+            <path d={path} stroke="#3d4f7c" strokeWidth="0.8" fill="none" />
+            <circle cx={cx} cy={cy} r="1.5" fill="#252b42" />
           </svg>
         ))}
 
@@ -1149,7 +1127,7 @@ function OrganizerBlock({
               rx="45%"
               ry="42%"
               fill="none"
-              stroke="rgba(201,168,76,0.08)"
+              stroke="rgba(37,43,66,0.08)"
               strokeWidth="0.6"
             />
             <ellipse
@@ -1158,7 +1136,7 @@ function OrganizerBlock({
               rx="38%"
               ry="35%"
               fill="none"
-              stroke="rgba(201,168,76,0.05)"
+              stroke="rgba(37,43,66,0.05)"
               strokeWidth="0.4"
             />
           </svg>
@@ -1179,14 +1157,14 @@ function OrganizerBlock({
                 height: 1,
                 width: 28,
                 background:
-                  "linear-gradient(to right,transparent,rgba(201,168,76,0.5))",
+                  "linear-gradient(to right,transparent,rgba(37,43,66,0.5))",
               }}
             />
             <svg viewBox="0 0 20 18" width="16" height="14">
               <path
                 d="M10,16 C10,16 1,10 1,5 C1,2.8 2.8,1 5,1 C7,1 8.8,2.2 10,3.8 C11.2,2.2 13,1 15,1 C17.2,1 19,2.8 19,5 C19,10 10,16 10,16Z"
-                fill="rgba(201,168,76,0.25)"
-                stroke="rgba(201,168,76,0.6)"
+                fill="rgba(37,43,66,0.25)"
+                stroke="rgba(37,43,66,0.6)"
                 strokeWidth="0.7"
               />
             </svg>
@@ -1196,7 +1174,7 @@ function OrganizerBlock({
                 letterSpacing: "0.45em",
                 fontFamily: "'Cinzel',serif",
                 fontWeight: 500,
-                color: "rgba(120,80,20,0.92)",
+                color: "rgba(37,43,66,0.92)",
                 margin: 0,
                 textTransform: "uppercase",
               }}
@@ -1206,8 +1184,8 @@ function OrganizerBlock({
             <svg viewBox="0 0 20 18" width="16" height="14">
               <path
                 d="M10,16 C10,16 1,10 1,5 C1,2.8 2.8,1 5,1 C7,1 8.8,2.2 10,3.8 C11.2,2.2 13,1 15,1 C17.2,1 19,2.8 19,5 C19,10 10,16 10,16Z"
-                fill="rgba(201,168,76,0.25)"
-                stroke="rgba(201,168,76,0.6)"
+                fill="rgba(37,43,66,0.25)"
+                stroke="rgba(37,43,66,0.6)"
                 strokeWidth="0.7"
               />
             </svg>
@@ -1216,7 +1194,7 @@ function OrganizerBlock({
                 height: 1,
                 width: 28,
                 background:
-                  "linear-gradient(to left,transparent,rgba(201,168,76,0.5))",
+                  "linear-gradient(to left,transparent,rgba(37,43,66,0.5))",
               }}
             />
           </div>
@@ -1228,7 +1206,7 @@ function OrganizerBlock({
               fontWeight: 500,
               letterSpacing: "0.2em",
               textTransform: "uppercase",
-              color: "#4a2e05",
+              color: "#252b42",
               lineHeight: 1.9,
               wordBreak: "break-word",
               margin: 0,
@@ -1259,7 +1237,7 @@ function OrganizerBlock({
                         fontWeight: 600,
                         letterSpacing: "0.2em",
                         textTransform: "uppercase",
-                        color: "#4a2e05",
+                        color: "#252b42",
                         lineHeight: 1.9,
                         wordBreak: "break-word",
                         margin: 0,
@@ -1284,7 +1262,7 @@ function OrganizerBlock({
                           height: 1,
                           width: 24,
                           background:
-                            "linear-gradient(to right,transparent,rgba(201,168,76,0.5))",
+                            "linear-gradient(to right,transparent,rgba(37,43,66,0.5))",
                         }}
                       />
                       <span
@@ -1292,7 +1270,7 @@ function OrganizerBlock({
                           fontFamily: "'Cormorant Garamond',Georgia,serif",
                           fontSize: 30,
                           fontStyle: "italic",
-                          color: "rgba(201,168,76,0.75)",
+                          color: "rgba(37,43,66,0.75)",
                           lineHeight: 1,
                           fontWeight: 500,
                         }}
@@ -1304,7 +1282,7 @@ function OrganizerBlock({
                           height: 1,
                           width: 24,
                           background:
-                            "linear-gradient(to left,transparent,rgba(201,168,76,0.5))",
+                            "linear-gradient(to left,transparent,rgba(37,43,66,0.5))",
                         }}
                       />
                     </div>
@@ -1316,7 +1294,7 @@ function OrganizerBlock({
                         fontWeight: 600,
                         letterSpacing: "0.2em",
                         textTransform: "uppercase",
-                        color: "#4a2e05",
+                        color: "#252b42",
                         lineHeight: 1.9,
                         wordBreak: "break-word",
                         margin: 0,
@@ -1339,7 +1317,7 @@ function OrganizerBlock({
                     fontWeight: 600,
                     letterSpacing: "0.2em",
                     textTransform: "uppercase",
-                    color: "#4a2e05",
+                    color: "#252b42",
                     lineHeight: 1.9,
                     wordBreak: "break-word",
                     margin: 0,
@@ -1369,22 +1347,20 @@ function OrganizerBlock({
                   width: i === 2 ? 6 : i === 1 || i === 3 ? 4 : 3,
                   height: i === 2 ? 6 : i === 1 || i === 3 ? 4 : 3,
                   borderRadius: "50%",
-                  background: `rgba(201,168,76,${op})`,
+                  background: `rgba(37,43,66,${op})`,
                 }}
               />
             ))}
           </div>
 
-          {/* ── Эцэг-шешесі ── */}
           {(maleParents || femaleParents) && (
             <div
               style={{
                 marginTop: 22,
-                borderTop: "0.5px solid rgba(201,168,76,0.18)",
+                borderTop: "0.5px solid rgba(37,43,66,0.18)",
                 paddingTop: 18,
               }}
             >
-              {/* "Ата-аналар" label */}
               <div
                 style={{
                   display: "flex",
@@ -1399,7 +1375,7 @@ function OrganizerBlock({
                     height: 1,
                     width: 22,
                     background:
-                      "linear-gradient(to right,transparent,rgba(201,168,76,0.45))",
+                      "linear-gradient(to right,transparent,rgba(37,43,66,0.45))",
                   }}
                 />
                 <p
@@ -1408,7 +1384,7 @@ function OrganizerBlock({
                     letterSpacing: "0.38em",
                     fontFamily: "'Cinzel',serif",
                     fontWeight: 500,
-                    color: "rgba(120,80,20,0.85)",
+                    color: "rgba(37,43,66,0.85)",
                     margin: 0,
                     textTransform: "uppercase",
                   }}
@@ -1420,7 +1396,7 @@ function OrganizerBlock({
                     height: 1,
                     width: 22,
                     background:
-                      "linear-gradient(to left,transparent,rgba(201,168,76,0.45))",
+                      "linear-gradient(to left,transparent,rgba(37,43,66,0.45))",
                   }}
                 />
               </div>
@@ -1447,7 +1423,7 @@ function OrganizerBlock({
                         fontSize: 10,
                         letterSpacing: "0.32em",
                         fontFamily: "'Cinzel',serif",
-                        color: "rgba(160,110,40,0.75)",
+                        color: "rgba(37,43,66,0.75)",
                         textTransform: "uppercase",
                         margin: "0 0 4px",
                         fontWeight: 500,
@@ -1462,7 +1438,7 @@ function OrganizerBlock({
                         fontWeight: 600,
                         letterSpacing: "0.15em",
                         textTransform: "uppercase",
-                        color: "#4a2e05",
+                        color: "#252b42",
                         lineHeight: 1.75,
                         wordBreak: "break-word",
                         margin: 0,
@@ -1482,7 +1458,7 @@ function OrganizerBlock({
                         height: 1,
                         width: 20,
                         background:
-                          "linear-gradient(to right,transparent,rgba(201,168,76,0.4))",
+                          "linear-gradient(to right,transparent,rgba(37,43,66,0.4))",
                       }}
                     />
                     <span
@@ -1490,7 +1466,7 @@ function OrganizerBlock({
                         fontFamily: "'Cormorant Garamond',Georgia,serif",
                         fontSize: 22,
                         fontStyle: "italic",
-                        color: "rgba(201,168,76,0.7)",
+                        color: "rgba(37,43,66,0.7)",
                         lineHeight: 1,
                         fontWeight: 500,
                       }}
@@ -1502,7 +1478,7 @@ function OrganizerBlock({
                         height: 1,
                         width: 20,
                         background:
-                          "linear-gradient(to left,transparent,rgba(201,168,76,0.4))",
+                          "linear-gradient(to left,transparent,rgba(37,43,66,0.4))",
                       }}
                     />
                   </div>
@@ -1522,7 +1498,7 @@ function OrganizerBlock({
                         fontSize: 10,
                         letterSpacing: "0.32em",
                         fontFamily: "'Cinzel',serif",
-                        color: "rgba(160,110,40,0.75)",
+                        color: "rgba(37,43,66,0.75)",
                         textTransform: "uppercase",
                         margin: "0 0 4px",
                         fontWeight: 500,
@@ -1537,7 +1513,7 @@ function OrganizerBlock({
                         fontWeight: 600,
                         letterSpacing: "0.15em",
                         textTransform: "uppercase",
-                        color: "#4a2e05",
+                        color: "#252b42",
                         lineHeight: 1.75,
                         wordBreak: "break-word",
                         margin: 0,
@@ -1624,7 +1600,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
         @keyframes float-gentle { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
         @keyframes petal-spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
         .shimmer-gold {
-          background:linear-gradient(90deg,#B8832A 15%,#F0D878 42%,#D4A940 58%,#B8832A 85%);
+          background:linear-gradient(90deg,#1a2040 15%,#4a5280 42%,#252b42 58%,#1a2040 85%);
           background-size:200% auto;
           -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
           animation:shimmer-gold 6s linear infinite;
@@ -1651,7 +1627,6 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
         <RotatingOrnament position="top-right" size={220} opacity={0.07} />
         <RotatingOrnament position="bottom-left" size={220} opacity={0.07} />
 
-        {/* ═══ HERO ═══ */}
         <div className="relative w-full h-[62vh] overflow-hidden">
           {wedding.main_photo_url ? (
             <img
@@ -1665,7 +1640,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
               className="w-full h-full flex items-center justify-center relative overflow-hidden"
               style={{
                 background:
-                  "linear-gradient(135deg,#FDF8EE 0%,#FAF3D8 50%,#F5EDD0 100%)",
+                  "linear-gradient(135deg,#eef0f8 0%,#dde0ee 50%,#eef0f8 100%)",
               }}
             >
               <div className="relative flex items-center justify-center">
@@ -1687,7 +1662,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                           rx="9"
                           ry="14"
                           transform={`rotate(${deg + 90},${60 + Math.cos(r) * 28},${60 + Math.sin(r) * 28})`}
-                          fill="#EAC84A"
+                          fill="#3d4f7c"
                           opacity="0.25"
                         />
                       );
@@ -1695,10 +1670,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                   )}
                 </svg>
                 <div className="absolute">
-                  <FaHeart
-                    size={36}
-                    style={{ color: "rgba(201,168,76,0.35)" }}
-                  />
+                  <FaHeart size={36} style={{ color: "rgba(37,43,66,0.35)" }} />
                 </div>
               </div>
             </div>
@@ -1711,7 +1683,6 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           />
         </div>
 
-        {/* ═══ INVITATION HERO ═══ */}
         <div className="mt-10 relative z-10" style={{ background: "#ffffff" }}>
           <InvitationHero
             maleName={wedding.male_name}
@@ -1719,7 +1690,6 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           />
         </div>
 
-        {/* ═══ PHOTO 3 ═══ */}
         {wedding.photo3_url && (
           <ScrollRevealSection
             direction="up"
@@ -1730,7 +1700,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
               style={{
                 borderRadius: 16,
                 overflow: "hidden",
-                border: "0.5px solid rgba(201,168,76,0.2)",
+                border: "0.5px solid rgba(37,43,66,0.2)",
                 boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
               }}
             >
@@ -1749,18 +1719,12 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           </ScrollRevealSection>
         )}
 
-        {/* ═══ ТОЙ ИЕЛЕРІ ═══ */}
         {wedding.organizer && (
           <ScrollRevealSection direction="left" delay={0.05}>
-            <OrganizerBlock
-              organizer={wedding.organizer}
-              // maleParents={wedding.male_parents}
-              // femaleParents={wedding.female_parents}
-            />
+            <OrganizerBlock organizer={wedding.organizer} />
           </ScrollRevealSection>
         )}
 
-        {/* ═══ DATE LABEL ═══ */}
         {date && (
           <ScrollRevealSection
             direction="up"
@@ -1774,7 +1738,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                 fontSize: 14,
                 letterSpacing: "0.44em",
                 fontFamily: "'Cinzel',serif",
-                color: "rgba(120,80,20,0.90)",
+                color: "rgba(37,43,66,0.90)",
                 fontWeight: 600,
               }}
             >
@@ -1783,7 +1747,6 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           </ScrollRevealSection>
         )}
 
-        {/* ═══ CALENDAR ═══ */}
         {wedding.wedding_date && (
           <ScrollRevealSection
             direction="right"
@@ -1798,7 +1761,6 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           <GoldDivider />
         </div>
 
-        {/* ═══ GALLERY ═══ */}
         {!!wedding.gallery_urls?.length && (
           <ScrollRevealSection
             direction="up"
@@ -1816,7 +1778,6 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           </ScrollRevealSection>
         )}
 
-        {/* ═══ INFO CARD ═══ */}
         <div className="mx-5 mt-10 mb-2">
           <GoldDivider className="mb-6" />
           <Card className="p-6 space-y-5">
@@ -1831,7 +1792,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                 direction="left"
                 delay={0.1}
                 style={{
-                  borderTop: "0.5px solid rgba(201,168,76,0.1)",
+                  borderTop: "0.5px solid rgba(37,43,66,0.1)",
                   paddingTop: 20,
                 }}
               >
@@ -1844,7 +1805,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                       style={{
                         fontSize: 28,
                         wordBreak: "break-word",
-                        color: "#111009",
+                        color: "#252b42",
                         lineHeight: 1.35,
                         letterSpacing: "0.01em",
                       }}
@@ -1857,7 +1818,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                       <FaMapMarkerAlt
                         size={11}
                         style={{
-                          color: "rgba(201,168,76,0.75)",
+                          color: "rgba(37,43,66,0.75)",
                           flexShrink: 0,
                           marginTop: 3,
                         }}
@@ -1869,7 +1830,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                           fontFamily: "'Cinzel',serif",
                           wordBreak: "break-word",
                           letterSpacing: "0.04em",
-                          color: "#2e2010",
+                          color: "#252b42",
                           lineHeight: 1.6,
                         }}
                       >
@@ -1884,7 +1845,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
             {extras.length > 0 && (
               <div
                 className="border-t pt-5 space-y-4"
-                style={{ borderColor: "rgba(201,168,76,0.1)" }}
+                style={{ borderColor: "rgba(37,43,66,0.1)" }}
               >
                 {extras.map((e, i) => (
                   <ScrollRevealSection
@@ -1896,7 +1857,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                       <FaStar
                         size={16}
                         style={{
-                          color: "rgba(201,168,76,0.6)",
+                          color: "rgba(37,43,66,0.6)",
                           flexShrink: 0,
                           marginTop: 5,
                         }}
@@ -1907,7 +1868,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                           fontSize: 20,
                           fontFamily: "'Cinzel',serif",
                           wordBreak: "break-word",
-                          color: "#2e2720",
+                          color: "#252b42",
                           letterSpacing: "0.02em",
                           lineHeight: 1.65,
                           fontWeight: 500,
@@ -1923,17 +1884,15 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           </Card>
         </div>
 
-        {/* ═══ MESSAGES ═══ */}
         <ScrollRevealSection direction="up" delay={0}>
           <MessageSection
             weddingId={wedding.id}
-            accentColor="#A07028"
-            lightColor="#FDFAF0"
+            accentColor="#252b42"
+            lightColor="#eef0f8"
             borderColor="border-amber-100"
           />
         </ScrollRevealSection>
 
-        {/* ═══ PHOTO 5 ═══ */}
         {wedding.photo5_url && (
           <ScrollRevealSection
             direction="up"
@@ -1945,8 +1904,8 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
               style={{
                 width: "100%",
                 overflow: "hidden",
-                borderTop: "0.5px solid rgba(201,168,76,0.25)",
-                borderBottom: "0.5px solid rgba(201,168,76,0.25)",
+                borderTop: "0.5px solid rgba(37,43,66,0.25)",
+                borderBottom: "0.5px solid rgba(37,43,66,0.25)",
                 boxShadow: "0 8px 40px rgba(0,0,0,0.09)",
               }}
             >
@@ -1964,7 +1923,6 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           </ScrollRevealSection>
         )}
 
-        {/* ═══ FOOTER ═══ */}
         <div className="text-center py-12 mt-4">
           <GoldDivider className="mb-5 mx-8" />
           {[
@@ -1980,7 +1938,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                 fontSize: 16,
                 fontFamily: "'Playfair Display',serif",
                 fontStyle: "italic",
-                color: "#3d4a5c",
+                color: "#252b42",
               }}
             >
               {line}
@@ -2004,7 +1962,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                 fontSize: 18,
                 fontFamily: "'Cinzel',serif",
                 letterSpacing: "0.24em",
-                color: "rgba(120,80,20,0.75)",
+                color: "rgba(37,43,66,0.75)",
               }}
             >
               {date}
@@ -2019,7 +1977,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           style={{
             height: 4,
             background:
-              "linear-gradient(to right,transparent,rgba(201,168,76,0.55),rgba(240,210,100,0.4),rgba(201,168,76,0.55),transparent)",
+              "linear-gradient(to right,transparent,rgba(37,43,66,0.55),rgba(37,43,66,0.4),rgba(37,43,66,0.55),transparent)",
           }}
         />
         <Template2Music />
