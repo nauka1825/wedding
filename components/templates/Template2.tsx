@@ -1524,7 +1524,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
         </div>
 
         {/* ═══ INVITATION HERO — scroll animation ═══ */}
-        <div className="-mt-14 relative z-10" style={{ background: "#ffffff" }}>
+        <div className="mt-10 relative z-10" style={{ background: "#ffffff" }}>
           <InvitationHero
             maleName={wedding.male_name}
             femaleName={wedding.female_name}
