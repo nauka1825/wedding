@@ -1575,7 +1575,7 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
           />
         ) : (
           <img
-            src={"/images/duzka.jpg"}
+            src={"/images/duzka1.jpg"}
             alt="Гол зураг"
             className={`t4-hero-img w-full h-full object-cover transition-all duration-1000 ${heroLoaded ? "scale-100" : "scale-110"}`}
             style={{ filter: "brightness(0.88) saturate(1.08)" }}
