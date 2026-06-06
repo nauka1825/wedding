@@ -13,7 +13,7 @@ const DEFAULT_WEDDING: Wedding = {
   venue_name: "Sky Palace",
   venue_address: "Баян-Өлгий, Улаанбаатар",
   organizer: "Руслан мен Ләйлә",
-  phone: "+7 701 234 5678",
+  phone: "+976 99119911",
   template: "azure",
   main_photo_url: null,
   gallery_urls: null,
