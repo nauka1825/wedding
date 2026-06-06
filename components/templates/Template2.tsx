@@ -803,45 +803,6 @@ function RotatingOrnament({
   );
 }
 
-// ─── LaceBorder ───
-function LaceBorder({ flip = false }: { flip?: boolean }) {
-  return (
-    <div
-      style={{
-        width: "100%",
-        overflow: "hidden",
-        lineHeight: 0,
-        transform: flip ? "scaleY(-1)" : undefined,
-      }}
-    >
-      <svg
-        viewBox="0 0 375 18"
-        preserveAspectRatio="none"
-        style={{ display: "block", width: "100%", height: 18 }}
-      >
-        <path
-          d="M0,9 Q18.75,0 37.5,9 Q56.25,18 75,9 Q93.75,0 112.5,9 Q131.25,18 150,9 Q168.75,0 187.5,9 Q206.25,18 225,9 Q243.75,0 262.5,9 Q281.25,18 300,9 Q318.75,0 337.5,9 Q356.25,18 375,9"
-          fill="none"
-          stroke="rgba(201,168,76,0.25)"
-          strokeWidth="0.8"
-        />
-        {[
-          18.75, 56.25, 93.75, 131.25, 168.75, 206.25, 243.75, 281.25, 318.75,
-          356.25,
-        ].map((cx, i) => (
-          <circle
-            key={i}
-            cx={cx}
-            cy={i % 2 === 0 ? 2.5 : 15.5}
-            r="1.5"
-            fill="rgba(201,168,76,0.3)"
-          />
-        ))}
-      </svg>
-    </div>
-  );
-}
-
 // ─── SectionHeader ───
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
@@ -1845,7 +1806,6 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           </div>
         </div>
 
-        <LaceBorder flip />
         <div
           style={{
             height: 4,
