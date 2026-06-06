@@ -549,7 +549,7 @@ function GallerySwiper({ urls }: { urls: string[] }) {
             style={{
               width: "75vw",
               maxWidth: 320,
-              height: 220,
+              height: 250,
               borderRadius: 14,
               border:
                 active === i
@@ -569,6 +569,7 @@ function GallerySwiper({ urls }: { urls: string[] }) {
               alt={`сурет ${i + 1}`}
               className="w-full h-full object-cover"
               style={{
+                objectPosition: "center top",
                 display: "block",
                 border: "none",
                 opacity: active === i ? 1 : 0.65,
@@ -1009,7 +1010,7 @@ function OrganizerBlock({ organizer }: { organizer: string }) {
   const lines = organizer.split("\n").filter(Boolean);
 
   return (
-    <div ref={ref} className="mx-5 mt-8">
+    <div ref={ref} className="mx-5 mt-8 py-2">
       <style>{`
         @keyframes organizer-reveal {
           0%   { opacity: 0; transform: translateY(32px) scale(0.96); filter: blur(4px); }
@@ -1546,7 +1547,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                 margin: 0,
               }}
             >
-              КЕЛІНІМІЗ
+              ПЕН КЕЛІНІМІЗ
             </p>
             <p
               className="shimmer-gold"
@@ -1574,7 +1575,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                 margin: 0,
               }}
             >
-              ҮЙЛЕНУ ТОЙЫНА АРНАЛҒАН САЛТАНАТТЫ АҚ
+              ДІҢ ҮЙЛЕНУ ТОЙЫНА АРНАЛҒАН САЛТАНАТТЫ АҚ
               <br />
               ДАСТАРХАНЫМЫЗДЫҢ ҚАДІРЛІ ҚОНАҒЫ
               <br />
@@ -1583,7 +1584,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           </div>
 
           {wedding.photo3_url && (
-            <div className="overflow-hidden px-5 aspect-[3/4]">
+            <div className="overflow-hidden p-5 aspect-[3/4]">
               <img
                 src={wedding.photo3_url}
                 alt="Ер"
@@ -1607,7 +1608,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                   letterSpacing: "0.44em",
                   fontFamily: "'Cinzel', serif",
                   color: "rgba(160,118,40,0.65)",
-                  fontWeight: 500,
+                  fontWeight: 700,
                 }}
               >
                 {date}
@@ -1776,7 +1777,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
             <p
               className="mt-2"
               style={{
-                fontSize: 12,
+                fontSize: 14,
                 fontFamily: "'Cinzel',serif",
                 letterSpacing: "0.24em",
                 color: "rgba(160,118,40,0.45)",
