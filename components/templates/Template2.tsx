@@ -1613,6 +1613,22 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
         @keyframes reveal-up { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
         .reveal-up { animation:reveal-up 0.7s cubic-bezier(0.22,1,0.36,1) both; }
         .tick-in   { animation:tick-in 0.65s cubic-bezier(0.34,1.56,0.64,1) both; }
+        @keyframes floatHeart {
+          0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 0;
+          }
+
+          50% {
+            transform: translateY(-100px) translateX(20px) rotate(180deg);
+            opacity: .8;
+          }
+
+          100% {
+            transform: translateY(-220px) translateX(-20px) rotate(360deg);
+            opacity: 0;
+          }
+        }
       `}</style>
 
       <div className="fixed inset-0 z-0" style={{ background: "#ffffff" }} />
@@ -1923,7 +1939,13 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           </ScrollRevealSection>
         )}
 
-        <div className="text-center py-12 mt-4">
+        <div
+          className="text-center py-12 mt-4 "
+          style={{
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
           <GoldDivider className="mb-5 mx-8" />
           {[
             "Біз екеуміз тек екеуміз",
@@ -1971,6 +1993,22 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           <div style={{ marginTop: 20 }}>
             <FloralDots />
           </div>
+
+          {[...Array(10)].map((_, i) => (
+            <FaHeart
+              key={i}
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: `${10 + i * 15}%`,
+                color: "rgba(37,43,66,0.25)",
+                fontSize: `${12 + Math.random() * 8}px`,
+                animation: `floatHeart ${4 + i}s linear infinite`,
+                animationDelay: `${i * 0.8}s`,
+                pointerEvents: "none",
+              }}
+            />
+          ))}
         </div>
 
         <div
