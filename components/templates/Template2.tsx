@@ -680,7 +680,7 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
           fontFamily: "'Cinzel',serif",
           color: "rgba(120,80,20,0.90)",
           textTransform: "uppercase",
-          fontWeight: 500,
+          fontWeight: 400,
           margin: 0,
         }}
       >
@@ -1775,7 +1775,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                 letterSpacing: "0.44em",
                 fontFamily: "'Cinzel',serif",
                 color: "rgba(120,80,20,0.90)",
-                fontWeight: 700,
+                fontWeight: 600,
               }}
             >
               {date}
