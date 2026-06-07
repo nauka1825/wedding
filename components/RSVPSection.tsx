@@ -182,14 +182,14 @@ export default function RSVPSection({
             marginBottom: 16,
           }}
         >
-          Сіздің атыңыз
+          Атыңызды жазыңыз
         </p>
 
         {/* Name input */}
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Аты-жөніңіз"
+          placeholder="Сіздің атыңыз"
           style={{
             width: "100%",
             borderRadius: 14,
