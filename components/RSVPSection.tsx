@@ -7,20 +7,17 @@ type RSVPStatus = "attending" | "not_attending" | "maybe";
 const OPTIONS: {
   value: RSVPStatus;
   labelKz: string;
-  emoji: string;
   desc: string;
 }[] = [
   {
     value: "attending",
     labelKz: "Келемін",
-    emoji: "✅",
     desc: "Тойға қатысамын",
   },
-  { value: "maybe", labelKz: "Мүмкін", emoji: "🤔", desc: "Әлі белгісіз" },
+  { value: "maybe", labelKz: "Мүмкін", desc: "Әлі белгісіз" },
   {
     value: "not_attending",
     labelKz: "Келе алмаймын",
-    emoji: "❌",
     desc: "Қатыса алмаймын",
   },
 ];
@@ -83,9 +80,6 @@ export default function RSVPSection({
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 48, marginBottom: 12 }}>
-            {sentOption?.emoji ?? "💌"}
-          </div>
           <p
             style={{
               fontFamily: "'Cinzel', serif",
@@ -284,7 +278,6 @@ export default function RSVPSection({
                     </svg>
                   )}
                 </div>
-                <span style={{ fontSize: 22, lineHeight: 1 }}>{opt.emoji}</span>
                 <div>
                   <p
                     style={{
