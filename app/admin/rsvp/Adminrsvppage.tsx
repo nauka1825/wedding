@@ -186,7 +186,7 @@ export default function AdminRSVPPage() {
               margin: 0,
             }}
           >
-            RSVP Admin
+            Admin
           </h1>
           <p
             style={{
@@ -222,14 +222,14 @@ export default function AdminRSVPPage() {
               textAlign: "center",
             }}
           >
-            Телефон немесе Wedding ID бойынша іздеу
+            Телефон немесе ID бойынша іздеу
           </p>
           <div style={{ display: "flex", gap: 10 }}>
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder="+7 777 123 4567 немесе uuid..."
+              placeholder="+99119911 немесе id..."
               style={{
                 flex: 1,
                 borderRadius: 12,

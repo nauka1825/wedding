@@ -182,7 +182,7 @@ export default function RSVPSection({
             marginBottom: 16,
           }}
         >
-          Атыңызды жазыңыз
+          Сіздің атыңыз
         </p>
 
         {/* Name input */}
