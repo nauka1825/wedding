@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { formatDate, Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
 import MusicMan from "../MusicMan";
+import RSVPSection from "../RSVPSection";
 
-// ─── useInView hook ───
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -26,7 +26,6 @@ function useInView(threshold = 0.15) {
   return { ref, visible };
 }
 
-// ─── ScrollRevealSection ───
 function ScrollRevealSection({
   children,
   direction = "up",
@@ -62,7 +61,6 @@ function ScrollRevealSection({
   );
 }
 
-// ─── AnimatedClock ───
 function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
   const [h, m] = time.split(":").map(Number);
   const hourDeg = ((h % 12) / 12) * 360 + (m / 60) * 30;
@@ -75,7 +73,6 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [visible]);
-
   return (
     <svg
       viewBox="0 0 80 80"
@@ -165,7 +162,6 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
   );
 }
 
-// ─── AnimatedCalendar ───
 const KAZ_MONTHS = [
   "Қаңтар",
   "Ақпан",
@@ -185,9 +181,9 @@ const KAZ_DAYS = ["Дс", "Сс", "Ср", "Бс", "Жм", "Сб", "Жк"];
 function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
   if (!dateStr) return null;
   const d = new Date(dateStr);
-  const year = d.getFullYear();
-  const month = d.getMonth();
-  const day = d.getDate();
+  const year = d.getFullYear(),
+    month = d.getMonth(),
+    day = d.getDate();
   const firstDow = (() => {
     const v = new Date(year, month, 1).getDay();
     return v === 0 ? 6 : v - 1;
@@ -198,22 +194,20 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
   ];
   while (cells.length % 7 !== 0) cells.push(null);
-
   return (
     <div style={{ position: "relative", margin: "0 auto" }}>
       <style>{`
-        @keyframes cal-drop-p { 0%{opacity:0;transform:translateY(-18px) scale(0.92)} 60%{transform:translateY(3px) scale(1.02)} 100%{opacity:1;transform:translateY(0) scale(1)} }
-        @keyframes day-pop-p { 0%{opacity:0;transform:scale(0.5)} 65%{transform:scale(1.18)} 100%{opacity:1;transform:scale(1)} }
-        @keyframes heart-beat-p { 0%,100%{transform:scale(1)} 30%{transform:scale(1.3)} 60%{transform:scale(0.88)} }
-        @keyframes ring-draw-p { 0%{stroke-dashoffset:550;opacity:0.2} 100%{stroke-dashoffset:0;opacity:0.65} }
-        @keyframes dot-in-p { 0%{opacity:0;transform:scale(0)} 100%{opacity:1;transform:scale(1)} }
-        .cal-ring-p { stroke-dasharray:550; animation:ring-draw-p 1.2s cubic-bezier(0.4,0,0.2,1) 0.2s forwards; }
-        .cal-wrap-p { animation:cal-drop-p 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both; }
-        .day-pop-p  { animation:day-pop-p 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.55s both; }
-        .hrt-beat-p { animation:heart-beat-p 1.4s ease-in-out 1.2s infinite; transform-origin:center; display:inline-block; }
-        .dot-in-p   { animation:dot-in-p 0.4s ease both; }
+        @keyframes cal-drop-p{0%{opacity:0;transform:translateY(-18px) scale(0.92)}60%{transform:translateY(3px) scale(1.02)}100%{opacity:1;transform:translateY(0) scale(1)}}
+        @keyframes day-pop-p{0%{opacity:0;transform:scale(0.5)}65%{transform:scale(1.18)}100%{opacity:1;transform:scale(1)}}
+        @keyframes heart-beat-p{0%,100%{transform:scale(1)}30%{transform:scale(1.3)}60%{transform:scale(0.88)}}
+        @keyframes ring-draw-p{0%{stroke-dashoffset:550;opacity:0.2}100%{stroke-dashoffset:0;opacity:0.65}}
+        @keyframes dot-in-p{0%{opacity:0;transform:scale(0)}100%{opacity:1;transform:scale(1)}}
+        .cal-ring-p{stroke-dasharray:550;animation:ring-draw-p 1.2s cubic-bezier(0.4,0,0.2,1) 0.2s forwards}
+        .cal-wrap-p{animation:cal-drop-p 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both}
+        .day-pop-p{animation:day-pop-p 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.55s both}
+        .hrt-beat-p{animation:heart-beat-p 1.4s ease-in-out 1.2s infinite;transform-origin:center;display:inline-block}
+        .dot-in-p{animation:dot-in-p 0.4s ease both}
       `}</style>
-
       <svg
         style={{
           position: "absolute",
@@ -266,7 +260,6 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
           />
         ))}
       </svg>
-
       <div
         className="cal-wrap-p"
         style={{
@@ -433,7 +426,6 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
   );
 }
 
-// ─── DateTimeBlock ───
 function DateTimeBlock({
   date,
   time,
@@ -532,7 +524,6 @@ function DateTimeBlock({
   );
 }
 
-// ─── OrganizerBlock (from Template2, pink-themed) ───
 function OrganizerParticle({
   delay,
   duration,
@@ -573,21 +564,18 @@ function OrganizerBlock({
 }) {
   const { ref, visible } = useInView(0.2);
   const lines = organizer.split("\n").filter(Boolean);
-
   return (
     <div ref={ref} className="mx-5 mt-8 py-2">
       <style>{`
-        @keyframes org-reveal-p { 0%{opacity:0;transform:translateY(32px) scale(0.96);filter:blur(4px)} 60%{filter:blur(0)} 100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)} }
-        @keyframes org-line-p   { 0%{opacity:0;transform:translateX(-20px)} 100%{opacity:1;transform:translateX(0)} }
-        @keyframes org-float-p  { 0%,100%{transform:translateY(0) scale(1);opacity:0.4} 50%{transform:translateY(-60px) scale(0.6);opacity:0} }
-        @keyframes org-glow-p   { 0%,100%{box-shadow:0 0 0px rgba(196,160,176,0)} 50%{box-shadow:0 0 32px rgba(196,160,176,0.22),0 4px 24px rgba(196,160,176,0.12)} }
-        .org-card-p { animation:org-reveal-p 0.9s cubic-bezier(0.22,1,0.36,1) both; }
-        .org-line-p { animation:org-line-p 0.6s cubic-bezier(0.22,1,0.36,1) both; }
-        .org-glow-p { animation:org-glow-p 3s ease-in-out 1s infinite; }
+        @keyframes org-reveal-p{0%{opacity:0;transform:translateY(32px) scale(0.96);filter:blur(4px)}60%{filter:blur(0)}100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+        @keyframes org-line-p{0%{opacity:0;transform:translateX(-20px)}100%{opacity:1;transform:translateX(0)}}
+        @keyframes org-float-p{0%,100%{transform:translateY(0) scale(1);opacity:0.4}50%{transform:translateY(-60px) scale(0.6);opacity:0}}
+        @keyframes org-glow-p{0%,100%{box-shadow:0 0 0px rgba(196,160,176,0)}50%{box-shadow:0 0 32px rgba(196,160,176,0.22),0 4px 24px rgba(196,160,176,0.12)}}
+        .org-card-p{animation:org-reveal-p 0.9s cubic-bezier(0.22,1,0.36,1) both}
+        .org-line-p{animation:org-line-p 0.6s cubic-bezier(0.22,1,0.36,1) both}
+        .org-glow-p{animation:org-glow-p 3s ease-in-out 1s infinite}
       `}</style>
-
       <FloralDivider className="mb-6" />
-
       <div
         className="org-card-p org-glow-p"
         style={{
@@ -612,7 +600,6 @@ function OrganizerBlock({
             { delay: 2, duration: 4.8, x: 30, size: 16 },
             { delay: 1.8, duration: 5.2, x: 70, size: 24 },
           ].map((p, i) => <OrganizerParticle key={i} {...p} />)}
-
         {[
           ["top:10px", "left:12px"],
           ["top:10px", "right:12px"],
@@ -652,7 +639,6 @@ function OrganizerBlock({
             />
           </svg>
         ))}
-
         <div
           style={{
             position: "absolute",
@@ -686,7 +672,6 @@ function OrganizerBlock({
             />
           </svg>
         </div>
-
         <div style={{ position: "relative", zIndex: 1 }}>
           <div
             style={{
@@ -729,7 +714,6 @@ function OrganizerBlock({
               }}
             />
           </div>
-
           <p
             className="org-line-p"
             style={{
@@ -748,7 +732,6 @@ function OrganizerBlock({
           >
             Ата анасы
           </p>
-
           <div
             style={{
               display: "flex",
@@ -862,7 +845,6 @@ function OrganizerBlock({
               ));
             })()}
           </div>
-
           <div
             style={{
               display: "flex",
@@ -884,7 +866,6 @@ function OrganizerBlock({
               />
             ))}
           </div>
-
           {(maleParents || femaleParents) && (
             <div
               style={{
@@ -1061,7 +1042,6 @@ function OrganizerBlock({
   );
 }
 
-// ─── InvitationHero (from Template2, pink-themed) ───
 function InvitationHero({
   maleName,
   femaleName,
@@ -1074,22 +1054,16 @@ function InvitationHero({
     <div ref={ref} className="text-center px-6 mt-4 mb-2">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap');
-        @keyframes inv-slide-left-p  { 0%{opacity:0;transform:translateX(-52px)} 100%{opacity:1;transform:translateX(0)} }
-        @keyframes inv-slide-right-p { 0%{opacity:0;transform:translateX(52px)} 100%{opacity:1;transform:translateX(0)} }
-        @keyframes inv-fade-up-p     { 0%{opacity:0;transform:translateY(28px)} 100%{opacity:1;transform:translateY(0)} }
-        @keyframes inv-name-pop-p    { 0%{opacity:0;transform:scale(0.85) translateY(16px);filter:blur(6px)} 70%{filter:blur(0)} 100%{opacity:1;transform:scale(1) translateY(0);filter:blur(0)} }
-        .inv-from-left-p  { animation:inv-slide-left-p  0.8s cubic-bezier(0.22,1,0.36,1) both; }
-        .inv-from-right-p { animation:inv-slide-right-p 0.8s cubic-bezier(0.22,1,0.36,1) both; }
-        .inv-fade-up-p    { animation:inv-fade-up-p     0.7s cubic-bezier(0.22,1,0.36,1) both; }
-        .inv-name-pop-p   { animation:inv-name-pop-p    0.9s cubic-bezier(0.34,1.4,0.64,1) both; }
-        .shimmer-pink {
-          background:linear-gradient(90deg,#7B3F5E 15%,#C4A0B0 42%,#E8B4C8 58%,#7B3F5E 85%);
-          background-size:200% auto;
-          -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-          animation:shimmer-gold 6s linear infinite;
-        }
+        @keyframes inv-slide-left-p{0%{opacity:0;transform:translateX(-52px)}100%{opacity:1;transform:translateX(0)}}
+        @keyframes inv-slide-right-p{0%{opacity:0;transform:translateX(52px)}100%{opacity:1;transform:translateX(0)}}
+        @keyframes inv-fade-up-p{0%{opacity:0;transform:translateY(28px)}100%{opacity:1;transform:translateY(0)}}
+        @keyframes inv-name-pop-p{0%{opacity:0;transform:scale(0.85) translateY(16px);filter:blur(6px)}70%{filter:blur(0)}100%{opacity:1;transform:scale(1) translateY(0);filter:blur(0)}}
+        .inv-from-left-p{animation:inv-slide-left-p 0.8s cubic-bezier(0.22,1,0.36,1) both}
+        .inv-from-right-p{animation:inv-slide-right-p 0.8s cubic-bezier(0.22,1,0.36,1) both}
+        .inv-fade-up-p{animation:inv-fade-up-p 0.7s cubic-bezier(0.22,1,0.36,1) both}
+        .inv-name-pop-p{animation:inv-name-pop-p 0.9s cubic-bezier(0.34,1.4,0.64,1) both}
+        .shimmer-pink{background:linear-gradient(90deg,#7B3F5E 15%,#C4A0B0 42%,#E8B4C8 58%,#7B3F5E 85%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer-gold 6s linear infinite}
       `}</style>
-
       <p
         className="inv-from-left-p"
         style={{
@@ -1107,7 +1081,6 @@ function InvitationHero({
       >
         Құрметті ағайын-туыс, құда-жекжат, дос-жаран, әріптестер мен көршілер!
       </p>
-
       <p
         className="inv-from-left-p"
         style={{
@@ -1126,7 +1099,6 @@ function InvitationHero({
       >
         Сіздерді ұлымыз
       </p>
-
       <p
         className="shimmer-pink inv-name-pop-p"
         style={{
@@ -1142,7 +1114,6 @@ function InvitationHero({
       >
         {maleName}
       </p>
-
       <div
         className="inv-fade-up-p"
         style={{
@@ -1186,7 +1157,6 @@ function InvitationHero({
           }}
         />
       </div>
-
       <p
         className="shimmer-pink inv-name-pop-p"
         style={{
@@ -1202,7 +1172,6 @@ function InvitationHero({
       >
         {femaleName}
       </p>
-
       <p
         className="inv-from-right-p"
         style={{
@@ -1222,7 +1191,6 @@ function InvitationHero({
         дің үйлену тойына арналған салтанатты ақ дастарханымыздың қадірлі қонағы
         болуға шақырамыз!
       </p>
-
       <div
         className="inv-fade-up-p"
         style={{
@@ -1237,12 +1205,10 @@ function InvitationHero({
   );
 }
 
-// ─── GallerySwiper ───
 function GallerySwiper({ urls }: { urls: string[] }) {
   const [active, setActive] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-
   const scrollTo = (i: number) => {
     const el = scrollRef.current;
     if (!el) return;
@@ -1271,7 +1237,6 @@ function GallerySwiper({ urls }: { urls: string[] }) {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [urls.length]);
-
   const onScroll = () => {
     const el = scrollRef.current;
     if (!el) return;
@@ -1288,7 +1253,6 @@ function GallerySwiper({ urls }: { urls: string[] }) {
     });
     setActive(closest);
   };
-
   return (
     <div>
       <style>{`@keyframes gallery-progress-p{from{width:0%}to{width:100%}}`}</style>
@@ -1365,7 +1329,6 @@ function GallerySwiper({ urls }: { urls: string[] }) {
   );
 }
 
-// ─── SVG Icons (from Template1) ───
 const IcCalendar = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
     <rect x="3" y="5" width="18" height="17" rx="4" fill="url(#cal-body-e)" />
@@ -1871,7 +1834,6 @@ const IcRing = () => (
   </svg>
 );
 
-// ─── FloralDivider (from Template1) ───
 const FloralDivider = ({ className = "" }: { className?: string }) => (
   <svg
     viewBox="0 0 280 32"
@@ -2016,7 +1978,6 @@ const FloralDivider = ({ className = "" }: { className?: string }) => (
   </svg>
 );
 
-// ─── CardWaveDecor ───
 const CardWaveDecor = ({ flip = false }: { flip?: boolean }) => (
   <svg
     viewBox="0 0 360 28"
@@ -2053,7 +2014,6 @@ const CardWaveDecor = ({ flip = false }: { flip?: boolean }) => (
   </svg>
 );
 
-// ─── SmallDivider ───
 const SmallDivider = () => (
   <div style={{ display: "flex", justifyContent: "center" }}>
     <svg viewBox="0 0 160 20" fill="none" style={{ width: 160, height: 20 }}>
@@ -2102,7 +2062,6 @@ const SmallDivider = () => (
   </div>
 );
 
-// ─── RotatingOrnament ───
 function RotatingOrnament({
   position,
   size = 200,
@@ -2158,6 +2117,130 @@ function RotatingOrnament({
   );
 }
 
+// ─── SECTION NAV ───
+const NAV_ITEMS = [
+  { id: "section-hero", emoji: "💍", label: "Есімдер" },
+  { id: "section-photos", emoji: "📸", label: "Фотолар" },
+  { id: "section-details", emoji: "📅", label: "Мәліметтер" },
+  { id: "section-messages", emoji: "💌", label: "Тілектер" },
+];
+
+function SectionNavBar() {
+  const [active, setActive] = useState("section-hero");
+
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setActive(id);
+    }
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      for (let i = NAV_ITEMS.length - 1; i >= 0; i--) {
+        const el = document.getElementById(NAV_ITEMS[i].id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= window.innerHeight * 0.4) {
+            setActive(NAV_ITEMS[i].id);
+            break;
+          }
+        }
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        background: "rgba(253,240,245,0.92)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        borderTop: "0.5px solid rgba(232,180,200,0.5)",
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+      }}
+    >
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          maxWidth: 480,
+          margin: "0 auto",
+        }}
+      >
+        {NAV_ITEMS.map(({ id, emoji, label }) => {
+          const isActive = active === id;
+          return (
+            <button
+              key={id}
+              onClick={() => scrollTo(id)}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 3,
+                padding: "10px 4px 10px",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                position: "relative",
+              }}
+            >
+              {isActive && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: "20%",
+                    right: "20%",
+                    height: 2,
+                    borderRadius: "0 0 2px 2px",
+                    background:
+                      "linear-gradient(to right,#E8B4C8,#7B3F5E,#E8B4C8)",
+                  }}
+                />
+              )}
+              <span
+                style={{
+                  fontSize: 22,
+                  lineHeight: 1,
+                  transform: isActive ? "scale(1.15)" : "scale(1)",
+                  transition: "transform 0.2s cubic-bezier(0.34,1.56,0.64,1)",
+                }}
+              >
+                {emoji}
+              </span>
+              <span
+                style={{
+                  fontFamily: "'Cinzel',serif",
+                  fontSize: 9.5,
+                  letterSpacing: "0.05em",
+                  color: isActive ? "#7B3F5E" : "rgba(196,160,176,0.7)",
+                  fontWeight: isActive ? 600 : 400,
+                  transition: "color 0.2s ease",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN ───
 export default function Template1({ wedding }: { wedding: Wedding }) {
   const date = formatDate(wedding.wedding_date);
@@ -2170,7 +2253,6 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
     wedding.extra2,
     wedding.extra3,
     wedding.extra4,
-    wedding.extra5,
   ].filter(Boolean);
 
   return (
@@ -2180,683 +2262,628 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
         background:
           "linear-gradient(135deg,#FDF0F5 0%,#FDF6F0 40%,#F5F0FD 100%)",
         fontFamily: "'Cormorant Garamond','Georgia',serif",
+        paddingBottom: 80,
       }}
     >
       <MusicMan />
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&family=Cinzel:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&family=Cinzel:wght@400;500;600&display=swap');
         * { box-sizing:border-box; }
         img { border:none !important; outline:none !important; }
-        @keyframes fade-up { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
-        @keyframes petal-spin-e { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        @keyframes spin-slow-e { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        @keyframes shimmer-gold { 0%{background-position:-200% center} 100%{background-position:200% center} }
-        @keyframes float-gentle-e { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
-        .fade-up { animation:fade-up 0.85s cubic-bezier(0.22,1,0.36,1) both; }
-        .fade-1  { animation-delay:0.1s; }
-        .fade-2  { animation-delay:0.28s; }
-        .fade-3  { animation-delay:0.46s; }
-        .label-sm { font-family:'Jost',sans-serif; font-weight:400; letter-spacing:0.32em; text-transform:uppercase; font-size:9px; color:rgba(196,160,176,0.9); }
-        .glass-card {
-          background:rgba(255,255,255,0.62); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-          border:1px solid rgba(232,180,200,0.38); border-radius:24px;
-          box-shadow:0 8px 32px rgba(196,160,176,0.16),0 1px 0 rgba(255,255,255,0.9) inset,0 -1px 0 rgba(232,180,200,0.12) inset;
-        }
-        .icon-box {
-          width:40px; height:40px; border-radius:16px; flex-shrink:0;
-          display:flex; align-items:center; justify-content:center;
-          background:linear-gradient(135deg,#F9D5E5 0%,#FDF0F5 100%);
-          box-shadow:0 2px 8px rgba(196,160,176,0.18);
-        }
-        .ring-float { animation:float-gentle-e 3s ease-in-out infinite; }
+        @keyframes fade-up{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+        @keyframes petal-spin-e{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        @keyframes spin-slow-e{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        @keyframes shimmer-gold{0%{background-position:-200% center}100%{background-position:200% center}}
+        @keyframes float-gentle-e{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+        .fade-up{animation:fade-up 0.85s cubic-bezier(0.22,1,0.36,1) both}
+        .fade-1{animation-delay:0.1s}
+        .fade-2{animation-delay:0.28s}
+        .fade-3{animation-delay:0.46s}
+        .label-sm{font-family:'Jost',sans-serif;font-weight:400;letter-spacing:0.32em;text-transform:uppercase;font-size:9px;color:rgba(196,160,176,0.9)}
+        .glass-card{background:rgba(255,255,255,0.62);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(232,180,200,0.38);border-radius:24px;box-shadow:0 8px 32px rgba(196,160,176,0.16),0 1px 0 rgba(255,255,255,0.9) inset,0 -1px 0 rgba(232,180,200,0.12) inset}
+        .icon-box{width:40px;height:40px;border-radius:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#F9D5E5 0%,#FDF0F5 100%);box-shadow:0 2px 8px rgba(196,160,176,0.18)}
+        .ring-float{animation:float-gentle-e 3s ease-in-out infinite}
       `}</style>
 
       <RotatingOrnament position="top-right" size={220} opacity={0.06} />
       <RotatingOrnament position="bottom-left" size={220} opacity={0.06} />
 
-      {/* ═══ HERO ═══ */}
-      <div className="relative w-full h-[62vh] overflow-hidden">
-        {wedding.main_photo_url ? (
-          <img
-            src={wedding.main_photo_url}
-            alt="Басты сурет"
-            className="w-full h-full object-cover"
-            style={{ display: "block", border: "none" }}
-          />
-        ) : (
-          <div
-            className="w-full h-full flex items-center justify-center relative overflow-hidden"
-            style={{
-              background:
-                "linear-gradient(135deg,#F9D5E5 0%,#FDF6F0 50%,#E5D5F9 100%)",
-            }}
-          >
-            <div className="absolute inset-0 opacity-10">
-              <svg width="100%" height="100%">
-                <defs>
-                  <pattern
-                    id="dots-e"
-                    x="0"
-                    y="0"
-                    width="30"
-                    height="30"
-                    patternUnits="userSpaceOnUse"
-                  >
-                    <circle cx="15" cy="15" r="1" fill="#C4A0B0" />
-                  </pattern>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#dots-e)" />
-              </svg>
-            </div>
-            <div className="relative flex items-center justify-center">
-              <svg
-                width="120"
-                height="120"
-                viewBox="0 0 120 120"
-                fill="none"
-                style={{ animation: "petal-spin-e 30s linear infinite" }}
-              >
-                {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(
-                  (deg, i) => {
-                    const r = (deg * Math.PI) / 180;
-                    return (
-                      <ellipse
-                        key={i}
-                        cx={60 + Math.cos(r) * 28}
-                        cy={60 + Math.sin(r) * 28}
-                        rx="9"
-                        ry="14"
-                        transform={`rotate(${deg + 90},${60 + Math.cos(r) * 28},${60 + Math.sin(r) * 28})`}
-                        fill="#F2C8DC"
-                        opacity="0.35"
-                      />
-                    );
-                  },
-                )}
-              </svg>
-              <div className="absolute ring-float">
-                <IcRing />
+      {/* ═══════════════════════════════════════════════════════
+          SECTION 1: HERO — Есімдер + Шақыру + Той иелері
+      ═══════════════════════════════════════════════════════ */}
+      <section id="section-hero">
+        {/* HERO IMAGE */}
+        <div className="relative w-full h-[62vh] overflow-hidden">
+          {wedding.main_photo_url ? (
+            <img
+              src={wedding.main_photo_url}
+              alt="Басты сурет"
+              className="w-full h-full object-cover"
+              style={{ display: "block", border: "none" }}
+            />
+          ) : (
+            <div
+              className="w-full h-full flex items-center justify-center relative overflow-hidden"
+              style={{
+                background:
+                  "linear-gradient(135deg,#F9D5E5 0%,#FDF6F0 50%,#E5D5F9 100%)",
+              }}
+            >
+              <div className="absolute inset-0 opacity-10">
+                <svg width="100%" height="100%">
+                  <defs>
+                    <pattern
+                      id="dots-e"
+                      x="0"
+                      y="0"
+                      width="30"
+                      height="30"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <circle cx="15" cy="15" r="1" fill="#C4A0B0" />
+                    </pattern>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(#dots-e)" />
+                </svg>
+              </div>
+              <div className="relative flex items-center justify-center">
+                <svg
+                  width="120"
+                  height="120"
+                  viewBox="0 0 120 120"
+                  fill="none"
+                  style={{ animation: "petal-spin-e 30s linear infinite" }}
+                >
+                  {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(
+                    (deg, i) => {
+                      const r = (deg * Math.PI) / 180;
+                      return (
+                        <ellipse
+                          key={i}
+                          cx={60 + Math.cos(r) * 28}
+                          cy={60 + Math.sin(r) * 28}
+                          rx="9"
+                          ry="14"
+                          transform={`rotate(${deg + 90},${60 + Math.cos(r) * 28},${60 + Math.sin(r) * 28})`}
+                          fill="#F2C8DC"
+                          opacity="0.35"
+                        />
+                      );
+                    },
+                  )}
+                </svg>
+                <div className="absolute ring-float">
+                  <IcRing />
+                </div>
               </div>
             </div>
-          </div>
-        )}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: "linear-gradient(to top,#FDF0F5 0%,transparent 55%)",
-          }}
-        />
-        <div className="absolute top-5 left-0 right-0 flex items-center justify-center gap-3 px-8">
+          )}
           <div
-            className="h-px flex-1"
+            className="absolute inset-0"
             style={{
-              background:
-                "linear-gradient(to right,transparent,rgba(255,255,255,0.5))",
+              background: "linear-gradient(to top,#FDF0F5 0%,transparent 55%)",
             }}
           />
-          <span
-            style={{
-              color: "rgba(255,255,255,0.6)",
-              fontFamily: "'Jost',sans-serif",
-              fontSize: 9,
-              letterSpacing: "0.5em",
-              textTransform: "uppercase",
-            }}
-          >
-            Үйлену тойы
-          </span>
-          <div
-            className="h-px flex-1"
-            style={{
-              background:
-                "linear-gradient(to left,transparent,rgba(255,255,255,0.5))",
-            }}
-          />
-        </div>
-      </div>
-
-      {/* ═══ NAMES HERO ═══ */}
-      <div className="text-center px-6 -mt-14 relative z-10">
-        <div
-          className="fade-up fade-1 inline-flex items-center justify-center mb-5 bg-white/70 backdrop-blur-sm p-3 rounded-full border border-pink-100/50"
-          style={{
-            boxShadow:
-              "0 2px 16px rgba(196,160,176,0.18),0 1px 0 rgba(255,255,255,0.9) inset",
-          }}
-        >
-          <IcRing />
-        </div>
-        <h1
-          className="fade-up fade-1 font-light italic leading-tight"
-          style={{
-            fontFamily: "'Playfair Display',serif",
-            color: "#7B3F5E",
-            fontSize: "clamp(2.4rem,10vw,3.2rem)",
-          }}
-        >
-          {wedding.male_name}
-        </h1>
-        <div className="fade-up fade-2 flex items-center justify-center gap-3 my-5">
-          <div
-            className="h-px w-10"
-            style={{
-              background: "linear-gradient(to right,transparent,#E8B4C8)",
-            }}
-          />
-          <IcHeart />
-          <div
-            className="h-px w-10"
-            style={{
-              background: "linear-gradient(to left,transparent,#E8B4C8)",
-            }}
-          />
-        </div>
-        <h1
-          className="fade-up fade-2 font-light italic leading-tight"
-          style={{
-            fontFamily: "'Playfair Display',serif",
-            color: "#7B3F5E",
-            fontSize: "clamp(2.4rem,10vw,3.2rem)",
-          }}
-        >
-          {wedding.female_name}
-        </h1>
-        <div className="fade-up fade-3 flex justify-center mt-5">
-          <FloralDivider />
-        </div>
-      </div>
-
-      {/* ═══ INVITATION HERO TEXT (from Template2) ═══ */}
-      <div className="relative z-10 mt-6" style={{ background: "transparent" }}>
-        <InvitationHero
-          maleName={wedding.male_name}
-          femaleName={wedding.female_name}
-        />
-      </div>
-
-      {/* ═══ PHOTO3 ═══ */}
-      {wedding.photo3_url && !wedding.photo4_url && (
-        <ScrollRevealSection
-          direction="up"
-          delay={0}
-          style={{ overflow: "hidden", padding: "0 20px", marginTop: 16 }}
-        >
-          <div
-            style={{
-              borderRadius: 16,
-              overflow: "hidden",
-              border: "1px solid rgba(232,180,200,0.3)",
-              boxShadow: "0 4px 24px rgba(196,160,176,0.15)",
-            }}
-          >
-            <img
-              src={wedding.photo3_url}
-              alt="Сурет"
-              className="w-full object-cover"
+          <div className="absolute top-5 left-0 right-0 flex items-center justify-center gap-3 px-8">
+            <div
+              className="h-px flex-1"
               style={{
-                display: "block",
-                border: "none",
-                maxHeight: 480,
-                objectPosition: "center top",
+                background:
+                  "linear-gradient(to right,transparent,rgba(255,255,255,0.5))",
+              }}
+            />
+            <span
+              style={{
+                color: "rgba(255,255,255,0.6)",
+                fontFamily: "'Jost',sans-serif",
+                fontSize: 9,
+                letterSpacing: "0.5em",
+                textTransform: "uppercase",
+              }}
+            >
+              Үйлену тойы
+            </span>
+            <div
+              className="h-px flex-1"
+              style={{
+                background:
+                  "linear-gradient(to left,transparent,rgba(255,255,255,0.5))",
               }}
             />
           </div>
-        </ScrollRevealSection>
-      )}
+        </div>
 
-      {/* ═══ COUPLE PHOTOS GRID ═══ */}
-      {wedding.photo3_url && wedding.photo4_url && (
-        <div className="mx-5 mt-8">
-          <div className="flex items-center gap-3 mb-4">
+        {/* NAMES */}
+        <div className="text-center px-6 -mt-14 relative z-10">
+          <div
+            className="fade-up fade-1 inline-flex items-center justify-center mb-5 bg-white/70 backdrop-blur-sm p-3 rounded-full border border-pink-100/50"
+            style={{
+              boxShadow:
+                "0 2px 16px rgba(196,160,176,0.18),0 1px 0 rgba(255,255,255,0.9) inset",
+            }}
+          >
+            <IcRing />
+          </div>
+          <h1
+            className="fade-up fade-1 font-light italic leading-tight"
+            style={{
+              fontFamily: "'Playfair Display',serif",
+              color: "#7B3F5E",
+              fontSize: "clamp(2.4rem,10vw,3.2rem)",
+            }}
+          >
+            {wedding.male_name}
+          </h1>
+          <div className="fade-up fade-2 flex items-center justify-center gap-3 my-5">
             <div
-              className="h-px flex-1"
+              className="h-px w-10"
               style={{
                 background: "linear-gradient(to right,transparent,#E8B4C8)",
               }}
             />
-            <SmallDivider />
+            <IcHeart />
             <div
-              className="h-px flex-1"
+              className="h-px w-10"
               style={{
                 background: "linear-gradient(to left,transparent,#E8B4C8)",
               }}
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <h1
+            className="fade-up fade-2 font-light italic leading-tight"
+            style={{
+              fontFamily: "'Playfair Display',serif",
+              color: "#7B3F5E",
+              fontSize: "clamp(2.4rem,10vw,3.2rem)",
+            }}
+          >
+            {wedding.female_name}
+          </h1>
+          <div className="fade-up fade-3 flex justify-center mt-5">
+            <FloralDivider />
+          </div>
+        </div>
+
+        {/* INVITATION TEXT */}
+        <div
+          className="relative z-10 mt-6"
+          style={{ background: "transparent" }}
+        >
+          <InvitationHero
+            maleName={wedding.male_name}
+            femaleName={wedding.female_name}
+          />
+        </div>
+
+        {/* ORGANIZER BLOCK */}
+        {wedding.organizer && (
+          <ScrollRevealSection direction="left" delay={0.05}>
+            <OrganizerBlock
+              organizer={wedding.organizer}
+              maleParents={(wedding as any).male_parents}
+              femaleParents={(wedding as any).female_parents}
+            />
+          </ScrollRevealSection>
+        )}
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          SECTION 2: ФОТОЛАР
+      ═══════════════════════════════════════════════════════ */}
+      <section id="section-photos">
+        {/* PHOTO3 only */}
+        {wedding.photo3_url && !wedding.photo4_url && (
+          <ScrollRevealSection
+            direction="up"
+            delay={0}
+            style={{ overflow: "hidden", padding: "0 20px", marginTop: 16 }}
+          >
             <div
-              className="overflow-hidden"
               style={{
-                borderRadius: 20,
-                aspectRatio: "3/4",
+                borderRadius: 16,
+                overflow: "hidden",
                 border: "1px solid rgba(232,180,200,0.3)",
-                boxShadow: "0 4px 20px rgba(196,160,176,0.15)",
+                boxShadow: "0 4px 24px rgba(196,160,176,0.15)",
               }}
             >
               <img
                 src={wedding.photo3_url}
-                alt="Жігіт"
-                className="w-full h-full object-cover"
+                alt="Сурет"
+                className="w-full object-cover"
+                style={{
+                  display: "block",
+                  border: "none",
+                  maxHeight: 480,
+                  objectPosition: "center top",
+                }}
               />
             </div>
-            <div
-              className="overflow-hidden"
-              style={{
-                borderRadius: 20,
-                aspectRatio: "3/4",
-                border: "1px solid rgba(232,180,200,0.3)",
-                boxShadow: "0 4px 20px rgba(196,160,176,0.15)",
-              }}
-            >
-              <img
-                src={wedding.photo4_url}
-                alt="Қыз"
-                className="w-full h-full object-cover"
-              />
+          </ScrollRevealSection>
+        )}
+
+        {/* PHOTO3 + PHOTO4 grid */}
+        {wedding.photo3_url && wedding.photo4_url && (
+          <div className="mx-5 mt-6">
+            <div className="grid grid-cols-2 gap-3">
+              <div
+                className="overflow-hidden"
+                style={{
+                  borderRadius: 20,
+                  aspectRatio: "3/4",
+                  border: "1px solid rgba(232,180,200,0.3)",
+                  boxShadow: "0 4px 20px rgba(196,160,176,0.15)",
+                }}
+              >
+                <img
+                  src={wedding.photo3_url}
+                  alt="Жігіт"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div
+                className="overflow-hidden"
+                style={{
+                  borderRadius: 20,
+                  aspectRatio: "3/4",
+                  border: "1px solid rgba(232,180,200,0.3)",
+                  boxShadow: "0 4px 20px rgba(196,160,176,0.15)",
+                }}
+              >
+                <img
+                  src={wedding.photo4_url}
+                  alt="Қыз"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ═══ DESCRIPTION + ORGANIZER CARD ═══ */}
-      {(wedding.description1 || wedding.organizer) && (
-        <div className="mx-5 mt-7">
+        {/* GALLERY */}
+        {!!wedding.gallery_urls?.length && (
+          <ScrollRevealSection
+            direction="up"
+            delay={0}
+            style={{ marginTop: 28 }}
+          >
+            <div className="flex items-center gap-3 px-5 mb-4">
+              <div
+                className="h-px flex-1"
+                style={{
+                  background: "linear-gradient(to right,transparent,#E8B4C8)",
+                }}
+              />
+              <p className="label-sm">Фотоальбом</p>
+              <div
+                className="h-px flex-1"
+                style={{
+                  background: "linear-gradient(to left,transparent,#E8B4C8)",
+                }}
+              />
+            </div>
+            <p
+              style={{
+                textAlign: "center",
+                fontSize: 15,
+                fontFamily: "'Cinzel',serif",
+                background:
+                  "linear-gradient(90deg,#7B3F5E 15%,#C4A0B0 42%,#E8B4C8 58%,#7B3F5E 85%)",
+                backgroundSize: "200% auto",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                animation: "shimmer-gold 6s linear infinite",
+                marginBottom: 12,
+              }}
+            >
+              ❤️ Біздің махаббатымыздың естеліктері ❤️
+            </p>
+            <GallerySwiper urls={wedding.gallery_urls} />
+          </ScrollRevealSection>
+        )}
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          SECTION 3: МӘЛІМЕТТЕР — Уақыт + Той залы + Басқа
+      ═══════════════════════════════════════════════════════ */}
+      <section id="section-details">
+        {/* SECTION HEADER */}
+        <div style={{ textAlign: "center", padding: "36px 20px 4px" }}>
+          <SmallDivider />
+          <p
+            style={{
+              fontFamily: "'Cinzel',serif",
+              fontSize: 13,
+              letterSpacing: "0.45em",
+              color: "rgba(196,160,176,0.9)",
+              textTransform: "uppercase",
+              margin: "12px 0 0",
+              fontWeight: 500,
+            }}
+          >
+            Мерекелік мәліметтер
+          </p>
+        </div>
+
+        {/* DATE DISPLAY */}
+        {date && (
+          <ScrollRevealSection
+            direction="up"
+            delay={0}
+            style={{ textAlign: "center", marginTop: 16 }}
+          >
+            <p
+              className="fade-up fade-3 mt-3 uppercase"
+              style={{
+                fontSize: 14,
+                letterSpacing: "0.44em",
+                fontFamily: "'Cinzel',serif",
+                color: "rgba(196,160,176,0.90)",
+                fontWeight: 600,
+              }}
+            >
+              {date}
+            </p>
+          </ScrollRevealSection>
+        )}
+
+        {/* ANIMATED CALENDAR */}
+        {wedding.wedding_date && (
+          <ScrollRevealSection
+            direction="right"
+            delay={0.05}
+            style={{ marginTop: 16, padding: "0 20px" }}
+          >
+            <AnimatedCalendar dateStr={wedding.wedding_date} />
+          </ScrollRevealSection>
+        )}
+
+        {/* INSTAGRAM LINKS */}
+        {(wedding.link1 || wedding.link2) && (
+          <div className="mx-5 mt-8 flex gap-4">
+            {wedding.link1 && (
+              <a
+                href={wedding.link1}
+                target="_blank"
+                className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl transition-all hover:opacity-80"
+                style={{
+                  border: "1px solid rgba(196,160,176,0.38)",
+                  color: "#9B6B7E",
+                  background: "rgba(255,255,255,0.5)",
+                  fontFamily: "'Jost',sans-serif",
+                  fontSize: 10,
+                  letterSpacing: "0.3em",
+                  textTransform: "uppercase",
+                  boxShadow: "0 2px 12px rgba(196,160,176,0.1)",
+                }}
+              >
+                <IcInstagram /> Instagram
+              </a>
+            )}
+            {wedding.link2 && (
+              <a
+                href={wedding.link2}
+                target="_blank"
+                className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-white transition-all hover:opacity-90"
+                style={{
+                  background: "linear-gradient(135deg,#7B3F5E,#C4A0B0)",
+                  boxShadow: "0 4px 16px rgba(123,63,94,0.28)",
+                  fontFamily: "'Jost',sans-serif",
+                  fontSize: 10,
+                  letterSpacing: "0.3em",
+                  textTransform: "uppercase",
+                }}
+              >
+                <IcInstagram white /> Instagram
+              </a>
+            )}
+          </div>
+        )}
+
+        {/* INFO CARD */}
+        <div className="mx-5 mt-7 mb-2">
           <div className="glass-card relative overflow-hidden">
-            <div className="pt-2 px-2">
+            <div
+              className="h-[2px]"
+              style={{
+                background:
+                  "linear-gradient(to right,#F9D5E5,#C4A0B0,#D5D5F9,#C4A0B0,#F9D5E5)",
+              }}
+            />
+            <div className="px-2 pt-1">
               <CardWaveDecor />
             </div>
-            {wedding.description1 && (
-              <div className="px-6 pt-3 pb-5 text-center relative">
-                <svg
-                  width="28"
-                  height="20"
-                  viewBox="0 0 28 20"
-                  fill="none"
-                  className="mx-auto mb-2 opacity-30"
+            <div className="p-5 space-y-4">
+              {/* DateTime */}
+              {(date || time) && (
+                <ScrollRevealSection direction="up" delay={0}>
+                  <DateTimeBlock date={date} time={time} />
+                </ScrollRevealSection>
+              )}
+
+              {/* Venue */}
+              {(wedding.venue_name || wedding.venue_address) && (
+                <ScrollRevealSection
+                  direction="left"
+                  delay={0.1}
+                  style={{
+                    borderTop: "0.5px solid rgba(232,180,200,0.2)",
+                    paddingTop: 20,
+                  }}
                 >
-                  <path
-                    d="M0 20 C0 12 3 7 8 4.5 L10 0 C3 2.5 0 9 0 20Z"
-                    fill="#C4A0B0"
-                  />
-                  <path
-                    d="M16 20 C16 12 19 7 24 4.5 L26 0 C19 2.5 16 9 16 20Z"
-                    fill="#C4A0B0"
-                  />
-                </svg>
-                <p
-                  className="text-[#9B6B7E] text-[16px] leading-[1.9] italic"
-                  style={{ wordBreak: "break-word" }}
-                >
-                  {wedding.description1}
-                </p>
-              </div>
-            )}
-            {wedding.organizer && (
-              <div className="px-6 py-5">
-                <div className="flex items-center justify-center gap-2 mb-3">
-                  <div
-                    className="h-px w-8"
-                    style={{
-                      background:
-                        "linear-gradient(to right,transparent,#E8B4C8)",
-                    }}
-                  />
-                  <p className="label-sm">Той иелері</p>
-                  <div
-                    className="h-px w-8"
-                    style={{
-                      background:
-                        "linear-gradient(to left,transparent,#E8B4C8)",
-                    }}
-                  />
-                </div>
-                <div className="flex items-center justify-center gap-2.5">
-                  <div className="icon-box">
-                    <IcUsers />
+                  <div className="flex items-start gap-4">
+                    <div className="icon-box mt-0.5">
+                      <IcMapPin />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="label-sm">Той залы</p>
+                      {wedding.venue_name && (
+                        <p
+                          className="font-light italic mt-0.5"
+                          style={{
+                            fontFamily: "'Playfair Display',serif",
+                            color: "#7B3F5E",
+                            fontSize: 16,
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          {wedding.venue_name}
+                        </p>
+                      )}
+                      {wedding.venue_address && (
+                        <div className="flex items-start gap-1 mt-1">
+                          <IcMapPinTiny />
+                          <p
+                            style={{
+                              color: "#C4A0B0",
+                              fontSize: 12,
+                              fontFamily: "'Jost',sans-serif",
+                              lineHeight: 1.6,
+                              wordBreak: "break-word",
+                            }}
+                          >
+                            {wedding.venue_address}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <p
-                    className="text-[#9B6B7E] text-[16px] font-light text-center italic"
-                    style={{ wordBreak: "break-word" }}
-                  >
-                    {wedding.organizer}
-                  </p>
+                </ScrollRevealSection>
+              )}
+
+              {/* Extras */}
+              {extras.length > 0 && (
+                <div
+                  className="pt-3 border-t space-y-2.5"
+                  style={{ borderColor: "rgba(232,180,200,0.2)" }}
+                >
+                  {extras.map((e, i) => (
+                    <ScrollRevealSection
+                      key={i}
+                      direction={i % 2 === 0 ? "left" : "right"}
+                      delay={i * 0.08}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                          style={{
+                            background: "rgba(249,213,229,0.5)",
+                            border: "1px solid rgba(232,180,200,0.35)",
+                          }}
+                        >
+                          <div
+                            className="w-1.5 h-1.5 rounded-full"
+                            style={{ background: "#C4A0B0" }}
+                          />
+                        </div>
+                        <p
+                          style={{
+                            color: "#9B6B7E",
+                            fontSize: 13,
+                            fontFamily: "'Jost',sans-serif",
+                            lineHeight: 1.75,
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          {e}
+                        </p>
+                      </div>
+                    </ScrollRevealSection>
+                  ))}
                 </div>
-              </div>
-            )}
-            <div className="pb-2 px-2">
+              )}
+
+              {/* Photo5 */}
+              {wedding.photo5_url && (
+                <div
+                  className="pt-3 border-t"
+                  style={{ borderColor: "rgba(232,180,200,0.2)" }}
+                >
+                  <div
+                    className="overflow-hidden rounded-2xl"
+                    style={{ boxShadow: "0 4px 16px rgba(196,160,176,0.15)" }}
+                  >
+                    <img
+                      src={wedding.photo5_url}
+                      alt="Қосымша сурет"
+                      className="w-full object-cover"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="px-2 pb-2">
               <CardWaveDecor flip />
             </div>
           </div>
         </div>
-      )}
 
-      {/* ═══ ORGANIZER BLOCK WITH PARENTS (from Template2) ═══ */}
-      {wedding.organizer && (
-        <ScrollRevealSection direction="left" delay={0.05}>
-          <OrganizerBlock
-            organizer={wedding.organizer}
-            maleParents={(wedding as any).male_parents}
-            femaleParents={(wedding as any).female_parents}
-          />
-        </ScrollRevealSection>
-      )}
-
-      {/* ═══ DATE DISPLAY ═══ */}
-      {date && (
-        <ScrollRevealSection
-          direction="up"
-          delay={0}
-          style={{ textAlign: "center", marginTop: 24 }}
-        >
-          <SmallDivider />
-          <p
-            className="fade-up fade-3 mt-3 uppercase"
-            style={{
-              fontSize: 14,
-              letterSpacing: "0.44em",
-              fontFamily: "'Cinzel',serif",
-              color: "rgba(196,160,176,0.90)",
-              fontWeight: 600,
-            }}
-          >
-            {date}
-          </p>
-        </ScrollRevealSection>
-      )}
-
-      {/* ═══ ANIMATED CALENDAR (from Template2) ═══ */}
-      {wedding.wedding_date && (
-        <ScrollRevealSection
-          direction="right"
-          delay={0.05}
-          style={{ marginTop: 16, padding: "0 20px" }}
-        >
-          <AnimatedCalendar dateStr={wedding.wedding_date} />
-        </ScrollRevealSection>
-      )}
-
-      {/* ═══ GALLERY ═══ */}
-      {!!wedding.gallery_urls?.length && (
-        <ScrollRevealSection direction="up" delay={0} style={{ marginTop: 32 }}>
-          <div className="flex items-center gap-3 px-5 mb-4">
+        {/* DESCRIPTION 2 */}
+        {wedding.description2 && (
+          <div className="mx-5 mt-8">
             <div
-              className="h-px flex-1"
+              className="relative rounded-3xl p-5 overflow-hidden"
               style={{
-                background: "linear-gradient(to right,transparent,#E8B4C8)",
-              }}
-            />
-            <p className="label-sm">Фотоальбом</p>
-            <div
-              className="h-px flex-1"
-              style={{
-                background: "linear-gradient(to left,transparent,#E8B4C8)",
-              }}
-            />
-          </div>
-          <p
-            style={{
-              textAlign: "center",
-              fontSize: 15,
-              fontFamily: "'Cinzel',serif",
-              background:
-                "linear-gradient(90deg,#7B3F5E 15%,#C4A0B0 42%,#E8B4C8 58%,#7B3F5E 85%)",
-              backgroundSize: "200% auto",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              animation: "shimmer-gold 6s linear infinite",
-              marginBottom: 12,
-            }}
-          >
-            ❤️ Біздің махаббатымыздың естеліктері ❤️
-          </p>
-          <GallerySwiper urls={wedding.gallery_urls} />
-        </ScrollRevealSection>
-      )}
-
-      {/* ═══ DESCRIPTION 2 ═══ */}
-      {wedding.description2 && (
-        <div className="mx-5 mt-8">
-          <div
-            className="relative rounded-3xl p-5 overflow-hidden"
-            style={{
-              background: "rgba(255,255,255,0.45)",
-              backdropFilter: "blur(10px)",
-              border: "1px solid rgba(232,180,200,0.25)",
-              boxShadow: "0 4px 20px rgba(196,160,176,0.1)",
-            }}
-          >
-            <div
-              className="absolute top-0 left-0 w-1 h-full rounded-l-3xl"
-              style={{
-                background:
-                  "linear-gradient(to bottom,#F9D5E5,#E8B4C8,#F9D5E5)",
-              }}
-            />
-            <p
-              className="text-[#9B6B7E] text-[14px] leading-[1.85] pl-3"
-              style={{ wordBreak: "break-word" }}
-            >
-              {wedding.description2}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* ═══ INSTAGRAM ═══ */}
-      {(wedding.link1 || wedding.link2) && (
-        <div className="mx-5 mt-8 flex gap-4">
-          {wedding.link1 && (
-            <a
-              href={wedding.link1}
-              target="_blank"
-              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl transition-all hover:opacity-80"
-              style={{
-                border: "1px solid rgba(196,160,176,0.38)",
-                color: "#9B6B7E",
-                background: "rgba(255,255,255,0.5)",
-                fontFamily: "'Jost',sans-serif",
-                fontSize: 10,
-                letterSpacing: "0.3em",
-                textTransform: "uppercase",
-                boxShadow: "0 2px 12px rgba(196,160,176,0.1)",
+                background: "rgba(255,255,255,0.45)",
+                backdropFilter: "blur(10px)",
+                border: "1px solid rgba(232,180,200,0.25)",
+                boxShadow: "0 4px 20px rgba(196,160,176,0.1)",
               }}
             >
-              <IcInstagram /> Instagram
-            </a>
-          )}
-          {wedding.link2 && (
-            <a
-              href={wedding.link2}
-              target="_blank"
-              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-white transition-all hover:opacity-90"
-              style={{
-                background: "linear-gradient(135deg,#7B3F5E,#C4A0B0)",
-                boxShadow: "0 4px 16px rgba(123,63,94,0.28)",
-                fontFamily: "'Jost',sans-serif",
-                fontSize: 10,
-                letterSpacing: "0.3em",
-                textTransform: "uppercase",
-              }}
-            >
-              <IcInstagram white /> Instagram
-            </a>
-          )}
-        </div>
-      )}
-
-      {/* ═══ INFO CARD (date/time/venue/extras) ═══ */}
-      <div className="mx-5 mt-9 mb-2">
-        <div className="glass-card relative overflow-hidden">
-          <div
-            className="h-[2px]"
-            style={{
-              background:
-                "linear-gradient(to right,#F9D5E5,#C4A0B0,#D5D5F9,#C4A0B0,#F9D5E5)",
-            }}
-          />
-          <div className="px-2 pt-1">
-            <CardWaveDecor />
-          </div>
-          <div className="p-5 space-y-4">
-            {/* DateTime with animated clock */}
-            {(date || time) && (
-              <ScrollRevealSection direction="up" delay={0}>
-                <DateTimeBlock date={date} time={time} />
-              </ScrollRevealSection>
-            )}
-
-            {/* Venue */}
-            {(wedding.venue_name || wedding.venue_address) && (
-              <ScrollRevealSection
-                direction="left"
-                delay={0.1}
+              <div
+                className="absolute top-0 left-0 w-1 h-full rounded-l-3xl"
                 style={{
-                  borderTop: "0.5px solid rgba(232,180,200,0.2)",
-                  paddingTop: 20,
+                  background:
+                    "linear-gradient(to bottom,#F9D5E5,#E8B4C8,#F9D5E5)",
                 }}
+              />
+              <p
+                className="text-[#9B6B7E] text-[14px] leading-[1.85] pl-3"
+                style={{ wordBreak: "break-word" }}
               >
-                <div className="flex items-start gap-4">
-                  <div className="icon-box mt-0.5">
-                    <IcMapPin />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="label-sm">Той залы</p>
-                    {wedding.venue_name && (
-                      <p
-                        className="font-light italic mt-0.5"
-                        style={{
-                          fontFamily: "'Playfair Display',serif",
-                          color: "#7B3F5E",
-                          fontSize: 16,
-                          wordBreak: "break-word",
-                        }}
-                      >
-                        {wedding.venue_name}
-                      </p>
-                    )}
-                    {wedding.venue_address && (
-                      <div className="flex items-start gap-1 mt-1">
-                        <IcMapPinTiny />
-                        <p
-                          style={{
-                            color: "#C4A0B0",
-                            fontSize: 12,
-                            fontFamily: "'Jost',sans-serif",
-                            lineHeight: 1.6,
-                            wordBreak: "break-word",
-                          }}
-                        >
-                          {wedding.venue_address}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </ScrollRevealSection>
-            )}
-
-            {/* Phone */}
-            {wedding.phone && (
-              <div
-                className="flex items-center gap-4 pt-3 border-t"
-                style={{ borderColor: "rgba(232,180,200,0.2)" }}
-              >
-                <div className="icon-box">
-                  <IcPhone />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="label-sm">Байланыс</p>
-                  <a
-                    href={`tel:${wedding.phone}`}
-                    className="font-light italic mt-0.5 hover:underline block"
-                    style={{
-                      fontFamily: "'Playfair Display',serif",
-                      color: "#7B3F5E",
-                      fontSize: 16,
-                    }}
-                  >
-                    {wedding.phone}
-                  </a>
-                </div>
-              </div>
-            )}
-
-            {/* Extras */}
-            {extras.length > 0 && (
-              <div
-                className="pt-3 border-t space-y-2.5"
-                style={{ borderColor: "rgba(232,180,200,0.2)" }}
-              >
-                {extras.map((e, i) => (
-                  <ScrollRevealSection
-                    key={i}
-                    direction={i % 2 === 0 ? "left" : "right"}
-                    delay={i * 0.08}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                        style={{
-                          background: "rgba(249,213,229,0.5)",
-                          border: "1px solid rgba(232,180,200,0.35)",
-                        }}
-                      >
-                        <div
-                          className="w-1.5 h-1.5 rounded-full"
-                          style={{ background: "#C4A0B0" }}
-                        />
-                      </div>
-                      <p
-                        style={{
-                          color: "#9B6B7E",
-                          fontSize: 13,
-                          fontFamily: "'Jost',sans-serif",
-                          lineHeight: 1.75,
-                          wordBreak: "break-word",
-                        }}
-                      >
-                        {e}
-                      </p>
-                    </div>
-                  </ScrollRevealSection>
-                ))}
-              </div>
-            )}
-
-            {/* Photo5 inside card */}
-            {wedding.photo5_url && (
-              <div
-                className="pt-3 border-t"
-                style={{ borderColor: "rgba(232,180,200,0.2)" }}
-              >
-                <div
-                  className="overflow-hidden rounded-2xl"
-                  style={{ boxShadow: "0 4px 16px rgba(196,160,176,0.15)" }}
-                >
-                  <img
-                    src={wedding.photo5_url}
-                    alt="Қосымша сурет"
-                    className="w-full object-cover"
-                  />
-                </div>
-              </div>
-            )}
+                {wedding.description2}
+              </p>
+            </div>
           </div>
-          <div className="px-2 pb-2">
-            <CardWaveDecor flip />
-          </div>
-        </div>
-      </div>
+        )}
+      </section>
 
-      {/* ═══ MESSAGES ═══ */}
-      <ScrollRevealSection direction="up" delay={0}>
-        <MessageSection
+      {/* ═══════════════════════════════════════════════════════
+          SECTION 4: ТІЛЕКТЕР
+      ═══════════════════════════════════════════════════════ */}
+      <section id="section-messages">
+        <RSVPSection
           weddingId={wedding.id}
           accentColor="#7B3F5E"
           lightColor="#FDF0F5"
-          borderColor="border-rose-100"
         />
-      </ScrollRevealSection>
+        {/* SECTION HEADER */}
+        <div style={{ textAlign: "center", padding: "36px 20px 4px" }}>
+          <SmallDivider />
+          <p
+            style={{
+              fontFamily: "'Cinzel',serif",
+              fontSize: 13,
+              letterSpacing: "0.45em",
+              color: "rgba(196,160,176,0.9)",
+              textTransform: "uppercase",
+              margin: "12px 0 0",
+              fontWeight: 500,
+            }}
+          >
+            Тілектер
+          </p>
+        </div>
+
+        <ScrollRevealSection direction="up" delay={0}>
+          <MessageSection
+            weddingId={wedding.id}
+            accentColor="#7B3F5E"
+            lightColor="#FDF0F5"
+            borderColor="border-rose-100"
+          />
+        </ScrollRevealSection>
+      </section>
 
       {/* ═══ FOOTER ═══ */}
       <div className="text-center py-12 mt-4">
@@ -2920,6 +2947,9 @@ export default function Template1({ wedding }: { wedding: Wedding }) {
             "linear-gradient(to right,transparent,rgba(196,160,176,0.55),rgba(196,160,176,0.4),rgba(196,160,176,0.55),transparent)",
         }}
       />
+
+      {/* ═══ BOTTOM NAV ═══ */}
+      <SectionNavBar />
     </div>
   );
 }

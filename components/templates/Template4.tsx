@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { formatDate, Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
 import MusicPlayer from "../MusicPlayer";
+import RSVPSection from "../RSVPSection";
 
 // ─── DEFAULT WEDDING ───
 const DEFAULT_WEDDING: Wedding = {
@@ -1790,6 +1791,11 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
 
       {/* Messages */}
       <FadeIn delay={0} className="relative z-10">
+        <RSVPSection
+          weddingId={wedding.id}
+          accentColor="#2C5F7A"
+          lightColor="#EAF6FF"
+        />
         <MessageSection
           weddingId={wedding.id}
           accentColor="#2C5F7A"

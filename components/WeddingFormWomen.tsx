@@ -359,7 +359,7 @@ export default function WeddingFormWomen({
           </div>
 
           {/* Шақыру мәтіні */}
-          <div className={SECTION}>
+          {/* <div className={SECTION}>
             <div className="flex items-center gap-2 mb-1">
               <HiOutlineChatAlt2 className="w-4 h-4 text-sky-400" />
               <p className={SECTION_TITLE}>Шақыру мәтіні</p>
@@ -371,7 +371,7 @@ export default function WeddingFormWomen({
               placeholder="Сіз(дер)ді аяулы қызымыз Альбинаның ұзату тойына арналған салтанатты ақ дастарханымыздың қадірлі қонағы болуға шақырамыз."
               className={INPUT + " resize-none leading-relaxed"}
             />
-          </div>
+          </div> */}
 
           {/* Басты сурет */}
           <div className={SECTION}>
