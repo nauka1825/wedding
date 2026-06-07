@@ -673,25 +673,25 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
               <p className={SECTION_TITLE}>Қосымша ақпарат</p>
             </div>
             <div className="space-y-3">
-              {(
-                ["extra1", "extra2", "extra3", "extra4", "extra5"] as const
-              ).map((k, i) => (
-                <div key={k}>
-                  <label className={LABEL}>Қосымша {i + 1}</label>
-                  <input
-                    value={f[k]}
-                    onChange={upd(k)}
-                    className={INPUT}
-                    placeholder={
-                      i === 0
-                        ? "Дресс-код: ақ-қызғылт"
-                        : i === 1
-                          ? "уақытында келулеріңізді сұраймыз"
-                          : ""
-                    }
-                  />
-                </div>
-              ))}
+              {(["extra1", "extra2", "extra3", "extra4"] as const).map(
+                (k, i) => (
+                  <div key={k}>
+                    <label className={LABEL}>Қосымша {i + 1}</label>
+                    <input
+                      value={f[k]}
+                      onChange={upd(k)}
+                      className={INPUT}
+                      placeholder={
+                        i === 0
+                          ? "Дресс-код: ақ-қызғылт"
+                          : i === 1
+                            ? "уақытында келулеріңізді сұраймыз"
+                            : ""
+                      }
+                    />
+                  </div>
+                ),
+              )}
             </div>
           </div>
 
