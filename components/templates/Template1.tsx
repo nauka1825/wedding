@@ -1670,167 +1670,110 @@ const IcInstagram = ({ white = false }: { white?: boolean }) => (
   </svg>
 );
 
+/* ── IcHeart : redesigned — centered inside its own viewBox,
+   soft calligraphic outline instead of a heavy 3D fill,
+   feels like a single continuous pen stroke ── */
 const IcHeart = () => (
-  <svg width="32" height="28" viewBox="0 0 32 28" fill="none">
+  <svg width="30" height="27" viewBox="0 0 40 36" fill="none">
     <defs>
-      <radialGradient id="hrt-fill-e" cx="50%" cy="40%" r="65%">
+      <linearGradient
+        id="hrt-line-e"
+        x1="6"
+        y1="5"
+        x2="34"
+        y2="30"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="#F9A8D4" />
+        <stop offset="1" stopColor="#BE185D" />
+      </linearGradient>
+      <radialGradient id="hrt-fill-e2" cx="50%" cy="35%" r="70%">
         <stop stopColor="#FDF2F8" />
-        <stop offset="0.5" stopColor="#F9A8D4" />
-        <stop offset="1" stopColor="#EC4899" />
+        <stop offset="1" stopColor="#F9A8D4" stopOpacity="0.3" />
       </radialGradient>
     </defs>
     <path
-      d="M16 24 C16 24 2 15.5 2 8.5 C2 5 4.8 2.5 8.5 2.5 C11.2 2.5 13.5 4 16 6.2 C18.5 4 20.8 2.5 23.5 2.5 C27.2 2.5 30 5 30 8.5 C30 15.5 16 24 16 24Z"
-      fill="url(#hrt-fill-e)"
-      stroke="#F9A8D4"
-      strokeWidth="0.8"
+      d="M20,30.5 C20,30.5 6,20.8 6,12.2 C6,7.6 9.5,4.5 13.9,4.5 C16.7,4.5 18.9,6.2 20,8.6 C21.1,6.2 23.3,4.5 26.1,4.5 C30.5,4.5 34,7.6 34,12.2 C34,20.8 20,30.5 20,30.5Z"
+      fill="url(#hrt-fill-e2)"
+      stroke="url(#hrt-line-e)"
+      strokeWidth="1.1"
+      strokeLinejoin="round"
     />
-    <ellipse
-      cx="11"
-      cy="8"
-      rx="4.5"
-      ry="3"
-      fill="white"
-      opacity="0.3"
-      transform="rotate(-20,11,8)"
-    />
-    <circle cx="6" cy="5" r="1.2" fill="#FDE68A" opacity="0.8" />
-    <circle cx="25" cy="5" r="0.9" fill="#FDE68A" opacity="0.7" />
     <path
-      d="M4 3 L4.6 4.6 L6.2 5 L4.6 5.4 L4 7 L3.4 5.4 L1.8 5 L3.4 4.6Z"
-      fill="#FEF3C7"
-      opacity="0.85"
+      d="M12.5,10.3 Q14.2,8.9 16,10.4"
+      stroke="white"
+      strokeWidth="0.8"
+      strokeLinecap="round"
+      fill="none"
+      opacity="0.75"
     />
   </svg>
 );
 
+/* ── IcRing : redesigned — single elegant band, centered in
+   the viewBox, thin calligraphic line-art instead of a bulky
+   3D double-ring render ── */
 const IcRing = () => (
-  <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
+  <svg width="48" height="48" viewBox="0 0 60 60" fill="none">
     <defs>
-      <linearGradient id="gold-main-e" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stopColor="#FDE68A" />
-        <stop offset="25%" stopColor="#F59E0B" />
-        <stop offset="50%" stopColor="#D97706" />
-        <stop offset="75%" stopColor="#FBBF24" />
-        <stop offset="100%" stopColor="#92400E" />
+      <linearGradient
+        id="ring-line-e"
+        x1="8"
+        y1="8"
+        x2="52"
+        y2="52"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="#FDE68A" />
+        <stop offset="0.5" stopColor="#D97706" />
+        <stop offset="1" stopColor="#92400E" />
       </linearGradient>
-      <linearGradient id="gold-shine-e" x1="0" y1="0" x2="0.5" y2="1">
-        <stop offset="0%" stopColor="#FEF3C7" stopOpacity="0.9" />
-        <stop offset="40%" stopColor="#FDE68A" stopOpacity="0.4" />
-        <stop offset="100%" stopColor="#92400E" stopOpacity="0.1" />
-      </linearGradient>
-      <linearGradient id="silver-main-e" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stopColor="#F5F5F4" />
-        <stop offset="25%" stopColor="#D6D3D1" />
-        <stop offset="50%" stopColor="#A8A29E" />
-        <stop offset="75%" stopColor="#E7E5E4" />
-        <stop offset="100%" stopColor="#78716C" />
-      </linearGradient>
-      <linearGradient id="silver-shine-e" x1="0" y1="0" x2="0.5" y2="1">
-        <stop offset="0%" stopColor="white" stopOpacity="0.95" />
-        <stop offset="35%" stopColor="white" stopOpacity="0.3" />
-        <stop offset="100%" stopColor="white" stopOpacity="0" />
-      </linearGradient>
-      <radialGradient id="diamond-e" cx="35%" cy="30%" r="65%">
+      <radialGradient id="gem-e" cx="35%" cy="30%" r="65%">
         <stop offset="0%" stopColor="white" />
-        <stop offset="30%" stopColor="#E0F2FE" />
-        <stop offset="60%" stopColor="#7DD3FC" />
-        <stop offset="100%" stopColor="#0369A1" />
-      </radialGradient>
-      <radialGradient id="gem-pink-e" cx="35%" cy="30%" r="65%">
-        <stop offset="0%" stopColor="#FDF2F8" />
-        <stop offset="50%" stopColor="#F9A8D4" />
-        <stop offset="100%" stopColor="#BE185D" />
+        <stop offset="45%" stopColor="#FDF2F8" />
+        <stop offset="100%" stopColor="#F9A8D4" />
       </radialGradient>
     </defs>
-    <ellipse cx="26" cy="55" rx="18" ry="3.5" fill="#92400E" opacity="0.12" />
-    <circle cx="21" cy="34" r="14.5" fill="url(#gold-main-e)" />
     <circle
-      cx="21"
-      cy="34"
-      r="14.5"
-      stroke="#FDE68A"
-      strokeWidth="0.5"
+      cx="30"
+      cy="35"
+      r="15"
       fill="none"
-      opacity="0.6"
+      stroke="url(#ring-line-e)"
+      strokeWidth="1.6"
     />
-    <circle cx="21" cy="34" r="11" fill="#6B2D1A" opacity="0.85" />
-    <circle cx="21" cy="34" r="9.5" fill="#2D1810" opacity="0.95" />
-    <ellipse
-      cx="17"
-      cy="25"
-      rx="6"
-      ry="3.5"
-      fill="url(#gold-shine-e)"
-      transform="rotate(-25,17,25)"
+    <circle
+      cx="30"
+      cy="35"
+      r="15"
+      fill="none"
+      stroke="#FEF3C7"
+      strokeWidth="0.5"
+      opacity="0.55"
     />
-    <circle cx="39" cy="26" r="13.5" fill="url(#silver-main-e)" />
-    <circle cx="39" cy="26" r="10.2" fill="#3D3532" opacity="0.88" />
-    <circle cx="39" cy="26" r="8.8" fill="#1C1917" opacity="0.95" />
-    <ellipse
-      cx="35"
-      cy="17.5"
-      rx="5.5"
-      ry="3"
-      fill="url(#silver-shine-e)"
-      transform="rotate(-20,35,17.5)"
-    />
-    <path d="M39 10 L36 14.5 L39 13 L42 14.5Z" fill="#D97706" />
-    <path d="M36 14.5 L39 13 L42 14.5 L39 16.5Z" fill="#FBBF24" />
-    <rect
-      x="38.2"
-      y="9"
-      width="1.6"
-      height="3.5"
-      rx="0.8"
-      fill="url(#silver-main-e)"
+    <line
+      x1="30"
+      y1="25"
+      x2="30"
+      y2="19"
+      stroke="url(#ring-line-e)"
+      strokeWidth="1"
     />
     <polygon
-      points="39,8 36.5,11 37.5,15.5 40.5,15.5 41.5,11"
-      fill="url(#diamond-e)"
+      points="30,10 24.5,17.5 30,25 35.5,17.5"
+      fill="url(#gem-e)"
+      stroke="url(#ring-line-e)"
+      strokeWidth="1"
+      strokeLinejoin="round"
     />
-    <polygon points="39,8 36.5,11 39,12.5" fill="white" opacity="0.6" />
-    <circle cx="37.8" cy="9.5" r="0.7" fill="white" opacity="0.95" />
-    {[-28, -14, 14, 28].map((ang, i) => {
-      const r = (ang * Math.PI) / 180;
-      const cx = 39 + Math.cos(r - Math.PI / 2) * 12,
-        cy = 26 + Math.sin(r - Math.PI / 2) * 12;
-      return (
-        <g key={i}>
-          <circle cx={cx} cy={cy} r="1.6" fill="url(#gem-pink-e)" />
-          <circle
-            cx={cx - 0.4}
-            cy={cy - 0.4}
-            r="0.5"
-            fill="white"
-            opacity="0.8"
-          />
-        </g>
-      );
-    })}
-    {[0, 45, 90, 135, 180, 225, 270, 315].map((deg, i) => {
-      const r = (deg * Math.PI) / 180;
-      return (
-        <line
-          key={i}
-          x1={39 + Math.cos(r) * 7}
-          y1={8 + Math.sin(r) * 7}
-          x2={39 + Math.cos(r) * 9}
-          y2={8 + Math.sin(r) * 9}
-          stroke="#FEF9C3"
-          strokeWidth="0.6"
-          opacity={i % 2 === 0 ? 0.7 : 0.4}
-          strokeLinecap="round"
-        />
-      );
-    })}
-    <circle cx="10" cy="15" r="1" fill="#FDE68A" opacity="0.6" />
-    <circle cx="52" cy="18" r="0.8" fill="#FDE68A" opacity="0.5" />
     <path
-      d="M8 12 L8.6 13.8 L10.5 14 L8.6 14.2 L8 16 L7.4 14.2 L5.5 14 L7.4 13.8Z"
-      fill="#FEF3C7"
-      opacity="0.75"
+      d="M26.5,15.5 L30,10 L33.5,15.5"
+      fill="none"
+      stroke="url(#ring-line-e)"
+      strokeWidth="0.8"
+      strokeLinejoin="round"
     />
+    <circle cx="26" cy="14.5" r="0.8" fill="white" opacity="0.9" />
   </svg>
 );
 

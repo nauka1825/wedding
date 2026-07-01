@@ -12,6 +12,7 @@ import {
   FaCheck,
 } from "react-icons/fa";
 import Template2Music from "../template2Music";
+import RSVPSection from "../RSVPSection";
 
 // ─── useInView hook ───
 function useInView(threshold = 0.15) {
@@ -242,7 +243,6 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
           position: "relative",
           zIndex: 2,
           background: "#ffffff",
-          border: "0.5px solid rgba(37,43,66,0.28)",
           borderRadius: 20,
           overflow: "hidden",
           boxShadow: "0 8px 32px rgba(0,0,0,0.07),0 2px 8px rgba(37,43,66,0.1)",
@@ -259,7 +259,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
         >
           <p
             style={{
-              fontFamily: "'Cinzel',serif",
+              fontFamily: "'Optima',sans-serif",
               fontSize: 14,
               letterSpacing: "0.38em",
               color: "#252b42",
@@ -287,7 +287,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
                 style={{
                   textAlign: "center",
                   padding: "5px 0",
-                  fontFamily: "'Cinzel',serif",
+                  fontFamily: "'Optima',sans-serif",
                   fontSize: 11.5,
                   letterSpacing: "0.04em",
                   color: "rgba(37,43,66,0.90)",
@@ -349,9 +349,9 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
                       <span
                         className="day-pop"
                         style={{
-                          fontFamily: "'Cinzel',serif",
+                          fontFamily: "'Optima',sans-serif",
                           fontSize: 15,
-                          fontWeight: 500,
+                          fontWeight: 400,
                           color: "#252b42",
                           position: "relative",
                           zIndex: 1,
@@ -379,7 +379,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
                 <div key={idx} style={{ padding: "4px 0" }}>
                   <span
                     style={{
-                      fontFamily: "'Cinzel',serif",
+                      fontFamily: "'Optima',sans-serif",
                       fontSize: 14,
                       color: isWeekend
                         ? "rgba(37,43,66,0.55)"
@@ -465,27 +465,22 @@ function GallerySwiper({ urls }: { urls: string[] }) {
             style={{
               width: "75vw",
               maxWidth: 380,
-              height: 300,
+              height: 340,
               borderRadius: 12,
-              border:
-                active === i
-                  ? "1.5px solid rgba(37,43,66,0.7)"
-                  : "1px solid rgba(37,43,66,0.2)",
-              transition:
-                "transform 0.35s ease,box-shadow 0.35s ease,border-color 0.35s ease",
+              background: "transparent",
+              transition: "transform 0.35s ease,box-shadow 0.35s ease",
               transform: active === i ? "scale(1)" : "scale(0.92)",
               boxShadow:
                 active === i
-                  ? "0 10px 40px rgba(0,0,0,0.12),0 2px 8px rgba(37,43,66,0.15)"
-                  : "0 2px 12px rgba(0,0,0,0.06)",
+                  ? "0 10px 32px rgba(0,0,0,0.10)"
+                  : "0 2px 10px rgba(0,0,0,0.05)",
             }}
           >
             <img
               src={url}
               alt={`сурет ${i + 1}`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
               style={{
-                objectPosition: "center top",
                 display: "block",
                 border: "none",
                 opacity: active === i ? 1 : 0.65,
@@ -607,8 +602,8 @@ function Label({ children }: { children: React.ReactNode }) {
       style={{
         fontSize: 16,
         letterSpacing: "0.38em",
-        fontFamily: "'Cinzel',serif",
-        fontWeight: 600,
+        fontFamily: "'Optima',sans-serif",
+        fontWeight: 400,
         color: "rgba(37,43,66,0.95)",
         margin: "0 0 10px 0",
         textTransform: "uppercase",
@@ -669,7 +664,7 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
         style={{
           fontSize: 12,
           letterSpacing: "0.42em",
-          fontFamily: "'Cinzel',serif",
+          fontFamily: "'Optima',sans-serif",
           color: "rgba(37,43,66,0.90)",
           textTransform: "uppercase",
           fontWeight: 400,
@@ -702,77 +697,198 @@ function DateTimeBlock({
   const { ref, visible } = useInView(0.2);
   return (
     <div ref={ref} className="text-center" style={{ padding: "4px 0" }}>
+      <style>{`
+        @keyframes dtb-border-spin { 0%{ --dtb-angle: 0deg } 100%{ --dtb-angle: 360deg } }
+        @keyframes dtb-glow-pulse { 0%,100%{ box-shadow:0 0 0px rgba(37,43,66,0),0 8px 28px rgba(37,43,66,0.10) } 50%{ box-shadow:0 0 26px rgba(61,79,124,0.35),0 12px 34px rgba(37,43,66,0.16) } }
+        @keyframes dtb-sheen { 0%{ transform:translateX(-130%) skewX(-18deg) } 100%{ transform:translateX(230%) skewX(-18deg) } }
+        @keyframes dtb-sparkle { 0%,100%{ opacity:0.25; transform:scale(0.85) } 50%{ opacity:1; transform:scale(1.15) } }
+        @property --dtb-angle { syntax:'<angle>'; inherits:false; initial-value:0deg; }
+        .dtb-frame {
+          position: relative;
+          border-radius: 22px;
+          padding: 2px;
+          background: conic-gradient(from var(--dtb-angle), #252b42, #8fa0d6, #eef0f8, #3d4f7c, #252b42);
+          animation: dtb-border-spin 7s linear infinite, dtb-glow-pulse 3.4s ease-in-out infinite;
+        }
+        .dtb-inner {
+          position: relative;
+          overflow: hidden;
+          border-radius: 20px;
+          background: linear-gradient(160deg,#ffffff 0%,#f4f6fc 60%,#eef0f8 100%);
+          padding: 26px 24px 22px;
+        }
+        .dtb-sheen-el {
+          position: absolute;
+          top: -40%;
+          left: 0;
+          width: 40%;
+          height: 180%;
+          background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0) 100%);
+          animation: dtb-sheen 3.6s ease-in-out infinite;
+          animation-delay: 1s;
+          pointer-events: none;
+        }
+      `}</style>
       <Label>Уақыты</Label>
       <FloralDots />
-      {time && (
-        <div
-          className="tick-in"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 10,
-            marginTop: 14,
-            animationPlayState: visible ? "running" : "paused",
-          }}
-        >
-          <AnimatedClock time={time} visible={visible} />
-          <div
-            className="reveal-up"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              background: "linear-gradient(135deg,#eef0f8,#eef0f8)",
-              border: "0.5px solid rgba(37,43,66,0.35)",
-              borderRadius: 10,
-              padding: "7px 18px",
-              animationDelay: "0.2s",
-              animationPlayState: visible ? "running" : "paused",
-            }}
-          >
-            <FaClock size={10} style={{ color: "#252b42" }} />
-            <p
+      <div
+        className="dtb-frame mt-4 mx-auto"
+        style={{
+          maxWidth: 300,
+          animationPlayState: visible ? "running" : "paused",
+        }}
+      >
+        <div className="dtb-inner">
+          <div className="dtb-sheen-el" />
+          {[
+            ["top:8px", "left:8px", "M1,13 Q1,1 13,1"],
+            ["top:8px", "right:8px", "M13,13 Q13,1 1,1"],
+            ["bottom:8px", "left:8px", "M1,1 Q1,13 13,13"],
+            ["bottom:8px", "right:8px", "M13,1 Q13,13 1,13"],
+          ].map(([p1, p2, path], i) => (
+            <svg
+              key={i}
               style={{
-                fontFamily: "'Cinzel',serif",
-                fontSize: 22,
-                letterSpacing: "0.32em",
-                color: "#252b42",
-                fontWeight: 500,
-                margin: 0,
-                lineHeight: 1,
+                position: "absolute",
+                [p1.split(":")[0]]: p1.split(":")[1],
+                [p2.split(":")[0]]: p2.split(":")[1],
+                opacity: 0.55,
+                zIndex: 2,
+              }}
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+            >
+              <path
+                d={path}
+                stroke="#3d4f7c"
+                strokeWidth="1"
+                fill="none"
+                strokeLinecap="round"
+              />
+            </svg>
+          ))}
+          {time && (
+            <div
+              className="tick-in"
+              style={{
+                position: "relative",
+                zIndex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 10,
+                animationPlayState: visible ? "running" : "paused",
               }}
             >
-              {time}
-            </p>
-          </div>
+              <AnimatedClock time={time} visible={visible} />
+              <div
+                className="reveal-up"
+                style={{
+                  position: "relative",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  background:
+                    "linear-gradient(135deg,#252b42 0%,#3d4f7c 55%,#252b42 100%)",
+                  borderRadius: 10,
+                  padding: "8px 22px",
+                  boxShadow:
+                    "0 4px 18px rgba(37,43,66,0.35), inset 0 1px 0 rgba(255,255,255,0.15)",
+                  animationDelay: "0.2s",
+                  animationPlayState: visible ? "running" : "paused",
+                }}
+              >
+                <FaClock size={10} style={{ color: "#eef0f8" }} />
+                <p
+                  style={{
+                    fontFamily: "'Optima',sans-serif",
+                    fontSize: 22,
+                    letterSpacing: "0.32em",
+                    color: "#ffffff",
+                    fontWeight: 400,
+                    margin: 0,
+                    lineHeight: 1,
+                  }}
+                >
+                  {time}
+                </p>
+                {[0, 1].map((i) => (
+                  <span
+                    key={i}
+                    style={{
+                      position: "absolute",
+                      top: i === 0 ? -4 : "auto",
+                      bottom: i === 1 ? -4 : "auto",
+                      left: i === 0 ? 10 : "auto",
+                      right: i === 1 ? 10 : "auto",
+                      width: 5,
+                      height: 5,
+                      borderRadius: "50%",
+                      background: "#8fa0d6",
+                      animation: `dtb-sparkle ${1.8 + i * 0.5}s ease-in-out ${i * 0.6}s infinite`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+          {date && (
+            <div
+              className="reveal-up"
+              style={{
+                position: "relative",
+                zIndex: 1,
+                marginTop: time ? 16 : 0,
+                animationDelay: "0.35s",
+                animationPlayState: visible ? "running" : "paused",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  marginBottom: 8,
+                }}
+              >
+                <div
+                  style={{
+                    height: 1,
+                    width: 20,
+                    background:
+                      "linear-gradient(to right,transparent,rgba(37,43,66,0.4))",
+                  }}
+                />
+                <FaStar size={7} style={{ color: "rgba(37,43,66,0.5)" }} />
+                <div
+                  style={{
+                    height: 1,
+                    width: 20,
+                    background:
+                      "linear-gradient(to left,transparent,rgba(37,43,66,0.4))",
+                  }}
+                />
+              </div>
+              <p
+                className="font-light italic"
+                style={{
+                  fontFamily: "'Optima',sans-serif",
+                  fontSize: 26,
+                  color: "#252b42",
+                  letterSpacing: "0.02em",
+                  lineHeight: 1.3,
+                  margin: 0,
+                  fontWeight: 400,
+                }}
+              >
+                {date}
+              </p>
+            </div>
+          )}
         </div>
-      )}
-      {date && (
-        <div
-          className="reveal-up"
-          style={{
-            marginTop: 14,
-            animationDelay: "0.35s",
-            animationPlayState: visible ? "running" : "paused",
-          }}
-        >
-          <p
-            className="font-light italic"
-            style={{
-              fontFamily: "'Cormorant Garamond',Georgia,serif",
-              fontSize: 26,
-              color: "#252b42",
-              letterSpacing: "0.02em",
-              lineHeight: 1.3,
-              margin: 0,
-              fontWeight: 500,
-            }}
-          >
-            {date}
-          </p>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -829,7 +945,6 @@ function InvitationHero({
       style={{ background: "#ffffff" }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap');
         @keyframes inv-slide-left { 0%{opacity:0;transform:translateX(-52px)} 100%{opacity:1;transform:translateX(0)} }
         @keyframes inv-slide-right { 0%{opacity:0;transform:translateX(52px)} 100%{opacity:1;transform:translateX(0)} }
         @keyframes inv-fade-up { 0%{opacity:0;transform:translateY(28px)} 100%{opacity:1;transform:translateY(0)} }
@@ -842,13 +957,13 @@ function InvitationHero({
       <p
         className="inv-from-left"
         style={{
-          fontFamily: "'Cormorant Garamond',Georgia,serif",
+          fontFamily: "'Optima',sans-serif",
           fontSize: 15,
           letterSpacing: "0.2em",
           color: "rgba(37,43,66,0.95)",
           lineHeight: 2,
           textTransform: "uppercase",
-          fontWeight: 700,
+          fontWeight: 400,
           margin: 0,
           animationPlayState: visible ? "running" : "paused",
         }}
@@ -858,13 +973,13 @@ function InvitationHero({
       <p
         className="inv-from-left"
         style={{
-          fontFamily: "'Cormorant Garamond',Georgia,serif",
+          fontFamily: "'Optima',sans-serif",
           fontSize: 15,
           letterSpacing: "0.2em",
           color: "rgba(37,43,66,0.95)",
           lineHeight: 2.2,
           textTransform: "uppercase",
-          fontWeight: 700,
+          fontWeight: 400,
           margin: "4px 0 0",
           animationDelay: visible ? "0.18s" : "0s",
           animationPlayState: visible ? "running" : "paused",
@@ -875,12 +990,12 @@ function InvitationHero({
       <p
         className="shimmer-gold inv-name-pop"
         style={{
-          fontFamily: "'Great Vibes',cursive",
-          fontSize: "clamp(2.8rem,11vw,4.2rem)",
+          fontFamily: "'Optima',sans-serif",
+          fontSize: "clamp(3.6rem,15vw,5.8rem)",
           fontWeight: 400,
           fontStyle: "normal",
-          lineHeight: 1.15,
-          letterSpacing: "0.02em",
+          lineHeight: 1.05,
+          letterSpacing: "0.01em",
           margin: "8px 0 4px",
           animationDelay: visible ? "0.3s" : "0s",
           animationPlayState: visible ? "running" : "paused",
@@ -910,12 +1025,12 @@ function InvitationHero({
         />
         <p
           style={{
-            fontFamily: "'Cormorant Garamond',Georgia,serif",
+            fontFamily: "'Optima',sans-serif",
             fontSize: 14,
             letterSpacing: "0.3em",
             color: "rgba(37,43,66,0.88)",
             textTransform: "uppercase",
-            fontWeight: 700,
+            fontWeight: 400,
             margin: 0,
           }}
         >
@@ -933,12 +1048,12 @@ function InvitationHero({
       <p
         className="shimmer-gold inv-name-pop"
         style={{
-          fontFamily: "'Great Vibes',cursive",
-          fontSize: "clamp(2.8rem,11vw,4.2rem)",
+          fontFamily: "'Optima',sans-serif",
+          fontSize: "clamp(3.6rem,15vw,5.8rem)",
           fontWeight: 400,
           fontStyle: "normal",
-          lineHeight: 1.15,
-          letterSpacing: "0.02em",
+          lineHeight: 1.05,
+          letterSpacing: "0.01em",
           margin: "4px 0 12px",
           animationDelay: visible ? "0.52s" : "0s",
           animationPlayState: visible ? "running" : "paused",
@@ -949,13 +1064,13 @@ function InvitationHero({
       <p
         className="inv-from-right"
         style={{
-          fontFamily: "'Cormorant Garamond',Georgia,serif",
+          fontFamily: "'Optima',sans-serif",
           fontSize: 15,
           letterSpacing: "0.13em",
           color: "rgba(37,43,66,0.88)",
           lineHeight: 1.95,
           textTransform: "uppercase",
-          fontWeight: 700,
+          fontWeight: 400,
           margin: 0,
           animationDelay: visible ? "0.66s" : "0s",
           animationPlayState: visible ? "running" : "paused",
@@ -1139,8 +1254,8 @@ function OrganizerBlock({
               style={{
                 fontSize: 14,
                 letterSpacing: "0.45em",
-                fontFamily: "'Cinzel',serif",
-                fontWeight: 500,
+                fontFamily: "'Optima',sans-serif",
+                fontWeight: 400,
                 color: "rgba(37,43,66,0.92)",
                 margin: 0,
                 textTransform: "uppercase",
@@ -1168,9 +1283,9 @@ function OrganizerBlock({
           <p
             className="org-line-enter"
             style={{
-              fontFamily: "'Cinzel',serif",
+              fontFamily: "'Optima',sans-serif",
               fontSize: 16,
-              fontWeight: 500,
+              fontWeight: 400,
               letterSpacing: "0.2em",
               textTransform: "uppercase",
               color: "#252b42",
@@ -1199,9 +1314,9 @@ function OrganizerBlock({
                     <p
                       className="org-line-enter"
                       style={{
-                        fontFamily: "'Cinzel',serif",
+                        fontFamily: "'Optima',sans-serif",
                         fontSize: 18,
-                        fontWeight: 600,
+                        fontWeight: 400,
                         letterSpacing: "0.2em",
                         textTransform: "uppercase",
                         color: "#252b42",
@@ -1234,12 +1349,12 @@ function OrganizerBlock({
                       />
                       <span
                         style={{
-                          fontFamily: "'Cormorant Garamond',Georgia,serif",
+                          fontFamily: "'Optima',sans-serif",
                           fontSize: 30,
                           fontStyle: "italic",
                           color: "rgba(37,43,66,0.75)",
                           lineHeight: 1,
-                          fontWeight: 500,
+                          fontWeight: 400,
                         }}
                       >
                         &amp;
@@ -1256,9 +1371,9 @@ function OrganizerBlock({
                     <p
                       className="org-line-enter"
                       style={{
-                        fontFamily: "'Cinzel',serif",
+                        fontFamily: "'Optima',sans-serif",
                         fontSize: 18,
-                        fontWeight: 600,
+                        fontWeight: 400,
                         letterSpacing: "0.2em",
                         textTransform: "uppercase",
                         color: "#252b42",
@@ -1278,9 +1393,9 @@ function OrganizerBlock({
                   key={i}
                   className="org-line-enter"
                   style={{
-                    fontFamily: "'Cinzel',serif",
+                    fontFamily: "'Optima',sans-serif",
                     fontSize: 18,
-                    fontWeight: 600,
+                    fontWeight: 400,
                     letterSpacing: "0.2em",
                     textTransform: "uppercase",
                     color: "#252b42",
@@ -1346,8 +1461,8 @@ function OrganizerBlock({
                   style={{
                     fontSize: 11,
                     letterSpacing: "0.38em",
-                    fontFamily: "'Cinzel',serif",
-                    fontWeight: 500,
+                    fontFamily: "'Optima',sans-serif",
+                    fontWeight: 400,
                     color: "rgba(37,43,66,0.85)",
                     margin: 0,
                     textTransform: "uppercase",
@@ -1385,20 +1500,20 @@ function OrganizerBlock({
                       style={{
                         fontSize: 10,
                         letterSpacing: "0.32em",
-                        fontFamily: "'Cinzel',serif",
+                        fontFamily: "'Optima',sans-serif",
                         color: "rgba(37,43,66,0.75)",
                         textTransform: "uppercase",
                         margin: "0 0 4px",
-                        fontWeight: 500,
+                        fontWeight: 400,
                       }}
                     >
                       Күйеу жақ
                     </p>
                     <p
                       style={{
-                        fontFamily: "'Cinzel',serif",
+                        fontFamily: "'Optima',sans-serif",
                         fontSize: 14,
-                        fontWeight: 600,
+                        fontWeight: 400,
                         letterSpacing: "0.15em",
                         textTransform: "uppercase",
                         color: "#252b42",
@@ -1425,12 +1540,12 @@ function OrganizerBlock({
                     />
                     <span
                       style={{
-                        fontFamily: "'Cormorant Garamond',Georgia,serif",
+                        fontFamily: "'Optima',sans-serif",
                         fontSize: 22,
                         fontStyle: "italic",
                         color: "rgba(37,43,66,0.7)",
                         lineHeight: 1,
-                        fontWeight: 500,
+                        fontWeight: 400,
                       }}
                     >
                       &amp;
@@ -1458,20 +1573,20 @@ function OrganizerBlock({
                       style={{
                         fontSize: 10,
                         letterSpacing: "0.32em",
-                        fontFamily: "'Cinzel',serif",
+                        fontFamily: "'Optima',sans-serif",
                         color: "rgba(37,43,66,0.75)",
                         textTransform: "uppercase",
                         margin: "0 0 4px",
-                        fontWeight: 500,
+                        fontWeight: 400,
                       }}
                     >
                       Келін жақ
                     </p>
                     <p
                       style={{
-                        fontFamily: "'Cinzel',serif",
+                        fontFamily: "'Optima',sans-serif",
                         fontSize: 14,
-                        fontWeight: 600,
+                        fontWeight: 400,
                         letterSpacing: "0.15em",
                         textTransform: "uppercase",
                         color: "#252b42",
@@ -1534,6 +1649,130 @@ function RotatingOrnament({
   );
 }
 
+// ─── SECTION NAV (adapted from Template1, navy palette) ───
+const NAV_ITEMS = [
+  { id: "section-hero", emoji: "💍", label: "Есімдер" },
+  { id: "section-photos", emoji: "📸", label: "Фотолар" },
+  { id: "section-details", emoji: "📅", label: "Мәліметтер" },
+  { id: "section-messages", emoji: "💌", label: "Тілектер" },
+];
+
+function SectionNavBar() {
+  const [active, setActive] = useState("section-hero");
+
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setActive(id);
+    }
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      for (let i = NAV_ITEMS.length - 1; i >= 0; i--) {
+        const el = document.getElementById(NAV_ITEMS[i].id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= window.innerHeight * 0.4) {
+            setActive(NAV_ITEMS[i].id);
+            break;
+          }
+        }
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        background: "rgba(255,255,255,0.94)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        borderTop: "0.5px solid rgba(37,43,66,0.22)",
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+      }}
+    >
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4,1fr)",
+          maxWidth: 480,
+          margin: "0 auto",
+        }}
+      >
+        {NAV_ITEMS.map(({ id, emoji, label }) => {
+          const isActive = active === id;
+          return (
+            <button
+              key={id}
+              onClick={() => scrollTo(id)}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 3,
+                padding: "10px 4px 10px",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                position: "relative",
+              }}
+            >
+              {isActive && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: "20%",
+                    right: "20%",
+                    height: 2,
+                    borderRadius: "0 0 2px 2px",
+                    background:
+                      "linear-gradient(to right,#3d4f7c,#252b42,#3d4f7c)",
+                  }}
+                />
+              )}
+              <span
+                style={{
+                  fontSize: 22,
+                  lineHeight: 1,
+                  transform: isActive ? "scale(1.15)" : "scale(1)",
+                  transition: "transform 0.2s cubic-bezier(0.34,1.56,0.64,1)",
+                }}
+              >
+                {emoji}
+              </span>
+              <span
+                style={{
+                  fontFamily: "'Optima',sans-serif",
+                  fontSize: 9.5,
+                  letterSpacing: "0.05em",
+                  color: isActive ? "#252b42" : "rgba(37,43,66,0.6)",
+                  fontWeight: 400,
+                  transition: "color 0.2s ease",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN ───
 export default function Template2({ wedding }: { wedding: Wedding }) {
   const date = formatDate(wedding.wedding_date);
@@ -1554,12 +1793,12 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
     <>
       {extra5 ? (
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center"
-          style={{ background: "#ffffff" }}
+          className="fixed inset-0 flex items-center justify-center"
+          // style={{ background: "#ffffff" }}
         >
           <p
             style={{
-              fontFamily: "'Cinzel',serif",
+              fontFamily: "'Optima',sans-serif",
               fontSize: 18,
               letterSpacing: "0.3em",
               color: "rgba(37,43,66,0.7)",
@@ -1574,7 +1813,6 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
       ) : (
         <>
           <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap');
         * { box-sizing:border-box; }
         img { border:none !important; outline:none !important; }
         body,#__next { background:#ffffff !important; }
@@ -1602,8 +1840,9 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           <div
             className="relative z-10 min-h-screen overflow-y-auto"
             style={{
-              fontFamily: "'Cormorant Garamond',Georgia,serif",
+              fontFamily: "'Optima',sans-serif",
               background: "#ffffff",
+              paddingBottom: 80,
             }}
           >
             <RotatingOrnament position="top-right" size={220} opacity={0.07} />
@@ -1613,309 +1852,343 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
               opacity={0.07}
             />
 
-            <div className="relative w-full h-[62vh] overflow-hidden">
-              {wedding.main_photo_url ? (
-                <img
-                  src={wedding.main_photo_url}
-                  alt="Негізгі сурет"
-                  className="w-full h-full object-cover"
-                  style={{ display: "block", border: "none" }}
-                />
-              ) : (
+            {/* ═══════════════════════════════════════════════════
+                SECTION 1: ЕСІМДЕР — Hero + Invitation + Organizer
+            ═══════════════════════════════════════════════════ */}
+            <section id="section-hero">
+              <div className="relative w-full h-[62vh] overflow-hidden">
+                {wedding.main_photo_url ? (
+                  <img
+                    src={wedding.main_photo_url}
+                    alt="Негізгі сурет"
+                    className="w-full h-full object-cover"
+                    style={{ display: "block", border: "none" }}
+                  />
+                ) : (
+                  <div
+                    className="w-full h-full flex items-center justify-center relative overflow-hidden"
+                    style={{
+                      background:
+                        "linear-gradient(135deg,#eef0f8 0%,#dde0ee 50%,#eef0f8 100%)",
+                    }}
+                  >
+                    <div className="relative flex items-center justify-center">
+                      <svg
+                        width="120"
+                        height="120"
+                        viewBox="0 0 120 120"
+                        fill="none"
+                        style={{ animation: "petal-spin 30s linear infinite" }}
+                      >
+                        {[
+                          0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330,
+                        ].map((deg, i) => {
+                          const r = (deg * Math.PI) / 180;
+                          return (
+                            <ellipse
+                              key={i}
+                              cx={60 + Math.cos(r) * 28}
+                              cy={60 + Math.sin(r) * 28}
+                              rx="9"
+                              ry="14"
+                              transform={`rotate(${deg + 90},${60 + Math.cos(r) * 28},${60 + Math.sin(r) * 28})`}
+                              fill="#3d4f7c"
+                              opacity="0.25"
+                            />
+                          );
+                        })}
+                      </svg>
+                      <div className="absolute">
+                        <FaHeart
+                          size={36}
+                          style={{ color: "rgba(37,43,66,0.35)" }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div
-                  className="w-full h-full flex items-center justify-center relative overflow-hidden"
+                  className="absolute inset-0"
                   style={{
                     background:
-                      "linear-gradient(135deg,#eef0f8 0%,#dde0ee 50%,#eef0f8 100%)",
+                      "linear-gradient(to top,#ffffff 0%,transparent 55%)",
                   }}
-                >
-                  <div className="relative flex items-center justify-center">
-                    <svg
-                      width="120"
-                      height="120"
-                      viewBox="0 0 120 120"
-                      fill="none"
-                      style={{ animation: "petal-spin 30s linear infinite" }}
-                    >
-                      {[
-                        0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330,
-                      ].map((deg, i) => {
-                        const r = (deg * Math.PI) / 180;
-                        return (
-                          <ellipse
-                            key={i}
-                            cx={60 + Math.cos(r) * 28}
-                            cy={60 + Math.sin(r) * 28}
-                            rx="9"
-                            ry="14"
-                            transform={`rotate(${deg + 90},${60 + Math.cos(r) * 28},${60 + Math.sin(r) * 28})`}
-                            fill="#3d4f7c"
-                            opacity="0.25"
-                          />
-                        );
-                      })}
-                    </svg>
-                    <div className="absolute">
-                      <FaHeart
-                        size={36}
-                        style={{ color: "rgba(37,43,66,0.35)" }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
+                />
+              </div>
+
               <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(to top,#ffffff 0%,transparent 55%)",
-                }}
-              />
-            </div>
-
-            <div
-              className="mt-10 relative z-10"
-              style={{ background: "#ffffff" }}
-            >
-              <InvitationHero
-                maleName={wedding.male_name}
-                femaleName={wedding.female_name}
-              />
-            </div>
-
-            {wedding.photo3_url && (
-              <ScrollRevealSection
-                direction="up"
-                delay={0}
-                style={{ overflow: "hidden", padding: "0 20px", marginTop: 8 }}
+                className="mt-10 relative z-10"
+                style={{ background: "#ffffff" }}
               >
-                <div
-                  style={{
-                    borderRadius: 16,
-                    overflow: "hidden",
-                    border: "0.5px solid rgba(37,43,66,0.2)",
-                    boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
-                  }}
-                >
-                  <img
-                    src={wedding.photo3_url}
-                    alt="Ер"
-                    className="w-full object-cover"
-                    style={{
-                      display: "block",
-                      border: "none",
-                      maxHeight: 480,
-                      objectPosition: "center top",
-                    }}
+                <InvitationHero
+                  maleName={wedding.male_name}
+                  femaleName={wedding.female_name}
+                />
+              </div>
+
+              {wedding.organizer && (
+                <ScrollRevealSection direction="left" delay={0.05}>
+                  <OrganizerBlock
+                    organizer={wedding.organizer}
+                    maleParents={(wedding as any).male_parents}
+                    femaleParents={(wedding as any).female_parents}
                   />
-                </div>
-              </ScrollRevealSection>
-            )}
+                </ScrollRevealSection>
+              )}
+            </section>
 
-            {wedding.organizer && (
-              <ScrollRevealSection direction="left" delay={0.05}>
-                <OrganizerBlock organizer={wedding.organizer} />
-              </ScrollRevealSection>
-            )}
-
-            {date && (
-              <ScrollRevealSection
-                direction="up"
-                delay={0}
-                style={{ textAlign: "center", marginTop: 20 }}
-              >
-                <FloralDots />
-                <p
-                  className="fade-up fade-3 mt-3 uppercase"
+            {/* ═══════════════════════════════════════════════════
+                SECTION 2: ФОТОЛАР — Photo3 + Gallery
+            ═══════════════════════════════════════════════════ */}
+            <section id="section-photos">
+              {wedding.photo3_url && (
+                <ScrollRevealSection
+                  direction="up"
+                  delay={0}
                   style={{
-                    fontSize: 14,
-                    letterSpacing: "0.44em",
-                    fontFamily: "'Cinzel',serif",
-                    color: "rgba(37,43,66,0.90)",
-                    fontWeight: 600,
+                    overflow: "hidden",
+                    padding: "0 20px",
+                    marginTop: 16,
                   }}
                 >
-                  {date}
-                </p>
-              </ScrollRevealSection>
-            )}
-
-            {wedding.wedding_date && (
-              <ScrollRevealSection
-                direction="right"
-                delay={0.05}
-                style={{ marginTop: 16, padding: "0 20px" }}
-              >
-                <AnimatedCalendar dateStr={wedding.wedding_date} />
-              </ScrollRevealSection>
-            )}
-
-            <div style={{ padding: "0 32px", marginTop: 24 }}>
-              <GoldDivider />
-            </div>
-
-            {!!wedding.gallery_urls?.length && (
-              <ScrollRevealSection
-                direction="up"
-                delay={0}
-                style={{ marginTop: 32 }}
-              >
-                <p
-                  className="shimmer-gold my-2 flex justify-center w-full"
-                  style={{ fontSize: 15, fontFamily: "'Cinzel',serif" }}
-                >
-                  ❤️ Біздің махаббатымыздың естеліктері ❤️
-                </p>
-                <SectionHeader>Суреттер жиынтығы</SectionHeader>
-                <GallerySwiper urls={wedding.gallery_urls} />
-              </ScrollRevealSection>
-            )}
-
-            <div className="mx-5 mt-10 mb-2">
-              <GoldDivider className="mb-6" />
-              <Card className="p-6 space-y-5">
-                {(date || time) && (
-                  <ScrollRevealSection direction="up" delay={0}>
-                    <DateTimeBlock date={date} time={time} />
-                  </ScrollRevealSection>
-                )}
-
-                {(wedding.venue_name || wedding.venue_address) && (
-                  <ScrollRevealSection
-                    direction="left"
-                    delay={0.1}
-                    style={{
-                      borderTop: "0.5px solid rgba(37,43,66,0.1)",
-                      paddingTop: 20,
-                    }}
-                  >
-                    <div className="text-center">
-                      <Label>Мекен жайымыз</Label>
-                      <FloralDots />
-                      {wedding.venue_name && (
-                        <p
-                          className="font-light italic mt-3"
-                          style={{
-                            fontSize: 28,
-                            wordBreak: "break-word",
-                            color: "#252b42",
-                            lineHeight: 1.35,
-                            letterSpacing: "0.01em",
-                          }}
-                        >
-                          {wedding.venue_name}
-                        </p>
-                      )}
-                      {wedding.venue_address && (
-                        <div className="flex items-start justify-center gap-1.5 mt-2">
-                          <FaMapMarkerAlt
-                            size={11}
-                            style={{
-                              color: "rgba(37,43,66,0.75)",
-                              flexShrink: 0,
-                              marginTop: 3,
-                            }}
-                          />
-                          <p
-                            style={{
-                              fontSize: 18,
-                              fontWeight: 500,
-                              fontFamily: "'Cinzel',serif",
-                              wordBreak: "break-word",
-                              letterSpacing: "0.04em",
-                              color: "#252b42",
-                              lineHeight: 1.6,
-                            }}
-                          >
-                            {wedding.venue_address}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </ScrollRevealSection>
-                )}
-
-                {extras.length > 0 && (
                   <div
-                    className="border-t pt-5 space-y-4"
-                    style={{ borderColor: "rgba(37,43,66,0.1)" }}
+                    style={{
+                      borderRadius: 16,
+                      overflow: "hidden",
+                      border: "0.5px solid rgba(37,43,66,0.2)",
+                      boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
+                    }}
                   >
-                    {extras.map((e, i) => (
-                      <ScrollRevealSection
-                        key={i}
-                        direction={i % 2 === 0 ? "left" : "right"}
-                        delay={i * 0.08}
-                      >
-                        <div className="flex items-start gap-3">
-                          <FaStar
-                            size={16}
-                            style={{
-                              color: "rgba(37,43,66,0.6)",
-                              flexShrink: 0,
-                              marginTop: 5,
-                            }}
-                          />
+                    <img
+                      src={wedding.photo3_url}
+                      alt="Ер"
+                      className="w-full object-cover"
+                      style={{
+                        display: "block",
+                        border: "none",
+                        maxHeight: 480,
+                        objectPosition: "center top",
+                      }}
+                    />
+                  </div>
+                </ScrollRevealSection>
+              )}
+
+              {!!wedding.gallery_urls?.length && (
+                <ScrollRevealSection
+                  direction="up"
+                  delay={0}
+                  style={{ marginTop: 32 }}
+                >
+                  <p
+                    className="shimmer-gold my-2 flex justify-center w-full"
+                    style={{ fontSize: 15, fontFamily: "'Optima',sans-serif" }}
+                  >
+                    ❤️ Біздің махаббатымыздың естеліктері ❤️
+                  </p>
+                  <SectionHeader>Суреттер жиынтығы</SectionHeader>
+                  <GallerySwiper urls={wedding.gallery_urls} />
+                </ScrollRevealSection>
+              )}
+            </section>
+
+            {/* ═══════════════════════════════════════════════════
+                SECTION 3: МӘЛІМЕТТЕР — Дата/Уақыт/Мекен/Extras
+            ═══════════════════════════════════════════════════ */}
+            <section id="section-details">
+              {date && (
+                <ScrollRevealSection
+                  direction="up"
+                  delay={0}
+                  style={{ textAlign: "center", marginTop: 20 }}
+                >
+                  <FloralDots />
+                  <p
+                    className="fade-up fade-3 mt-3 uppercase"
+                    style={{
+                      fontSize: 14,
+                      letterSpacing: "0.44em",
+                      fontFamily: "'Optima',sans-serif",
+                      color: "rgba(37,43,66,0.90)",
+                      fontWeight: 400,
+                    }}
+                  >
+                    {date}
+                  </p>
+                </ScrollRevealSection>
+              )}
+
+              {wedding.wedding_date && (
+                <ScrollRevealSection
+                  direction="right"
+                  delay={0.05}
+                  style={{ marginTop: 16, padding: "0 20px" }}
+                >
+                  <AnimatedCalendar dateStr={wedding.wedding_date} />
+                </ScrollRevealSection>
+              )}
+
+              <div style={{ padding: "0 32px", marginTop: 24 }}>
+                <GoldDivider />
+              </div>
+
+              <div className="mx-5 mt-10 mb-2">
+                <GoldDivider className="mb-6" />
+                <Card className="p-6 space-y-5">
+                  {(date || time) && (
+                    <ScrollRevealSection direction="up" delay={0}>
+                      <DateTimeBlock date={date} time={time} />
+                    </ScrollRevealSection>
+                  )}
+
+                  {(wedding.venue_name || wedding.venue_address) && (
+                    <ScrollRevealSection
+                      direction="left"
+                      delay={0.1}
+                      style={{
+                        borderTop: "0.5px solid rgba(37,43,66,0.1)",
+                        paddingTop: 20,
+                      }}
+                    >
+                      <div className="text-center">
+                        <Label>Мекен жайымыз</Label>
+                        <FloralDots />
+                        {wedding.venue_name && (
                           <p
-                            className="leading-relaxed"
+                            className="font-light italic mt-3"
                             style={{
-                              fontSize: 20,
-                              fontFamily: "'Cinzel',serif",
+                              fontSize: 28,
                               wordBreak: "break-word",
                               color: "#252b42",
-                              letterSpacing: "0.02em",
-                              lineHeight: 1.65,
-                              fontWeight: 500,
+                              lineHeight: 1.35,
+                              letterSpacing: "0.01em",
                             }}
                           >
-                            {e}
+                            {wedding.venue_name}
                           </p>
-                        </div>
-                      </ScrollRevealSection>
-                    ))}
-                  </div>
-                )}
-              </Card>
-            </div>
+                        )}
+                        {wedding.venue_address && (
+                          <div className="flex items-start justify-center gap-1.5 mt-2">
+                            <FaMapMarkerAlt
+                              size={11}
+                              style={{
+                                color: "rgba(37,43,66,0.75)",
+                                flexShrink: 0,
+                                marginTop: 3,
+                              }}
+                            />
+                            <p
+                              style={{
+                                fontSize: 18,
+                                fontWeight: 400,
+                                fontFamily: "'Optima',sans-serif",
+                                wordBreak: "break-word",
+                                letterSpacing: "0.04em",
+                                color: "#252b42",
+                                lineHeight: 1.6,
+                              }}
+                            >
+                              {wedding.venue_address}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </ScrollRevealSection>
+                  )}
 
-            <ScrollRevealSection direction="up" delay={0}>
-              <MessageSection
-                weddingId={wedding.id}
-                accentColor="#252b42"
-                lightColor="#eef0f8"
-                borderColor="border-amber-100"
-              />
-            </ScrollRevealSection>
+                  {extras.length > 0 && (
+                    <div
+                      className="border-t pt-5 space-y-4"
+                      style={{ borderColor: "rgba(37,43,66,0.1)" }}
+                    >
+                      {extras.map((e, i) => (
+                        <ScrollRevealSection
+                          key={i}
+                          direction={i % 2 === 0 ? "left" : "right"}
+                          delay={i * 0.08}
+                        >
+                          <div className="flex items-start gap-3">
+                            <FaStar
+                              size={16}
+                              style={{
+                                color: "rgba(37,43,66,0.6)",
+                                flexShrink: 0,
+                                marginTop: 5,
+                              }}
+                            />
+                            <p
+                              className="leading-relaxed"
+                              style={{
+                                fontSize: 20,
+                                fontFamily: "'Optima',sans-serif",
+                                wordBreak: "break-word",
+                                color: "#252b42",
+                                letterSpacing: "0.02em",
+                                lineHeight: 1.65,
+                                fontWeight: 400,
+                              }}
+                            >
+                              {e}
+                            </p>
+                          </div>
+                        </ScrollRevealSection>
+                      ))}
+                    </div>
+                  )}
+                </Card>
+              </div>
 
-            {wedding.photo5_url && (
-              <ScrollRevealSection
-                direction="up"
-                delay={0}
-                style={{ marginTop: 40, overflow: "hidden" }}
-              >
-                <GoldDivider className="mb-6 mx-8" />
-                <div
-                  style={{
-                    width: "100%",
-                    overflow: "hidden",
-                    borderTop: "0.5px solid rgba(37,43,66,0.25)",
-                    borderBottom: "0.5px solid rgba(37,43,66,0.25)",
-                    boxShadow: "0 8px 40px rgba(0,0,0,0.09)",
-                  }}
+              {wedding.photo5_url && (
+                <ScrollRevealSection
+                  direction="up"
+                  delay={0}
+                  style={{ marginTop: 40, overflow: "hidden" }}
                 >
-                  <img
-                    src={wedding.photo5_url}
-                    alt="Қосымша сурет"
+                  <GoldDivider className="mb-6 mx-8" />
+                  <div
                     style={{
-                      display: "block",
                       width: "100%",
-                      border: "none",
-                      filter: "brightness(0.93) saturate(0.9)",
+                      overflow: "hidden",
+                      borderTop: "0.5px solid rgba(37,43,66,0.25)",
+                      borderBottom: "0.5px solid rgba(37,43,66,0.25)",
+                      boxShadow: "0 8px 40px rgba(0,0,0,0.09)",
                     }}
-                  />
-                </div>
-              </ScrollRevealSection>
-            )}
+                  >
+                    <img
+                      src={wedding.photo5_url}
+                      alt="Қосымша сурет"
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        border: "none",
+                        filter: "brightness(0.93) saturate(0.9)",
+                      }}
+                    />
+                  </div>
+                </ScrollRevealSection>
+              )}
+            </section>
 
+            {/* ═══════════════════════════════════════════════════
+                SECTION 4: ТІЛЕКТЕР — RSVP + Messages
+            ═══════════════════════════════════════════════════ */}
+            <section id="section-messages">
+              <ScrollRevealSection direction="up" delay={0}>
+                <RSVPSection
+                  weddingId={wedding.id}
+                  accentColor="#252b42"
+                  lightColor="#eef0f8"
+                />
+                <MessageSection
+                  weddingId={wedding.id}
+                  accentColor="#252b42"
+                  lightColor="#eef0f8"
+                  borderColor="border-amber-100"
+                />
+              </ScrollRevealSection>
+            </section>
+
+            {/* ═══ FOOTER ═══ */}
             <div
               className="text-center py-12 mt-4"
               style={{ position: "relative", overflow: "hidden" }}
@@ -1932,7 +2205,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                   className={i === 0 ? "mt-4" : "mt-2"}
                   style={{
                     fontSize: 16,
-                    fontFamily: "'Playfair Display',serif",
+                    fontFamily: "'Optima',sans-serif",
                     fontStyle: "italic",
                     color: "#252b42",
                   }}
@@ -1945,7 +2218,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                 className="shimmer-gold uppercase mt-4"
                 style={{
                   fontSize: 18,
-                  fontFamily: "'Cinzel',serif",
+                  fontFamily: "'Optima',sans-serif",
                   letterSpacing: "0.4em",
                 }}
               >
@@ -1956,7 +2229,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
                   className="mt-2"
                   style={{
                     fontSize: 18,
-                    fontFamily: "'Cinzel',serif",
+                    fontFamily: "'Optima',sans-serif",
                     letterSpacing: "0.24em",
                     color: "rgba(37,43,66,0.75)",
                   }}
@@ -1992,6 +2265,9 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
               }}
             />
             <Template2Music />
+
+            {/* ═══ BOTTOM NAV ═══ */}
+            <SectionNavBar />
           </div>
         </>
       )}
