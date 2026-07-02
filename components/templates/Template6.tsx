@@ -1997,41 +1997,86 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
               </div>
               {/* DESCRIPTION 1 */}
               {wedding.description1 && (
-                <div className="mx-5 mt-8">
-                  <div
-                    className="relative rounded-3xl p-5 overflow-hidden"
-                    style={{
-                      background: "rgba(255,255,255,0.45)",
-                      backdropFilter: "blur(10px)",
-                      boxShadow: "0 4px 20px rgba(196,160,176,0.1)",
-                    }}
-                  >
+                <ScrollRevealSection
+                  direction="up"
+                  delay={0}
+                  style={{ marginTop: 32 }}
+                >
+                  <div className="mx-5">
+                    <GoldDivider className="mb-6" />
                     <div
-                      className="absolute top-0 left-0 w-1 h-full rounded-l-3xl"
                       style={{
-                        background:
-                          "linear-gradient(to bottom,#00416A,#00416A,#00416A)",
+                        position: "relative",
+                        borderRadius: 20,
+                        padding: "30px 26px 26px",
+                        background: "#ffffff",
+                        border: "0.5px solid rgba(0,65,106,0.16)",
+                        boxShadow:
+                          "0 2px 20px rgba(0,0,0,0.05),0 1px 4px rgba(0,0,0,0.03)",
+                        textAlign: "center",
                       }}
-                    />
-                    <div className="pl-3">
-                      {wedding.description1
-                        .split(/<br\s*\/?>/i)
-                        .map((sub) => sub.trim())
-                        .filter(Boolean)
-                        .map((sub, i) => (
-                          <p
-                            key={i}
-                            className="text-[#00416A] text-[14px] leading-[1.85]"
-                            style={{ wordBreak: "break-word" }}
-                          >
-                            {sub}
-                          </p>
-                        ))}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 10,
+                          marginBottom: 18,
+                        }}
+                      >
+                        <div
+                          style={{
+                            height: 1,
+                            width: 28,
+                            background:
+                              "linear-gradient(to right,transparent,rgba(0,65,106,0.5))",
+                          }}
+                        />
+                        <FaHeart
+                          size={13}
+                          style={{ color: "rgba(0,65,106,0.55)" }}
+                        />
+                        <div
+                          style={{
+                            height: 1,
+                            width: 28,
+                            background:
+                              "linear-gradient(to left,transparent,rgba(0,65,106,0.5))",
+                          }}
+                        />
+                      </div>
+                      <div>
+                        {wedding.description1
+                          .split(/<br\s*\/?>/i)
+                          .map((sub) => sub.trim())
+                          .filter(Boolean)
+                          .map((sub, i) => (
+                            <p
+                              key={i}
+                              style={{
+                                fontFamily: "'Optima',sans-serif",
+                                fontSize: 15,
+                                fontWeight: 400,
+                                fontStyle: "italic",
+                                letterSpacing: "0.02em",
+                                color: "#00416A",
+                                lineHeight: 1.9,
+                                wordBreak: "break-word",
+                                margin: i === 0 ? 0 : "10px 0 0",
+                              }}
+                            >
+                              {sub}
+                            </p>
+                          ))}
+                      </div>
+                      <div style={{ marginTop: 18 }}>
+                        <FloralDots />
+                      </div>
                     </div>
                   </div>
-                </div>
+                </ScrollRevealSection>
               )}
-
               {wedding.photo5_url && (
                 <ScrollRevealSection
                   direction="up"

@@ -35,7 +35,7 @@ export default function Template2Music() {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50">
+    <div className="fixed bottom-20 right-5 z-50">
       <button
         onClick={toggle}
         className="bg-white shadow-lg rounded-full p-4 text-sky-600"
