@@ -7,15 +7,91 @@ import {
   FaStar,
   FaMapMarkerAlt,
   FaClock,
-  FaLeaf,
-  FaCopy,
-  FaCheck,
+  FaCalendarAlt,
+  FaLock,
+  FaBars,
+  FaTimes,
+  FaImages,
+  FaEnvelopeOpenText,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
-import Template2Music from "../template2Music";
+import { MdOutlineCalendarMonth, MdOutlineSchedule } from "react-icons/md";
+import { BsStars } from "react-icons/bs";
+import Song from "../song";
 import RSVPSection from "../RSVPSection";
 
-// ─── useInView hook ───
-function useInView(threshold = 0.15) {
+/* ───────────────────────────────────────────────────────────
+   DESIGN TOKENS — pulled 1:1 from the HTML reference's
+   tailwind.config colors / fontFamily / fontSize blocks
+   ─────────────────────────────────────────────────────────── */
+const C = {
+  primary: "#002b14",
+  onPrimary: "#ffffff",
+  primaryContainer: "#144227",
+  onPrimaryContainer: "#7faf8b",
+  onPrimaryFixedVariant: "#234f33",
+  primaryFixedDim: "#a1d2ad",
+  secondary: "#735c00",
+  onSecondary: "#ffffff",
+  secondaryContainer: "#fed65b",
+  onSecondaryContainer: "#745c00",
+  secondaryFixed: "#ffe088",
+  secondaryFixedDim: "#e9c349",
+  background: "#fff8f5",
+  onBackground: "#1e1b18",
+  surface: "#fff8f5",
+  surfaceContainerLow: "#fbf2ed",
+  surfaceContainer: "#f5ece7",
+  surfaceContainerHigh: "#efe6e2",
+  surfaceContainerHighest: "#e9e1dc",
+  surfaceContainerLowest: "#ffffff",
+  onSurface: "#1e1b18",
+  onSurfaceVariant: "#414942",
+  outline: "#717971",
+  outlineVariant: "#c1c9c0",
+  inverseSurface: "#34302c",
+  inverseOnSurface: "#f8efea",
+  tertiary: "#252521",
+  onTertiary: "#ffffff",
+  gold: "#D4AF37", // decorative shimmer / ornament gold from HTML's <style> block
+};
+
+const F_DISPLAY_LG_MOBILE = {
+  fontFamily: "'Playfair Display', serif",
+  fontSize: 40,
+  lineHeight: 1.2,
+  fontWeight: 700,
+};
+const F_HEADLINE_MD = {
+  fontFamily: "'Playfair Display', serif",
+  fontSize: 32,
+  lineHeight: 1.3,
+  fontWeight: 400,
+};
+const F_LABEL_CAPS = {
+  fontFamily: "'Montserrat', sans-serif",
+  fontSize: 12,
+  lineHeight: 1.2,
+  letterSpacing: "0.2em",
+  fontWeight: 600,
+  textTransform: "uppercase" as const,
+};
+const F_BODY_LG = {
+  fontFamily: "'EB Garamond', serif",
+  fontSize: 20,
+  lineHeight: 1.6,
+  fontWeight: 400,
+};
+const F_BODY_MD = {
+  fontFamily: "'EB Garamond', serif",
+  fontSize: 17,
+  lineHeight: 1.6,
+  fontWeight: 400,
+};
+
+/* ─── useInView (scroll-reveal, same behavior as HTML's IntersectionObserver .reveal) ─── */
+function useInView(threshold = 0.12) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -36,586 +112,8 @@ function useInView(threshold = 0.15) {
   return { ref, visible };
 }
 
-// ─── AnimatedClock ───
-function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
-  const [h, m] = time.split(":").map(Number);
-  const hourDeg = ((h % 12) / 12) * 360 + (m / 60) * 30;
-  const minDeg = (m / 60) * 360;
-  const [secDeg, setSecDeg] = useState(0);
-  useEffect(() => {
-    if (!visible) return;
-    const tick = () => setSecDeg((new Date().getSeconds() / 60) * 360);
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [visible]);
-
-  return (
-    <svg
-      viewBox="0 0 80 80"
-      width="80"
-      height="80"
-      style={{ overflow: "visible" }}
-    >
-      <defs>
-        <radialGradient id="clock-bg" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#eef0f8" />
-          <stop offset="100%" stopColor="#eef0f8" />
-        </radialGradient>
-        <filter id="clock-shadow">
-          <feDropShadow
-            dx="0"
-            dy="2"
-            stdDeviation="3"
-            floodColor="rgba(0,0,0,0.08)"
-          />
-        </filter>
-      </defs>
-      <circle
-        cx="40"
-        cy="40"
-        r="36"
-        fill="url(#clock-bg)"
-        filter="url(#clock-shadow)"
-        stroke="rgba(37,43,66,0.4)"
-        strokeWidth="0.8"
-      />
-      <circle
-        cx="40"
-        cy="40"
-        r="33"
-        fill="none"
-        stroke="rgba(37,43,66,0.15)"
-        strokeWidth="0.4"
-      />
-      {Array.from({ length: 12 }, (_, i) => {
-        const a = (i / 12) * 2 * Math.PI - Math.PI / 2;
-        const r1 = 28,
-          r2 = i % 3 === 0 ? 24 : 26;
-        return (
-          <line
-            key={i}
-            x1={40 + r1 * Math.cos(a)}
-            y1={40 + r1 * Math.sin(a)}
-            x2={40 + r2 * Math.cos(a)}
-            y2={40 + r2 * Math.sin(a)}
-            stroke={i % 3 === 0 ? "rgba(37,43,66,0.7)" : "rgba(37,43,66,0.3)"}
-            strokeWidth={i % 3 === 0 ? 1.2 : 0.6}
-          />
-        );
-      })}
-      <line
-        x1="40"
-        y1="40"
-        x2={40 + 15 * Math.cos(((hourDeg - 90) * Math.PI) / 180)}
-        y2={40 + 15 * Math.sin(((hourDeg - 90) * Math.PI) / 180)}
-        stroke="#252b42"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-      />
-      <line
-        x1="40"
-        y1="40"
-        x2={40 + 21 * Math.cos(((minDeg - 90) * Math.PI) / 180)}
-        y2={40 + 21 * Math.sin(((minDeg - 90) * Math.PI) / 180)}
-        stroke="#252b42"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <line
-        x1="40"
-        y1="40"
-        x2={40 + 23 * Math.cos(((secDeg - 90) * Math.PI) / 180)}
-        y2={40 + 23 * Math.sin(((secDeg - 90) * Math.PI) / 180)}
-        stroke="rgba(37,43,66,0.8)"
-        strokeWidth="0.8"
-        strokeLinecap="round"
-      />
-      <circle cx="40" cy="40" r="2.5" fill="#252b42" />
-      <circle cx="40" cy="40" r="1.2" fill="#fff" />
-    </svg>
-  );
-}
-
-// ─── AnimatedCalendar ───
-const KAZ_MONTHS = [
-  "Қаңтар",
-  "Ақпан",
-  "Наурыз",
-  "Сәуір",
-  "Мамыр",
-  "Маусым",
-  "Шілде",
-  "Тамыз",
-  "Қыркүйек",
-  "Қазан",
-  "Қараша",
-  "Желтоқсан",
-];
-const KAZ_DAYS = ["Дс", "Сс", "Ср", "Бс", "Жм", "Сб", "Жк"];
-
-function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
-  if (!dateStr) return null;
-  const d = new Date(dateStr);
-  const year = d.getFullYear();
-  const month = d.getMonth();
-  const day = d.getDate();
-  const firstDow = (() => {
-    const v = new Date(year, month, 1).getDay();
-    return v === 0 ? 6 : v - 1;
-  })();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const cells: (number | null)[] = [
-    ...Array(firstDow).fill(null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-  ];
-  while (cells.length % 7 !== 0) cells.push(null);
-
-  return (
-    <div style={{ position: "relative", margin: "0 auto" }}>
-      <style>{`
-        @keyframes cal-drop { 0%{opacity:0;transform:translateY(-18px) scale(0.92)} 60%{transform:translateY(3px) scale(1.02)} 100%{opacity:1;transform:translateY(0) scale(1)} }
-        @keyframes day-pop { 0%{opacity:0;transform:scale(0.5)} 65%{transform:scale(1.18)} 100%{opacity:1;transform:scale(1)} }
-        @keyframes heart-beat { 0%,100%{transform:scale(1)} 30%{transform:scale(1.3)} 60%{transform:scale(0.88)} }
-        @keyframes ring-draw { 0%{stroke-dashoffset:550;opacity:0.2} 100%{stroke-dashoffset:0;opacity:0.65} }
-        @keyframes dot-in { 0%{opacity:0;transform:scale(0)} 100%{opacity:1;transform:scale(1)} }
-        .cal-ring { stroke-dasharray:550; animation:ring-draw 1.2s cubic-bezier(0.4,0,0.2,1) 0.2s forwards; }
-        .cal-wrap  { animation:cal-drop 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both; }
-        .day-pop   { animation:day-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.55s both; }
-        .hrt-beat  { animation:heart-beat 1.4s ease-in-out 1.2s infinite; transform-origin:center; display:inline-block; }
-        .dot-in    { animation:dot-in 0.4s ease both; }
-      `}</style>
-      <svg
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          pointerEvents: "none",
-          overflow: "visible",
-          zIndex: 0,
-        }}
-        viewBox="0 0 168 215"
-      >
-        <circle
-          className="cal-ring"
-          cx="84"
-          cy="107"
-          r="90"
-          fill="none"
-          stroke="rgba(37,43,66,0.55)"
-          strokeWidth="0.8"
-          strokeLinecap="round"
-        />
-        <circle
-          cx="84"
-          cy="107"
-          r="97"
-          fill="none"
-          stroke="rgba(37,43,66,0.1)"
-          strokeWidth="0.5"
-        />
-        {[
-          [84, 12],
-          [84, 202],
-          [4, 107],
-          [164, 107],
-          [24, 35],
-          [144, 35],
-          [24, 179],
-          [144, 179],
-        ].map(([cx, cy], i) => (
-          <circle
-            key={i}
-            className="dot-in"
-            cx={cx}
-            cy={cy}
-            r="2"
-            fill="#252b42"
-            opacity="0.6"
-            style={{ animationDelay: `${0.9 + i * 0.07}s` }}
-          />
-        ))}
-      </svg>
-      <div
-        className="cal-wrap"
-        style={{
-          position: "relative",
-          zIndex: 2,
-          background: "#ffffff",
-          borderRadius: 20,
-          overflow: "hidden",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.07),0 2px 8px rgba(37,43,66,0.1)",
-        }}
-      >
-        <div
-          style={{
-            background:
-              "linear-gradient(135deg,#eef0f8 0%,#dde0ee 50%,#eef0f8 100%)",
-            padding: "14px 16px 12px",
-            textAlign: "center",
-            position: "relative",
-          }}
-        >
-          <p
-            style={{
-              fontFamily: "'Optima',sans-serif",
-              fontSize: 14,
-              letterSpacing: "0.38em",
-              color: "#252b42",
-              textTransform: "uppercase",
-              margin: 0,
-              position: "relative",
-              zIndex: 1,
-            }}
-          >
-            {KAZ_MONTHS[month]} · {year}
-          </p>
-        </div>
-        <div
-          style={{
-            background: "rgba(37,43,66,0.05)",
-            borderBottom: "0.5px solid rgba(37,43,66,0.12)",
-          }}
-        >
-          <div
-            style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)" }}
-          >
-            {KAZ_DAYS.map((d) => (
-              <div
-                key={d}
-                style={{
-                  textAlign: "center",
-                  padding: "5px 0",
-                  fontFamily: "'Optima',sans-serif",
-                  fontSize: 11.5,
-                  letterSpacing: "0.04em",
-                  color: "rgba(37,43,66,0.90)",
-                }}
-              >
-                {d}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div style={{ padding: "6px 8px 10px", background: "#ffffff" }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(7,1fr)",
-              gap: 2,
-              textAlign: "center",
-            }}
-          >
-            {cells.map((cell, idx) => {
-              if (!cell) return <div key={idx} />;
-              const dow = (firstDow + cell - 1) % 7;
-              const isWeekend = dow === 5 || dow === 6;
-              const isTarget = cell === day;
-              if (isTarget)
-                return (
-                  <div
-                    key={idx}
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      padding: "3px 0",
-                    }}
-                  >
-                    <div
-                      style={{
-                        position: "relative",
-                        width: 28,
-                        height: 28,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <svg
-                        viewBox="0 0 28 26"
-                        width="28"
-                        height="28"
-                        style={{ position: "absolute", inset: 0 }}
-                      >
-                        <path
-                          d="M14,23 C14,23 2,15 2,7.5 C2,4.5 4.3,2.5 7.5,2.5 C10,2.5 12.2,4 14,6 C15.8,4 18,2.5 20.5,2.5 C23.7,2.5 26,4.5 26,7.5 C26,15 14,23 14,23Z"
-                          fill="rgba(37,43,66,0.15)"
-                          stroke="rgba(37,43,66,0.65)"
-                          strokeWidth="0.9"
-                        />
-                      </svg>
-                      <span
-                        className="day-pop"
-                        style={{
-                          fontFamily: "'Optima',sans-serif",
-                          fontSize: 15,
-                          fontWeight: 400,
-                          color: "#252b42",
-                          position: "relative",
-                          zIndex: 1,
-                          lineHeight: 1,
-                        }}
-                      >
-                        {cell}
-                      </span>
-                    </div>
-                    <span
-                      className="hrt-beat"
-                      style={{ lineHeight: 1, marginTop: 1 }}
-                    >
-                      <svg viewBox="0 0 12 11" width="10" height="10">
-                        <path
-                          d="M6,9.5 C6,9.5 0.5,6 0.5,3 C0.5,1.6 1.6,0.5 3,0.5 C4.2,0.5 5.2,1.3 6,2.2 C6.8,1.3 7.8,0.5 9,0.5 C10.4,0.5 11.5,1.6 11.5,3 C11.5,6 6,9.5 6,9.5Z"
-                          fill="#252b42"
-                          opacity="0.9"
-                        />
-                      </svg>
-                    </span>
-                  </div>
-                );
-              return (
-                <div key={idx} style={{ padding: "4px 0" }}>
-                  <span
-                    style={{
-                      fontFamily: "'Optima',sans-serif",
-                      fontSize: 14,
-                      color: isWeekend
-                        ? "rgba(37,43,66,0.55)"
-                        : "rgba(37,43,66,0.45)",
-                    }}
-                  >
-                    {cell}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── GallerySwiper ───
-function GallerySwiper({ urls }: { urls: string[] }) {
-  const [active, setActive] = useState(0);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const scrollTo = (i: number) => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const child = el.children[i] as HTMLElement;
-    if (child)
-      el.scrollTo({
-        left: child.offsetLeft - (el.offsetWidth - child.offsetWidth) / 2,
-        behavior: "smooth",
-      });
-    setActive(i);
-  };
-  const resetTimer = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setActive((prev) => {
-        const next = (prev + 1) % urls.length;
-        scrollTo(next);
-        return next;
-      });
-    }, 5000);
-  };
-  useEffect(() => {
-    if (urls.length <= 1) return;
-    resetTimer();
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [urls.length]);
-  const onScroll = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const center = el.scrollLeft + el.offsetWidth / 2;
-    let closest = 0,
-      minDist = Infinity;
-    Array.from(el.children).forEach((child, i) => {
-      const c = child as HTMLElement;
-      const dist = Math.abs(c.offsetLeft + c.offsetWidth / 2 - center);
-      if (dist < minDist) {
-        minDist = dist;
-        closest = i;
-      }
-    });
-    setActive(closest);
-  };
-  return (
-    <div>
-      <style>{`@keyframes gold-progress{from{width:0%}to{width:100%}}`}</style>
-      <div
-        ref={scrollRef}
-        onScroll={onScroll}
-        onTouchStart={resetTimer}
-        onMouseDown={resetTimer}
-        className="flex gap-1 overflow-x-auto snap-x snap-mandatory px-5 pb-3"
-        style={{ scrollbarWidth: "none" }}
-      >
-        {urls.map((url, i) => (
-          <div
-            key={i}
-            className="snap-center flex-shrink-0 overflow-hidden"
-            style={{
-              width: "75vw",
-              maxWidth: 380,
-              height: 340,
-              borderRadius: 12,
-              background: "transparent",
-              transition: "transform 0.35s ease,box-shadow 0.35s ease",
-              transform: active === i ? "scale(1)" : "scale(0.92)",
-              boxShadow:
-                active === i
-                  ? "0 10px 32px rgba(0,0,0,0.10)"
-                  : "0 2px 10px rgba(0,0,0,0.05)",
-            }}
-          >
-            <img
-              src={url}
-              alt={`сурет ${i + 1}`}
-              className="w-full h-full object-contain"
-              style={{
-                display: "block",
-                border: "none",
-                opacity: active === i ? 1 : 0.65,
-                transition: "opacity 0.35s ease",
-              }}
-            />
-          </div>
-        ))}
-      </div>
-      {urls.length > 1 && (
-        <div className="flex justify-center gap-2 mt-3">
-          {urls.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                scrollTo(i);
-                resetTimer();
-              }}
-              className="transition-all duration-300 rounded-none overflow-hidden relative"
-              style={{
-                width: active === i ? 22 : 6,
-                height: 2,
-                background: "rgba(37,43,66,0.3)",
-                opacity: active === i ? 1 : 0.4,
-              }}
-            >
-              {active === i && (
-                <span
-                  className="absolute inset-0"
-                  style={{
-                    background: "#3d4f7c",
-                    animation: "gold-progress 5s linear forwards",
-                  }}
-                />
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── GoldDivider ───
-function GoldDivider({ className = "" }: { className?: string }) {
-  return (
-    <div className={`flex items-center justify-center gap-3 ${className}`}>
-      <div
-        className="h-px flex-1"
-        style={{
-          background:
-            "linear-gradient(to right,transparent,rgba(37,43,66,0.45))",
-        }}
-      />
-      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-        <div
-          style={{
-            width: 4,
-            height: 4,
-            background: "rgba(37,43,66,0.4)",
-            transform: "rotate(45deg)",
-          }}
-        />
-        <FaStar
-          size={8}
-          style={{ color: "rgba(37,43,66,0.65)", flexShrink: 0 }}
-        />
-        <div
-          style={{
-            width: 4,
-            height: 4,
-            background: "rgba(37,43,66,0.4)",
-            transform: "rotate(45deg)",
-          }}
-        />
-      </div>
-      <div
-        className="h-px flex-1"
-        style={{
-          background:
-            "linear-gradient(to left,transparent,rgba(37,43,66,0.45))",
-        }}
-      />
-    </div>
-  );
-}
-
-// ─── FloralDots ───
-function FloralDots() {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 6,
-        padding: "4px 0",
-      }}
-    >
-      {[0.2, 0.4, 0.65, 0.4, 0.2].map((op, i) => (
-        <div
-          key={i}
-          style={{
-            width: i === 2 ? 5 : 3,
-            height: i === 2 ? 5 : 3,
-            borderRadius: "50%",
-            background: `rgba(37,43,66,${op})`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// ─── Label ───
-function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <p
-      style={{
-        fontSize: 16,
-        letterSpacing: "0.38em",
-        fontFamily: "'Optima',sans-serif",
-        fontWeight: 400,
-        color: "rgba(37,43,66,0.95)",
-        margin: "0 0 10px 0",
-        textTransform: "uppercase",
-      }}
-    >
-      {children}
-    </p>
-  );
-}
-
-// ─── Card ───
-function Card({
+/* ─── Reveal wrapper — mirrors HTML's .reveal / .reveal.active classes exactly ─── */
+function Reveal({
   children,
   className = "",
   style = {},
@@ -624,303 +122,15 @@ function Card({
   className?: string;
   style?: React.CSSProperties;
 }) {
-  return (
-    <div
-      className={`relative ${className}`}
-      style={{
-        background: "#ffffff",
-        border: "0.5px solid rgba(37,43,66,0.18)",
-        borderRadius: 16,
-        boxShadow:
-          "0 2px 20px rgba(0,0,0,0.05),0 1px 4px rgba(0,0,0,0.03),inset 0 0 0 1px rgba(255,255,255,0.8)",
-        ...style,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-// ─── SectionHeader ───
-function SectionHeader({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      className="flex items-center gap-3 px-5 mb-5"
-      style={{ justifyContent: "center" }}
-    >
-      <FaLeaf
-        size={9}
-        style={{ color: "rgba(37,43,66,0.45)", transform: "scaleX(-1)" }}
-      />
-      <div
-        className="h-px"
-        style={{
-          width: 25,
-          background:
-            "linear-gradient(to right,transparent,rgba(37,43,66,0.35))",
-        }}
-      />
-      <p
-        style={{
-          fontSize: 12,
-          letterSpacing: "0.42em",
-          fontFamily: "'Optima',sans-serif",
-          color: "rgba(37,43,66,0.90)",
-          textTransform: "uppercase",
-          fontWeight: 400,
-          margin: 0,
-        }}
-      >
-        {children}
-      </p>
-      <div
-        className="h-px"
-        style={{
-          width: 30,
-          background:
-            "linear-gradient(to left,transparent,rgba(37,43,66,0.35))",
-        }}
-      />
-      <FaLeaf size={8} style={{ color: "rgba(37,43,66,0.45)" }} />
-    </div>
-  );
-}
-
-// ─── DateTimeBlock ───
-function DateTimeBlock({
-  date,
-  time,
-}: {
-  date: string | null;
-  time: string | null;
-}) {
-  const { ref, visible } = useInView(0.2);
-  return (
-    <div ref={ref} className="text-center" style={{ padding: "4px 0" }}>
-      <style>{`
-        @keyframes dtb-border-spin { 0%{ --dtb-angle: 0deg } 100%{ --dtb-angle: 360deg } }
-        @keyframes dtb-glow-pulse { 0%,100%{ box-shadow:0 0 0px rgba(37,43,66,0),0 8px 28px rgba(37,43,66,0.10) } 50%{ box-shadow:0 0 26px rgba(61,79,124,0.35),0 12px 34px rgba(37,43,66,0.16) } }
-        @keyframes dtb-sheen { 0%{ transform:translateX(-130%) skewX(-18deg) } 100%{ transform:translateX(230%) skewX(-18deg) } }
-        @keyframes dtb-sparkle { 0%,100%{ opacity:0.25; transform:scale(0.85) } 50%{ opacity:1; transform:scale(1.15) } }
-        @property --dtb-angle { syntax:'<angle>'; inherits:false; initial-value:0deg; }
-        .dtb-frame {
-          position: relative;
-          border-radius: 22px;
-          padding: 2px;
-          background: conic-gradient(from var(--dtb-angle), #252b42, #8fa0d6, #eef0f8, #3d4f7c, #252b42);
-          animation: dtb-border-spin 7s linear infinite, dtb-glow-pulse 3.4s ease-in-out infinite;
-        }
-        .dtb-inner {
-          position: relative;
-          overflow: hidden;
-          border-radius: 20px;
-          background: linear-gradient(160deg,#ffffff 0%,#f4f6fc 60%,#eef0f8 100%);
-          padding: 26px 24px 22px;
-        }
-        .dtb-sheen-el {
-          position: absolute;
-          top: -40%;
-          left: 0;
-          width: 40%;
-          height: 180%;
-          background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0) 100%);
-          animation: dtb-sheen 3.6s ease-in-out infinite;
-          animation-delay: 1s;
-          pointer-events: none;
-        }
-      `}</style>
-      <Label>Уақыты</Label>
-      <FloralDots />
-      <div
-        className="dtb-frame mt-4 mx-auto"
-        style={{
-          maxWidth: 300,
-          animationPlayState: visible ? "running" : "paused",
-        }}
-      >
-        <div className="dtb-inner">
-          <div className="dtb-sheen-el" />
-          {[
-            ["top:8px", "left:8px", "M1,13 Q1,1 13,1"],
-            ["top:8px", "right:8px", "M13,13 Q13,1 1,1"],
-            ["bottom:8px", "left:8px", "M1,1 Q1,13 13,13"],
-            ["bottom:8px", "right:8px", "M13,1 Q13,13 1,13"],
-          ].map(([p1, p2, path], i) => (
-            <svg
-              key={i}
-              style={{
-                position: "absolute",
-                [p1.split(":")[0]]: p1.split(":")[1],
-                [p2.split(":")[0]]: p2.split(":")[1],
-                opacity: 0.55,
-                zIndex: 2,
-              }}
-              width="14"
-              height="14"
-              viewBox="0 0 14 14"
-            >
-              <path
-                d={path}
-                stroke="#3d4f7c"
-                strokeWidth="1"
-                fill="none"
-                strokeLinecap="round"
-              />
-            </svg>
-          ))}
-          {time && (
-            <div
-              className="tick-in"
-              style={{
-                position: "relative",
-                zIndex: 1,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 10,
-                animationPlayState: visible ? "running" : "paused",
-              }}
-            >
-              <AnimatedClock time={time} visible={visible} />
-              <div
-                className="reveal-up"
-                style={{
-                  position: "relative",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 8,
-                  background:
-                    "linear-gradient(135deg,#252b42 0%,#3d4f7c 55%,#252b42 100%)",
-                  borderRadius: 10,
-                  padding: "8px 22px",
-                  boxShadow:
-                    "0 4px 18px rgba(37,43,66,0.35), inset 0 1px 0 rgba(255,255,255,0.15)",
-                  animationDelay: "0.2s",
-                  animationPlayState: visible ? "running" : "paused",
-                }}
-              >
-                <FaClock size={10} style={{ color: "#eef0f8" }} />
-                <p
-                  style={{
-                    fontFamily: "'Optima',sans-serif",
-                    fontSize: 22,
-                    letterSpacing: "0.32em",
-                    color: "#ffffff",
-                    fontWeight: 400,
-                    margin: 0,
-                    lineHeight: 1,
-                  }}
-                >
-                  {time}
-                </p>
-                {[0, 1].map((i) => (
-                  <span
-                    key={i}
-                    style={{
-                      position: "absolute",
-                      top: i === 0 ? -4 : "auto",
-                      bottom: i === 1 ? -4 : "auto",
-                      left: i === 0 ? 10 : "auto",
-                      right: i === 1 ? 10 : "auto",
-                      width: 5,
-                      height: 5,
-                      borderRadius: "50%",
-                      background: "#8fa0d6",
-                      animation: `dtb-sparkle ${1.8 + i * 0.5}s ease-in-out ${i * 0.6}s infinite`,
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-          {date && (
-            <div
-              className="reveal-up"
-              style={{
-                position: "relative",
-                zIndex: 1,
-                marginTop: time ? 16 : 0,
-                animationDelay: "0.35s",
-                animationPlayState: visible ? "running" : "paused",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  marginBottom: 8,
-                }}
-              >
-                <div
-                  style={{
-                    height: 1,
-                    width: 20,
-                    background:
-                      "linear-gradient(to right,transparent,rgba(37,43,66,0.4))",
-                  }}
-                />
-                <FaStar size={7} style={{ color: "rgba(37,43,66,0.5)" }} />
-                <div
-                  style={{
-                    height: 1,
-                    width: 20,
-                    background:
-                      "linear-gradient(to left,transparent,rgba(37,43,66,0.4))",
-                  }}
-                />
-              </div>
-              <p
-                className="font-light italic"
-                style={{
-                  fontFamily: "'Optima',sans-serif",
-                  fontSize: 26,
-                  color: "#252b42",
-                  letterSpacing: "0.02em",
-                  lineHeight: 1.3,
-                  margin: 0,
-                  fontWeight: 400,
-                }}
-              >
-                {date}
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── ScrollRevealSection ───
-function ScrollRevealSection({
-  children,
-  direction = "left",
-  delay = 0,
-  className = "",
-  style = {},
-}: {
-  children: React.ReactNode;
-  direction?: "left" | "right" | "up";
-  delay?: number;
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  const { ref, visible } = useInView(0.12);
-  const translateMap = {
-    left: "translateX(-48px)",
-    right: "translateX(48px)",
-    up: "translateY(32px)",
-  };
+  const { ref, visible } = useInView();
   return (
     <div
       ref={ref}
       className={className}
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translate(0,0)" : translateMap[direction],
-        transition: `opacity 0.75s cubic-bezier(0.22,1,0.36,1) ${delay}s, transform 0.75s cubic-bezier(0.22,1,0.36,1) ${delay}s`,
+        transform: visible ? "translateY(0)" : "translateY(20px)",
+        transition: "all 0.8s ease-out",
         ...style,
       }}
     >
@@ -929,201 +139,385 @@ function ScrollRevealSection({
   );
 }
 
-// ─── InvitationHero ───
-function InvitationHero({
-  maleName,
-  femaleName,
-}: {
-  maleName: string;
-  femaleName: string;
-}) {
-  const { ref, visible } = useInView(0.1);
+/* ─── OrnamentDivider — exact match of HTML's .ornament-line + heart icon divider ─── */
+function OrnamentDivider() {
   return (
     <div
-      ref={ref}
-      className="text-center px-6 mt-4 mb-2"
-      style={{ background: "#ffffff" }}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 16,
+        color: C.secondary,
+      }}
     >
-      <style>{`
-        @keyframes inv-slide-left { 0%{opacity:0;transform:translateX(-52px)} 100%{opacity:1;transform:translateX(0)} }
-        @keyframes inv-slide-right { 0%{opacity:0;transform:translateX(52px)} 100%{opacity:1;transform:translateX(0)} }
-        @keyframes inv-fade-up { 0%{opacity:0;transform:translateY(28px)} 100%{opacity:1;transform:translateY(0)} }
-        @keyframes inv-name-pop { 0%{opacity:0;transform:scale(0.85) translateY(16px);filter:blur(6px)} 70%{filter:blur(0)} 100%{opacity:1;transform:scale(1) translateY(0);filter:blur(0)} }
-        .inv-from-left  { animation: inv-slide-left  0.8s cubic-bezier(0.22,1,0.36,1) both; }
-        .inv-from-right { animation: inv-slide-right 0.8s cubic-bezier(0.22,1,0.36,1) both; }
-        .inv-fade-up    { animation: inv-fade-up     0.7s cubic-bezier(0.22,1,0.36,1) both; }
-        .inv-name-pop   { animation: inv-name-pop    0.9s cubic-bezier(0.34,1.4,0.64,1) both; }
-      `}</style>
-      <p
-        className="inv-from-left"
+      <span
         style={{
-          fontFamily: "'Optima',sans-serif",
-          fontSize: 15,
-          letterSpacing: "0.2em",
-          color: "rgba(37,43,66,0.95)",
-          lineHeight: 2,
-          textTransform: "uppercase",
-          fontWeight: 400,
-          margin: 0,
-          animationPlayState: visible ? "running" : "paused",
+          height: 1,
+          width: 40,
+          background: `linear-gradient(90deg, transparent, ${C.gold}, transparent)`,
         }}
-      >
-        Құрметті ағайын-туыс, құда-жекжат, дос-жаран, әріптестер мен көршілер!
-      </p>
-      <p
-        className="inv-from-left"
+      />
+      <FaHeart size={16} style={{ color: C.gold }} />
+      <span
         style={{
-          fontFamily: "'Optima',sans-serif",
-          fontSize: 15,
-          letterSpacing: "0.2em",
-          color: "rgba(37,43,66,0.95)",
-          lineHeight: 2.2,
-          textTransform: "uppercase",
-          fontWeight: 400,
-          margin: "4px 0 0",
-          animationDelay: visible ? "0.18s" : "0s",
-          animationPlayState: visible ? "running" : "paused",
+          height: 1,
+          width: 40,
+          background: `linear-gradient(90deg, transparent, ${C.gold}, transparent)`,
         }}
-      >
-        Сіздерді ұлымыз
-      </p>
-      <p
-        className="shimmer-gold inv-name-pop"
-        style={{
-          fontFamily: "'Optima',sans-serif",
-          fontSize: "clamp(3.6rem,15vw,5.8rem)",
-          fontWeight: 400,
-          fontStyle: "normal",
-          lineHeight: 1.05,
-          letterSpacing: "0.01em",
-          margin: "8px 0 4px",
-          animationDelay: visible ? "0.3s" : "0s",
-          animationPlayState: visible ? "running" : "paused",
-        }}
-      >
-        {maleName}
-      </p>
-      <div
-        className="inv-fade-up"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 10,
-          margin: "4px 0",
-          animationDelay: visible ? "0.42s" : "0s",
-          animationPlayState: visible ? "running" : "paused",
-        }}
-      >
-        <div
-          style={{
-            height: 1,
-            width: 32,
-            background:
-              "linear-gradient(to right,transparent,rgba(37,43,66,0.5))",
-          }}
-        />
-        <p
-          style={{
-            fontFamily: "'Optima',sans-serif",
-            fontSize: 14,
-            letterSpacing: "0.3em",
-            color: "rgba(37,43,66,0.88)",
-            textTransform: "uppercase",
-            fontWeight: 400,
-            margin: 0,
-          }}
-        >
-          пен келініміз
-        </p>
-        <div
-          style={{
-            height: 1,
-            width: 32,
-            background:
-              "linear-gradient(to left,transparent,rgba(37,43,66,0.5))",
-          }}
-        />
-      </div>
-      <p
-        className="shimmer-gold inv-name-pop"
-        style={{
-          fontFamily: "'Optima',sans-serif",
-          fontSize: "clamp(3.6rem,15vw,5.8rem)",
-          fontWeight: 400,
-          fontStyle: "normal",
-          lineHeight: 1.05,
-          letterSpacing: "0.01em",
-          margin: "4px 0 12px",
-          animationDelay: visible ? "0.52s" : "0s",
-          animationPlayState: visible ? "running" : "paused",
-        }}
-      >
-        {femaleName}
-      </p>
-      <p
-        className="inv-from-right"
-        style={{
-          fontFamily: "'Optima',sans-serif",
-          fontSize: 15,
-          letterSpacing: "0.13em",
-          color: "rgba(37,43,66,0.88)",
-          lineHeight: 1.95,
-          textTransform: "uppercase",
-          fontWeight: 400,
-          margin: 0,
-          animationDelay: visible ? "0.66s" : "0s",
-          animationPlayState: visible ? "running" : "paused",
-        }}
-      >
-        дің үйлену тойына арналған салтанатты ақ дастарханымыздың қадірлі қонағы
-        болуға шақырамыз!
-      </p>
-      <div
-        className="inv-fade-up"
-        style={{
-          marginTop: 16,
-          animationDelay: visible ? "0.8s" : "0s",
-          animationPlayState: visible ? "running" : "paused",
-        }}
-      >
-        <FloralDots />
-      </div>
+      />
     </div>
   );
 }
 
-// ─── OrganizerBlock ───
-function OrganizerParticle({
-  delay,
-  duration,
-  x,
-  size,
+/* ─── GlassCard — exact match of HTML's .glass-card class ─── */
+function GlassCard({
+  children,
+  className = "",
+  style = {},
 }: {
-  delay: number;
-  duration: number;
-  x: number;
-  size: number;
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
 }) {
   return (
     <div
+      className={className}
       style={{
-        position: "absolute",
-        left: `${x}%`,
-        bottom: -10,
-        width: size,
-        height: size,
-        borderRadius: "50%",
-        background:
-          "radial-gradient(circle,rgba(37,43,66,0.7) 0%,rgba(37,43,66,0.0) 70%)",
-        animation: `organizer-float ${duration}s ease-in-out ${delay}s infinite`,
-        pointerEvents: "none",
+        background: "rgba(255, 248, 245, 0.85)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        border: `0.5px solid ${C.gold}4d`,
+        ...style,
       }}
-    />
+    >
+      {children}
+    </div>
   );
 }
 
-function OrganizerBlock({
+/* ─── ShimmerGold text — exact match of HTML's .shimmer-gold class ─── */
+function ShimmerGold({
+  children,
+  style = {},
+}: {
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <>
+      <style>{`
+        @keyframes shimmer-anim { to { background-position: 200% center; } }
+        .shimmer-gold-text {
+          background: linear-gradient(90deg, #D4AF37 0%, #FFF8E1 50%, #D4AF37 100%);
+          background-size: 200% auto;
+          color: transparent;
+          -webkit-background-clip: text;
+          background-clip: text;
+          animation: shimmer-anim 3s linear infinite;
+        }
+      `}</style>
+      <span className="shimmer-gold-text" style={style}>
+        {children}
+      </span>
+    </>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   HEADER — exact match of HTML's fixed top app bar:
+   menu (left) | couple names (center, italic Playfair) | music (right)
+   ───────────────────────────────────────────────────────────── */
+function HeaderBar({
+  maleName,
+  femaleName,
+  extra5,
+  onMenuClick,
+  navOpen,
+}: {
+  maleName: string;
+  femaleName: string;
+  extra5?: string | null;
+  onMenuClick: () => void;
+  navOpen: boolean;
+}) {
+  return (
+    <header
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        zIndex: 110,
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "0 16px",
+        height: 64,
+        background: "rgba(255,248,245,0.8)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        borderBottom: `1px solid ${C.outlineVariant}4d`,
+      }}
+    >
+      <button
+        aria-label="menu"
+        onClick={onMenuClick}
+        style={{
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          color: C.primary,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 6,
+          transition: "color 0.3s ease",
+        }}
+      >
+        {navOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+      </button>
+      <h1
+        style={{
+          ...F_HEADLINE_MD,
+          fontSize: 22,
+          fontStyle: "italic",
+          color: C.primary,
+          margin: 0,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          maxWidth: "60%",
+        }}
+      >
+        {maleName} &amp; {femaleName}
+      </h1>
+      <div
+        style={{
+          color: C.primary,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 32,
+          height: 32,
+        }}
+      >
+        <Song extra5={extra5} />
+      </div>
+    </header>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   NAV DRAWER — replaces the always-visible footer nav.
+   Hidden by default; slides up from the bottom when the header
+   menu button is tapped. Tapping a link scrolls + closes it.
+   ───────────────────────────────────────────────────────────── */
+const NAV_ITEMS = [
+  { id: "section-hero", icon: FaHeart, label: "Есімдер" },
+  { id: "section-photos", icon: FaImages, label: "Фотолар" },
+  { id: "section-details", icon: FaCalendarAlt, label: "Мәліметтер" },
+  { id: "section-messages", icon: FaEnvelopeOpenText, label: "Тілектер" },
+];
+
+function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    onClose();
+  };
+
+  return (
+    <>
+      {/* backdrop */}
+      <div
+        onClick={onClose}
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 115,
+          background: "rgba(30,27,24,0.35)",
+          opacity: open ? 1 : 0,
+          pointerEvents: open ? "auto" : "none",
+          transition: "opacity 0.35s ease",
+        }}
+      />
+      {/* sliding panel */}
+      <nav
+        style={{
+          position: "fixed",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 120,
+          background: C.background,
+          borderTop: `1px solid ${C.gold}4d`,
+          borderRadius: "24px 24px 0 0",
+          boxShadow: "0 -8px 32px rgba(0,43,20,0.15)",
+          padding: "28px 24px calc(28px + env(safe-area-inset-bottom, 0px))",
+          transform: open ? "translateY(0)" : "translateY(110%)",
+          transition: "transform 0.45s cubic-bezier(0.22,1,0.36,1)",
+        }}
+      >
+        <div
+          style={{
+            width: 40,
+            height: 4,
+            borderRadius: 2,
+            background: C.outlineVariant,
+            margin: "0 auto 20px",
+          }}
+        />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 8,
+          }}
+        >
+          {NAV_ITEMS.map(({ id, icon: Icon, label }) => (
+            <button
+              key={id}
+              onClick={() => scrollTo(id)}
+              style={{
+                flex: 1,
+                minWidth: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 8,
+                padding: "16px 4px",
+                background: C.surfaceContainerLow,
+                border: `1px solid ${C.gold}33`,
+                borderRadius: 12,
+                cursor: "pointer",
+                color: C.primary,
+              }}
+            >
+              <Icon size={18} style={{ color: C.secondary }} />
+              <span
+                style={{
+                  ...F_LABEL_CAPS,
+                  fontSize: 9.5,
+                  color: C.primary,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </nav>
+    </>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SECTION 1 — Hero (photo + names + invitation text)
+   Matches HTML's Hero section + Names & Invitation section
+   ───────────────────────────────────────────────────────────── */
+// Hero background — the rings photo used in the original HTML reference design
+const HERO_STOCK_IMAGE =
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuBn5oZgkek4iAV6h71GC-QhCepDCkhbQ93URmx38u8uY-Adz4ZhbQGYtmfV2PCvW0zgPtJATdCd7kQclvZNuBygcNXNJyATmH5522hwEh5aBuJy633v4qsZrupS6JFpkjqTuM8DKjdj9SPygqBIlgqsny3lL3Q6DYDNlkfmVopO8TBH9RIWjXi-Bcbds5HLC1btsg0Qu7ixUTtgA113YLN6PeIfabXS0_b3YTBAY5wUJtGJbCa4bvE";
+
+function HeroSection({
+  mainPhotoUrl,
+  maleName,
+  femaleName,
+}: {
+  mainPhotoUrl?: string | null;
+  maleName: string;
+  femaleName: string;
+}) {
+  return (
+    <section id="section-hero">
+      <div className="relative h-[75vh] w-full overflow-hidden flex items-end justify-center pb-12">
+        <div className="absolute inset-0 z-0">
+          <img
+            src={mainPhotoUrl || HERO_STOCK_IMAGE}
+            alt="Негізгі сурет"
+            className="w-full h-full object-cover"
+            style={{
+              filter: "brightness(0.85)",
+              display: "block",
+              border: "none",
+            }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(to top, ${C.background}, transparent 65%)`,
+              opacity: 0.95,
+            }}
+          />
+        </div>
+        <Reveal
+          className="relative z-10 text-center"
+          style={{ padding: "0 5vw" }}
+        >
+          <p style={{ ...F_LABEL_CAPS, color: C.secondary, marginBottom: 8 }}>
+            Wedding Invitation
+          </p>
+          <h2
+            style={{
+              ...F_DISPLAY_LG_MOBILE,
+              fontStyle: "italic",
+              color: C.primary,
+              margin: "0 0 16px",
+            }}
+          >
+            {maleName} &amp; {femaleName}
+          </h2>
+          <OrnamentDivider />
+        </Reveal>
+      </div>
+
+      <Reveal
+        className="text-center flex flex-col items-center"
+        style={{ padding: "4rem 5vw", gap: "2rem" }}
+      >
+        <div style={{ maxWidth: 640 }}>
+          <h3
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: 19,
+              fontStyle: "italic",
+              fontWeight: 400,
+              color: C.primary,
+              marginBottom: 20,
+            }}
+          >
+            {maleName} &amp; {femaleName}
+          </h3>
+          <p
+            style={{
+              fontFamily: "'EB Garamond', serif",
+              fontSize: 15,
+              lineHeight: 1.7,
+              fontStyle: "italic",
+              color: C.onSurfaceVariant,
+            }}
+          >
+            Құрметті ағайын-туыс, құда-жекжат, дос-жаран, әріптестер мен
+            көршілер! Сіздерді ұлымыз {maleName} пен келініміз {femaleName}
+            -ның үйлену тойына арналған салтанатты ақ дастарханымыздың қадірлі
+            қонағы болуға шақырамыз!
+          </p>
+        </div>
+        <BsStars size={26} style={{ color: C.gold, marginTop: 8 }} />
+      </Reveal>
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SECTION — Organizer / Той иелері
+   Matches HTML's "Parents Section" — plain glass-card pill
+   ───────────────────────────────────────────────────────────── */
+function OrganizerSection({
   organizer,
   maleParents,
   femaleParents,
@@ -1132,649 +526,629 @@ function OrganizerBlock({
   maleParents?: string | null;
   femaleParents?: string | null;
 }) {
-  const { ref, visible } = useInView(0.2);
   const lines = organizer.split("\n").filter(Boolean);
   return (
-    <div ref={ref} className="mx-5 mt-8 py-2">
-      <style>{`
-        @keyframes organizer-reveal{0%{opacity:0;transform:translateY(32px) scale(0.96);filter:blur(4px)}60%{filter:blur(0)}100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
-        @keyframes organizer-line{0%{opacity:0;transform:translateX(-20px)}100%{opacity:1;transform:translateX(0)}}
-        @keyframes organizer-float{0%,100%{transform:translateY(0) scale(1);opacity:0.5}50%{transform:translateY(-60px) scale(0.6);opacity:0}}
-        @keyframes organizer-glow{0%,100%{box-shadow:0 0 0px rgba(37,43,66,0)}50%{box-shadow:0 0 32px rgba(37,43,66,0.18),0 4px 24px rgba(37,43,66,0.10)}}
-        .org-card-enter{animation:organizer-reveal 0.9s cubic-bezier(0.22,1,0.36,1) both}
-        .org-line-enter{animation:organizer-line 0.6s cubic-bezier(0.22,1,0.36,1) both}
-        .org-glow{animation:organizer-glow 3s ease-in-out 1s infinite}
-      `}</style>
-      <GoldDivider className="mb-6" />
-      <div
-        className="org-card-enter org-glow"
-        style={{
-          animationPlayState: visible ? "running" : "paused",
-          position: "relative",
-          overflow: "hidden",
-          borderRadius: 20,
-          padding: "28px 24px 24px",
-          background: "#ffffff",
-          border: "1px solid rgba(37,43,66,0.22)",
-          boxShadow:
-            "0 4px 32px rgba(37,43,66,0.08),0 1px 6px rgba(0,0,0,0.04)",
-          textAlign: "center",
-        }}
-      >
-        {visible &&
-          [
-            { delay: 0, duration: 4.5, x: 10, size: 40 },
-            { delay: 1.2, duration: 5.5, x: 85, size: 28 },
-            { delay: 0.6, duration: 6, x: 50, size: 20 },
-            { delay: 2, duration: 4.8, x: 30, size: 16 },
-            { delay: 1.8, duration: 5.2, x: 70, size: 24 },
-          ].map((p, i) => <OrganizerParticle key={i} {...p} />)}
-        {[
-          ["top:10px", "left:12px", "M2,20 Q2,2 20,2", "2", "2"],
-          ["top:10px", "right:12px", "M20,20 Q20,2 2,2", "20", "2"],
-          ["bottom:10px", "left:12px", "M2,2 Q2,20 20,20", "2", "20"],
-          ["bottom:10px", "right:12px", "M20,2 Q20,20 2,20", "20", "20"],
-        ].map(([p1, p2, path, cx, cy], i) => (
-          <svg
-            key={i}
-            style={{
-              position: "absolute",
-              [p1.split(":")[0]]: p1.split(":")[1],
-              [p2.split(":")[0]]: p2.split(":")[1],
-              opacity: 0.3,
-            }}
-            width="22"
-            height="22"
-            viewBox="0 0 22 22"
-          >
-            <path d={path} stroke="#3d4f7c" strokeWidth="0.8" fill="none" />
-            <circle cx={cx} cy={cy} r="1.5" fill="#252b42" />
-          </svg>
-        ))}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
+    <Reveal
+      className="text-center"
+      style={{ background: C.surfaceContainerLow, padding: "4rem 5vw" }}
+    >
+      <h4 style={{ ...F_LABEL_CAPS, color: C.secondary, marginBottom: 16 }}>
+        Той иелері: Ата-анасы
+      </h4>
+      <div className="flex flex-col items-center gap-4">
+        <GlassCard
+          className="rounded-full"
+          style={{ padding: "18px 32px", border: `1px solid ${C.secondary}33` }}
         >
-          <svg
-            width="100%"
-            height="100%"
-            style={{ position: "absolute", inset: 0 }}
-          >
-            <ellipse
-              cx="50%"
-              cy="50%"
-              rx="45%"
-              ry="42%"
-              fill="none"
-              stroke="rgba(37,43,66,0.08)"
-              strokeWidth="0.6"
-            />
-            <ellipse
-              cx="50%"
-              cy="50%"
-              rx="38%"
-              ry="35%"
-              fill="none"
-              stroke="rgba(37,43,66,0.05)"
-              strokeWidth="0.4"
-            />
-          </svg>
-        </div>
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              marginBottom: 16,
-            }}
-          >
-            <div
-              style={{
-                height: 1,
-                width: 28,
-                background:
-                  "linear-gradient(to right,transparent,rgba(37,43,66,0.5))",
-              }}
-            />
-            <svg viewBox="0 0 20 18" width="16" height="14">
-              <path
-                d="M10,16 C10,16 1,10 1,5 C1,2.8 2.8,1 5,1 C7,1 8.8,2.2 10,3.8 C11.2,2.2 13,1 15,1 C17.2,1 19,2.8 19,5 C19,10 10,16 10,16Z"
-                fill="rgba(37,43,66,0.25)"
-                stroke="rgba(37,43,66,0.6)"
-                strokeWidth="0.7"
-              />
-            </svg>
+          {(lines.length ? lines : [organizer]).map((line, i) => (
             <p
+              key={i}
               style={{
-                fontSize: 14,
-                letterSpacing: "0.45em",
-                fontFamily: "'Optima',sans-serif",
+                fontFamily: "'Playfair Display', serif",
+                fontSize: 19,
+                fontStyle: "italic",
                 fontWeight: 400,
-                color: "rgba(37,43,66,0.92)",
+                color: C.primary,
                 margin: 0,
-                textTransform: "uppercase",
               }}
             >
-              Той иелері
+              {line}
             </p>
-            <svg viewBox="0 0 20 18" width="16" height="14">
-              <path
-                d="M10,16 C10,16 1,10 1,5 C1,2.8 2.8,1 5,1 C7,1 8.8,2.2 10,3.8 C11.2,2.2 13,1 15,1 C17.2,1 19,2.8 19,5 C19,10 10,16 10,16Z"
-                fill="rgba(37,43,66,0.25)"
-                stroke="rgba(37,43,66,0.6)"
-                strokeWidth="0.7"
-              />
-            </svg>
-            <div
-              style={{
-                height: 1,
-                width: 28,
-                background:
-                  "linear-gradient(to left,transparent,rgba(37,43,66,0.5))",
-              }}
-            />
-          </div>
-          <p
-            className="org-line-enter"
-            style={{
-              fontFamily: "'Optima',sans-serif",
-              fontSize: 16,
-              fontWeight: 400,
-              letterSpacing: "0.2em",
-              textTransform: "uppercase",
-              color: "#252b42",
-              lineHeight: 1.9,
-              wordBreak: "break-word",
-              margin: 0,
-              animationDelay: visible ? "0.2s" : "0s",
-              animationPlayState: visible ? "running" : "paused",
-            }}
-          >
-            Ата анасы
-          </p>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 6,
-              alignItems: "center",
-            }}
-          >
-            {(() => {
-              const items = lines.length > 0 ? lines : [organizer];
-              if (items.length === 2)
-                return (
-                  <>
-                    <p
-                      className="org-line-enter"
-                      style={{
-                        fontFamily: "'Optima',sans-serif",
-                        fontSize: 18,
-                        fontWeight: 400,
-                        letterSpacing: "0.2em",
-                        textTransform: "uppercase",
-                        color: "#252b42",
-                        lineHeight: 1.9,
-                        wordBreak: "break-word",
-                        margin: 0,
-                        animationDelay: visible ? "0.2s" : "0s",
-                        animationPlayState: visible ? "running" : "paused",
-                      }}
-                    >
-                      {items[0]}
-                    </p>
-                    <div
-                      className="org-line-enter"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        animationDelay: visible ? "0.3s" : "0s",
-                        animationPlayState: visible ? "running" : "paused",
-                      }}
-                    >
-                      <div
-                        style={{
-                          height: 1,
-                          width: 24,
-                          background:
-                            "linear-gradient(to right,transparent,rgba(37,43,66,0.5))",
-                        }}
-                      />
-                      <span
-                        style={{
-                          fontFamily: "'Optima',sans-serif",
-                          fontSize: 30,
-                          fontStyle: "italic",
-                          color: "rgba(37,43,66,0.75)",
-                          lineHeight: 1,
-                          fontWeight: 400,
-                        }}
-                      >
-                        &amp;
-                      </span>
-                      <div
-                        style={{
-                          height: 1,
-                          width: 24,
-                          background:
-                            "linear-gradient(to left,transparent,rgba(37,43,66,0.5))",
-                        }}
-                      />
-                    </div>
-                    <p
-                      className="org-line-enter"
-                      style={{
-                        fontFamily: "'Optima',sans-serif",
-                        fontSize: 18,
-                        fontWeight: 400,
-                        letterSpacing: "0.2em",
-                        textTransform: "uppercase",
-                        color: "#252b42",
-                        lineHeight: 1.9,
-                        wordBreak: "break-word",
-                        margin: 0,
-                        animationDelay: visible ? "0.42s" : "0s",
-                        animationPlayState: visible ? "running" : "paused",
-                      }}
-                    >
-                      {items[1]}
-                    </p>
-                  </>
-                );
-              return items.map((line, i) => (
+          ))}
+        </GlassCard>
+
+        {(maleParents || femaleParents) && (
+          <div className="flex flex-col md:flex-row gap-6 mt-4">
+            {maleParents && (
+              <div>
                 <p
-                  key={i}
-                  className="org-line-enter"
                   style={{
-                    fontFamily: "'Optima',sans-serif",
-                    fontSize: 18,
-                    fontWeight: 400,
-                    letterSpacing: "0.2em",
-                    textTransform: "uppercase",
-                    color: "#252b42",
-                    lineHeight: 1.9,
-                    wordBreak: "break-word",
-                    margin: 0,
-                    animationDelay: visible ? `${0.2 + i * 0.12}s` : "0s",
-                    animationPlayState: visible ? "running" : "paused",
+                    ...F_LABEL_CAPS,
+                    color: C.secondary,
+                    marginBottom: 4,
                   }}
                 >
-                  {line}
+                  Күйеу жақ
                 </p>
-              ));
-            })()}
+                <p
+                  style={{
+                    ...F_HEADLINE_MD,
+                    fontStyle: "italic",
+                    color: C.primary,
+                    fontSize: 24,
+                  }}
+                >
+                  {maleParents}
+                </p>
+              </div>
+            )}
+            {femaleParents && (
+              <div>
+                <p
+                  style={{
+                    ...F_LABEL_CAPS,
+                    color: C.secondary,
+                    marginBottom: 4,
+                  }}
+                >
+                  Келін жақ
+                </p>
+                <p
+                  style={{
+                    ...F_HEADLINE_MD,
+                    fontStyle: "italic",
+                    color: C.primary,
+                    fontSize: 24,
+                  }}
+                >
+                  {femaleParents}
+                </p>
+              </div>
+            )}
           </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 5,
-              marginTop: 16,
-            }}
-          >
-            {[0.15, 0.3, 0.55, 0.3, 0.15].map((op, i) => (
-              <div
-                key={i}
-                style={{
-                  width: i === 2 ? 6 : i === 1 || i === 3 ? 4 : 3,
-                  height: i === 2 ? 6 : i === 1 || i === 3 ? 4 : 3,
-                  borderRadius: "50%",
-                  background: `rgba(37,43,66,${op})`,
-                }}
-              />
-            ))}
-          </div>
-          {(maleParents || femaleParents) && (
-            <div
+        )}
+      </div>
+    </Reveal>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SECTION 2 — Photos / gallery
+   Matches HTML's horizontal snap-scroll gallery w/ prev-next arrows
+   ───────────────────────────────────────────────────────────── */
+function PhotosSection({
+  photo3Url,
+  galleryUrls,
+}: {
+  photo3Url: string | null;
+  galleryUrls: string[] | null | undefined;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollBy = (dir: 1 | -1) => {
+    scrollRef.current?.scrollBy({ left: dir * 300, behavior: "smooth" });
+  };
+  const urls = galleryUrls?.length ? galleryUrls : photo3Url ? [photo3Url] : [];
+  if (!urls.length) return <section id="section-photos" />;
+
+  return (
+    <section id="section-photos">
+      <Reveal
+        style={{ background: C.surfaceContainerLowest, padding: "4rem 0" }}
+      >
+        <div
+          className="flex justify-between items-end"
+          style={{ padding: "0 5vw", marginBottom: 32 }}
+        >
+          <div>
+            <h4
               style={{
-                marginTop: 22,
-                borderTop: "0.5px solid rgba(37,43,66,0.18)",
-                paddingTop: 18,
+                ...F_LABEL_CAPS,
+                fontSize: 11,
+                color: C.secondary,
+                marginBottom: 4,
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  marginBottom: 14,
-                }}
-              >
-                <div
-                  style={{
-                    height: 1,
-                    width: 22,
-                    background:
-                      "linear-gradient(to right,transparent,rgba(37,43,66,0.45))",
-                  }}
-                />
-                <p
-                  style={{
-                    fontSize: 11,
-                    letterSpacing: "0.38em",
-                    fontFamily: "'Optima',sans-serif",
-                    fontWeight: 400,
-                    color: "rgba(37,43,66,0.85)",
-                    margin: 0,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Ата-аналары
-                </p>
-                <div
-                  style={{
-                    height: 1,
-                    width: 22,
-                    background:
-                      "linear-gradient(to left,transparent,rgba(37,43,66,0.45))",
-                  }}
-                />
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 14,
-                  alignItems: "center",
-                }}
-              >
-                {maleParents && (
-                  <div
-                    className="org-line-enter"
-                    style={{
-                      textAlign: "center",
-                      animationDelay: visible ? "0.55s" : "0s",
-                      animationPlayState: visible ? "running" : "paused",
-                    }}
-                  >
-                    <p
-                      style={{
-                        fontSize: 10,
-                        letterSpacing: "0.32em",
-                        fontFamily: "'Optima',sans-serif",
-                        color: "rgba(37,43,66,0.75)",
-                        textTransform: "uppercase",
-                        margin: "0 0 4px",
-                        fontWeight: 400,
-                      }}
-                    >
-                      Күйеу жақ
-                    </p>
-                    <p
-                      style={{
-                        fontFamily: "'Optima',sans-serif",
-                        fontSize: 14,
-                        fontWeight: 400,
-                        letterSpacing: "0.15em",
-                        textTransform: "uppercase",
-                        color: "#252b42",
-                        lineHeight: 1.75,
-                        wordBreak: "break-word",
-                        margin: 0,
-                      }}
-                    >
-                      {maleParents}
-                    </p>
-                  </div>
-                )}
-                {maleParents && femaleParents && (
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 10 }}
-                  >
-                    <div
-                      style={{
-                        height: 1,
-                        width: 20,
-                        background:
-                          "linear-gradient(to right,transparent,rgba(37,43,66,0.4))",
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontFamily: "'Optima',sans-serif",
-                        fontSize: 22,
-                        fontStyle: "italic",
-                        color: "rgba(37,43,66,0.7)",
-                        lineHeight: 1,
-                        fontWeight: 400,
-                      }}
-                    >
-                      &amp;
-                    </span>
-                    <div
-                      style={{
-                        height: 1,
-                        width: 20,
-                        background:
-                          "linear-gradient(to left,transparent,rgba(37,43,66,0.4))",
-                      }}
-                    />
-                  </div>
-                )}
-                {femaleParents && (
-                  <div
-                    className="org-line-enter"
-                    style={{
-                      textAlign: "center",
-                      animationDelay: visible ? "0.68s" : "0s",
-                      animationPlayState: visible ? "running" : "paused",
-                    }}
-                  >
-                    <p
-                      style={{
-                        fontSize: 10,
-                        letterSpacing: "0.32em",
-                        fontFamily: "'Optima',sans-serif",
-                        color: "rgba(37,43,66,0.75)",
-                        textTransform: "uppercase",
-                        margin: "0 0 4px",
-                        fontWeight: 400,
-                      }}
-                    >
-                      Келін жақ
-                    </p>
-                    <p
-                      style={{
-                        fontFamily: "'Optima',sans-serif",
-                        fontSize: 14,
-                        fontWeight: 400,
-                        letterSpacing: "0.15em",
-                        textTransform: "uppercase",
-                        color: "#252b42",
-                        lineHeight: 1.75,
-                        wordBreak: "break-word",
-                        margin: 0,
-                      }}
-                    >
-                      {femaleParents}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── RotatingOrnament ───
-function RotatingOrnament({
-  position,
-  size = 200,
-  opacity = 0.07,
-}: {
-  position: "top-right" | "bottom-left";
-  size?: number;
-  opacity?: number;
-}) {
-  const isTopRight = position === "top-right";
-  return (
-    <div
-      className="fixed pointer-events-none z-0"
-      style={{
-        width: size,
-        height: size,
-        top: isTopRight ? -size * 0.1 : "auto",
-        bottom: isTopRight ? "auto" : -size * 0.3,
-        right: isTopRight ? -size * 0.3 : "auto",
-        left: isTopRight ? "auto" : -size * 0.3,
-        opacity,
-        animation: "spin-slow 22s linear infinite",
-        animationDirection: isTopRight ? "normal" : "reverse",
-      }}
-    >
-      <img
-        src="/images/hee.jpg"
-        alt=""
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "contain",
-          display: "block",
-          border: "none",
-        }}
-      />
-    </div>
-  );
-}
-
-// ─── SECTION NAV (adapted from Template2, navy palette) ───
-const NAV_ITEMS = [
-  { id: "section-hero", emoji: "💍", label: "Есімдер" },
-  { id: "section-photos", emoji: "📸", label: "Фотолар" },
-  { id: "section-details", emoji: "📅", label: "Мәліметтер" },
-  { id: "section-messages", emoji: "💌", label: "Тілектер" },
-];
-
-function SectionNavBar() {
-  const [active, setActive] = useState("section-hero");
-
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      setActive(id);
-    }
-  };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      for (let i = NAV_ITEMS.length - 1; i >= 0; i--) {
-        const el = document.getElementById(NAV_ITEMS[i].id);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= window.innerHeight * 0.4) {
-            setActive(NAV_ITEMS[i].id);
-            break;
-          }
-        }
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        background: "rgba(255,255,255,0.94)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        borderTop: "0.5px solid rgba(37,43,66,0.22)",
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
-      }}
-    >
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4,1fr)",
-          maxWidth: 480,
-          margin: "0 auto",
-        }}
-      >
-        {NAV_ITEMS.map(({ id, emoji, label }) => {
-          const isActive = active === id;
-          return (
-            <button
-              key={id}
-              onClick={() => scrollTo(id)}
+              Our Story
+            </h4>
+            <h3
               style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: 20,
+                fontStyle: "italic",
+                fontWeight: 400,
+                color: C.primary,
+                margin: 0,
+              }}
+            >
+              Wedding Memories
+            </h3>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => scrollBy(-1)}
+              style={{
+                width: 32,
+                height: 32,
                 display: "flex",
-                flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: 3,
-                padding: "10px 4px 10px",
+                border: `1px solid ${C.outlineVariant}`,
+                color: C.primary,
+                borderRadius: 999,
                 background: "none",
-                border: "none",
                 cursor: "pointer",
-                transition: "all 0.2s ease",
-                position: "relative",
               }}
             >
-              {isActive && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: "20%",
-                    right: "20%",
-                    height: 2,
-                    borderRadius: "0 0 2px 2px",
-                    background:
-                      "linear-gradient(to right,#3d4f7c,#252b42,#3d4f7c)",
-                  }}
-                />
-              )}
-              <span
-                style={{
-                  fontSize: 22,
-                  lineHeight: 1,
-                  transform: isActive ? "scale(1.15)" : "scale(1)",
-                  transition: "transform 0.2s cubic-bezier(0.34,1.56,0.64,1)",
-                }}
-              >
-                {emoji}
-              </span>
-              <span
-                style={{
-                  fontFamily: "'Optima',sans-serif",
-                  fontSize: 9.5,
-                  letterSpacing: "0.05em",
-                  color: isActive ? "#252b42" : "rgba(37,43,66,0.6)",
-                  fontWeight: 400,
-                  transition: "color 0.2s ease",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {label}
-              </span>
+              <FaChevronLeft size={13} />
             </button>
+            <button
+              onClick={() => scrollBy(1)}
+              style={{
+                width: 32,
+                height: 32,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: `1px solid ${C.outlineVariant}`,
+                color: C.primary,
+                borderRadius: 999,
+                background: "none",
+                cursor: "pointer",
+              }}
+            >
+              <FaChevronRight size={13} />
+            </button>
+          </div>
+        </div>
+        <div
+          ref={scrollRef}
+          className="flex overflow-x-auto snap-x pb-4"
+          style={{ gap: 16, padding: "0 5vw", scrollbarWidth: "none" }}
+        >
+          {urls.map((url, i) => (
+            <div
+              key={i}
+              className="snap-center flex-shrink-0"
+              style={{
+                minWidth: 280,
+                height: 400,
+                borderRadius: 8,
+                overflow: "hidden",
+                border: `1px solid ${C.secondary}1a`,
+              }}
+            >
+              <img
+                src={url}
+                alt={`сурет ${i + 1}`}
+                className="w-full h-full object-cover"
+                style={{ display: "block", border: "none" }}
+              />
+            </div>
+          ))}
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SECTION 3 — Details (date / time / venue / extras)
+   Matches HTML's Details Section grid + venue block exactly
+   ───────────────────────────────────────────────────────────── */
+function DetailsSection({
+  date,
+  time,
+  venueName,
+  venueAddress,
+  extras,
+  photo5Url,
+}: {
+  date: string | null;
+  time: string | null;
+  venueName: string | null;
+  venueAddress: string | null;
+  extras: (string | null | undefined)[];
+  photo5Url: string | null;
+}) {
+  const timeSubtitle = (() => {
+    if (!time) return null;
+    const [hStr, mStr] = time.split(":");
+    let h = parseInt(hStr, 10);
+    if (Number.isNaN(h)) return null;
+    const ampm = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+    return `Sharp at ${h}:${mStr} ${ampm}`;
+  })();
+
+  return (
+    <section
+      id="section-details"
+      style={{ background: C.background, padding: "3rem 5vw" }}
+    >
+      <div className="flex flex-col gap-6">
+        {date && (
+          <Reveal>
+            <GlassCard
+              className="p-6 text-center flex flex-col items-center"
+              style={{ border: `1px solid ${C.secondary}4d` }}
+            >
+              <MdOutlineCalendarMonth
+                size={38}
+                style={{ color: C.secondary, marginBottom: 12 }}
+              />
+              <h5
+                style={{ ...F_LABEL_CAPS, color: C.primary, marginBottom: 10 }}
+              >
+                Күні / Date
+              </h5>
+              <p
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: 19,
+                  lineHeight: 1.4,
+                  fontWeight: 500,
+                  color: C.primary,
+                  margin: 0,
+                }}
+              >
+                {date}
+              </p>
+            </GlassCard>
+          </Reveal>
+        )}
+        {time && (
+          <Reveal>
+            <GlassCard
+              className="p-6 text-center flex flex-col items-center"
+              style={{ border: `1px solid ${C.secondary}4d` }}
+            >
+              <MdOutlineSchedule
+                size={38}
+                style={{ color: C.secondary, marginBottom: 12 }}
+              />
+              <h5
+                style={{ ...F_LABEL_CAPS, color: C.primary, marginBottom: 10 }}
+              >
+                Уақыты / Time
+              </h5>
+              <p
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: 19,
+                  lineHeight: 1.4,
+                  fontWeight: 500,
+                  color: C.primary,
+                  margin: 0,
+                }}
+              >
+                Сағат {time}-де
+              </p>
+              {timeSubtitle && (
+                <p
+                  style={{
+                    ...F_BODY_MD,
+                    fontSize: 15,
+                    fontStyle: "italic",
+                    color: C.secondary,
+                    margin: "4px 0 0",
+                  }}
+                >
+                  {timeSubtitle}
+                </p>
+              )}
+            </GlassCard>
+          </Reveal>
+        )}
+      </div>
+
+      {(venueName || venueAddress) && (
+        <Reveal className="text-center" style={{ marginTop: 32 }}>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <FaStar size={26} style={{ color: C.secondary }} />
+          </div>
+          <h5
+            style={{ ...F_LABEL_CAPS, color: C.primary, margin: "16px 0 8px" }}
+          >
+            Мекен-жайы / Venue
+          </h5>
+          {venueName && (
+            <p
+              style={{
+                ...F_BODY_LG,
+                color: C.primary,
+                fontWeight: 500,
+                margin: 0,
+              }}
+            >
+              {venueName}
+            </p>
+          )}
+          {venueAddress && (
+            <p
+              style={{
+                ...F_BODY_MD,
+                fontStyle: "italic",
+                color: C.onSurfaceVariant,
+              }}
+            >
+              {venueAddress}
+            </p>
+          )}
+          <button
+            style={{
+              marginTop: 24,
+              padding: "12px 32px",
+              background: C.primary,
+              color: C.secondaryFixed,
+              border: `1px solid ${C.secondary}`,
+              ...F_LABEL_CAPS,
+              cursor: "pointer",
+              transition: "background-color 0.2s ease",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = C.onPrimaryFixedVariant)
+            }
+            onMouseLeave={(e) => (e.currentTarget.style.background = C.primary)}
+          >
+            КАРТАДАН КӨРУ
+          </button>
+        </Reveal>
+      )}
+
+      {extras.length > 0 && (
+        <Reveal
+          style={{
+            marginTop: 40,
+            display: "flex",
+            flexDirection: "column",
+            gap: 16,
+          }}
+        >
+          {extras.map((e, i) => (
+            <div
+              key={i}
+              className="flex items-start gap-3"
+              style={{ maxWidth: 640, margin: "0 auto" }}
+            >
+              <FaStar
+                size={16}
+                style={{ color: C.gold, marginTop: 5, flexShrink: 0 }}
+              />
+              <p style={{ ...F_BODY_LG, color: C.onSurfaceVariant, margin: 0 }}>
+                {e}
+              </p>
+            </div>
+          ))}
+        </Reveal>
+      )}
+
+      {photo5Url && (
+        <Reveal style={{ marginTop: 40, overflow: "hidden" }}>
+          <img
+            src={photo5Url}
+            alt="Қосымша сурет"
+            className="w-full"
+            style={{ display: "block", border: "none", borderRadius: 4 }}
+          />
+        </Reveal>
+      )}
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SECTION 4 — RSVP + Wishes
+   Matches HTML's glass-card RSVP form container
+   ───────────────────────────────────────────────────────────── */
+function MessagesSection({ weddingId }: { weddingId: string }) {
+  return (
+    <section
+      id="section-messages"
+      style={{ background: C.background, padding: "4rem 5vw" }}
+    >
+      <Reveal>
+        <GlassCard
+          className="p-10 mx-auto text-center"
+          style={{ maxWidth: 560, border: `2px solid ${C.secondary}33` }}
+        >
+          <h3
+            style={{
+              ...F_HEADLINE_MD,
+              fontStyle: "italic",
+              color: C.primary,
+              marginBottom: 8,
+            }}
+          >
+            RSVP
+          </h3>
+          <p
+            style={{
+              ...F_BODY_MD,
+              fontStyle: "italic",
+              color: C.onSurfaceVariant,
+              marginBottom: 32,
+            }}
+          >
+            Сіздің келуіңіз біз үшін үлкен мәртебе!
+          </p>
+          <div style={{ marginBottom: 40 }}>
+            <RSVPSection
+              weddingId={weddingId}
+              accentColor={C.primary}
+              lightColor="#f7f0dc"
+            />
+          </div>
+          <div
+            style={{ borderTop: `1px solid ${C.secondary}22`, paddingTop: 40 }}
+          >
+            <MessageSection
+              weddingId={weddingId}
+              accentColor={C.primary}
+              lightColor="#f7f0dc"
+              borderColor="border-amber-100"
+            />
+          </div>
+        </GlassCard>
+      </Reveal>
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   FOOTER — exact match of HTML footer: poem + shimmer name
+   ───────────────────────────────────────────────────────────── */
+function FooterSection({
+  maleName,
+  femaleName,
+}: {
+  maleName: string;
+  femaleName: string;
+}) {
+  return (
+    <footer
+      className="flex flex-col items-center text-center footer-gradient-bg"
+      style={{
+        gap: 32,
+        padding: "4rem 5vw",
+        color: C.secondaryFixed,
+      }}
+    >
+      <style>{`
+        @keyframes footer-gradient-move {
+          0%   { background-position: 0% 50%; }
+          50%  { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .footer-gradient-bg {
+          background: linear-gradient(
+            120deg,
+            ${C.primary} 0%,
+            ${C.primaryContainer} 35%,
+            #2a1f00 60%,
+            ${C.primary} 100%
           );
-        })}
+          background-size: 300% 300%;
+          animation: footer-gradient-move 10s ease-in-out infinite;
+        }
+      `}</style>
+      <div style={{ maxWidth: 420 }}>
+        <p
+          style={{
+            ...F_BODY_LG,
+            fontStyle: "italic",
+            color: "rgba(255,224,136,0.9)",
+            whiteSpace: "pre-line",
+            marginBottom: 32,
+          }}
+        >
+          {
+            "Біз екеуміз тек екеуміз\nЖүректермен бір екенбіз\nМен сен үшін сен мен үшін\nЖаралған екенбіз"
+          }
+        </p>
+        <div
+          className="flex items-center justify-center gap-4"
+          style={{ marginBottom: 16 }}
+        >
+          <span
+            style={{
+              height: 1,
+              width: "100%",
+              maxWidth: 60,
+              opacity: 0.3,
+              background: `linear-gradient(90deg, transparent, ${C.gold}, transparent)`,
+            }}
+          />
+          <FaHeart style={{ color: C.secondaryFixedDim }} />
+          <span
+            style={{
+              height: 1,
+              width: "100%",
+              maxWidth: 60,
+              opacity: 0.3,
+              background: `linear-gradient(90deg, transparent, ${C.gold}, transparent)`,
+            }}
+          />
+        </div>
+        <ShimmerGold
+          style={{ ...F_HEADLINE_MD, fontStyle: "italic", fontWeight: 700 }}
+        >
+          {maleName} &amp; {femaleName}
+        </ShimmerGold>
+      </div>
+      <p
+        style={{
+          ...F_LABEL_CAPS,
+          fontSize: 10,
+          color: "rgba(255,224,136,0.5)",
+          letterSpacing: "0.2em",
+        }}
+      >
+        © {new Date().getFullYear()} {maleName.toUpperCase()} &amp;{" "}
+        {femaleName.toUpperCase()}. BUILT WITH LOVE.
+      </p>
+    </footer>
+  );
+}
+
+/* ─── GlobalStyles ─── */
+function GlobalStyles() {
+  return (
+    <style>{`
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Montserrat:wght@400;600&display=swap');
+      * { box-sizing: border-box; }
+      img { border: none !important; outline: none !important; }
+      body, #__next { background: ${C.background} !important; }
+      ::-webkit-scrollbar { display: none; }
+    `}</style>
+  );
+}
+
+/* ─── PaymentLockOverlay — brought over from Template1's design ─── */
+function PaymentLockOverlay({ extra5 }: { extra5?: string | null }) {
+  return (
+    <div
+      className="fixed inset-0 h-full w-full flex items-center justify-center"
+      style={{
+        background: "#000000",
+        zIndex: 9999,
+      }}
+    >
+      <div className="text-center px-6">
+        <FaLock
+          size={40}
+          style={{ color: "#ffffff", opacity: 0.7, marginBottom: 16 }}
+        />
+        <p
+          style={{
+            fontFamily: "'Playfair Display', serif",
+            fontWeight: 600,
+            fontSize: 22,
+            color: "#ffffff",
+          }}
+        >
+          Төлем төленбеген
+        </p>
+        <div
+          style={{
+            color: "#ffffff",
+            width: 32,
+            height: 32,
+            margin: "16px auto 0",
+          }}
+        >
+          <Song extra5={extra5} />
+        </div>
       </div>
     </div>
   );
 }
 
-// ─── MAIN ───
+/* ─────────────────────────────────────────────────────────────
+   MAIN
+   ───────────────────────────────────────────────────────────── */
 export default function Template2({ wedding }: { wedding: Wedding }) {
+  const [navOpen, setNavOpen] = useState(false);
+
   const date = formatDate(wedding.wedding_date);
   const time = wedding.wedding_date?.includes("T")
     ? wedding.wedding_date.split("T")[1].slice(0, 5)
@@ -1788,489 +1162,71 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
   ].filter(Boolean);
 
   const extra5 = wedding.extra5 ? wedding.extra5 : null;
+  const isPaymentLocked = String((wedding as any).payment) === "2";
+
+  if (isPaymentLocked) {
+    return <PaymentLockOverlay extra5={extra5} />;
+  }
 
   return (
     <>
-      {extra5 ? (
-        <div
-          className="fixed inset-0 flex items-center justify-center"
-          // style={{ background: "#ffffff" }}
-        >
-          <p
-            style={{
-              fontFamily: "'Optima',sans-serif",
-              fontSize: 18,
-              letterSpacing: "0.3em",
-              color: "rgba(37,43,66,0.7)",
-              textTransform: "uppercase",
-            }}
-          >
-            Төлем төленбеген
-          </p>
+      <GlobalStyles />
+      <div className="fixed inset-0 z-0" style={{ background: C.background }} />
 
-          <Template2Music />
-        </div>
-      ) : (
-        <>
-          <style>{`
-        * { box-sizing:border-box; }
-        img { border:none !important; outline:none !important; }
-        body,#__next { background:#ffffff !important; }
-        @keyframes shimmer-gold { 0%{background-position:-200% center} 100%{background-position:200% center} }
-        @keyframes fade-up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes spin-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        @keyframes float-gentle { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
-        @keyframes petal-spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        .shimmer-gold { background:linear-gradient(90deg,#1a2040 15%,#4a5280 42%,#252b42 58%,#1a2040 85%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer-gold 6s linear infinite; }
-        .fade-up { animation:fade-up 0.9s cubic-bezier(0.22,1,0.36,1) both; }
-        .fade-1  { animation-delay:0.1s; }
-        .fade-2  { animation-delay:0.25s; }
-        .fade-3  { animation-delay:0.4s; }
-        @keyframes tick-in { 0%{opacity:0;transform:scale(0.6) rotate(-15deg)} 70%{transform:scale(1.08) rotate(2deg)} 100%{opacity:1;transform:scale(1) rotate(0deg)} }
-        @keyframes reveal-up { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
-        .reveal-up { animation:reveal-up 0.7s cubic-bezier(0.22,1,0.36,1) both; }
-        .tick-in   { animation:tick-in 0.65s cubic-bezier(0.34,1.56,0.64,1) both; }
-        @keyframes floatHeart { 0%{transform:translateY(0) rotate(0deg);opacity:0} 50%{transform:translateY(-100px) translateX(20px) rotate(180deg);opacity:.8} 100%{transform:translateY(-220px) translateX(-20px) rotate(360deg);opacity:0} }
-      `}</style>
-          <div
-            className="fixed inset-0 z-0"
-            style={{ background: "#ffffff" }}
+      <HeaderBar
+        maleName={wedding.male_name}
+        femaleName={wedding.female_name}
+        extra5={wedding.extra5}
+        onMenuClick={() => setNavOpen((v) => !v)}
+        navOpen={navOpen}
+      />
+
+      <NavDrawer open={navOpen} onClose={() => setNavOpen(false)} />
+
+      <div
+        className="relative z-10 min-h-screen overflow-y-auto"
+        style={{
+          fontFamily: "'EB Garamond', serif",
+          background: C.background,
+          paddingTop: 64,
+          paddingBottom: 24,
+        }}
+      >
+        <HeroSection
+          mainPhotoUrl={wedding.main_photo_url}
+          maleName={wedding.male_name}
+          femaleName={wedding.female_name}
+        />
+
+        {wedding.organizer && (
+          <OrganizerSection
+            organizer={wedding.organizer}
+            maleParents={(wedding as any).male_parents}
+            femaleParents={(wedding as any).female_parents}
           />
+        )}
 
-          <div
-            className="relative z-10 min-h-screen overflow-y-auto"
-            style={{
-              fontFamily: "'Optima',sans-serif",
-              background: "#ffffff",
-              paddingBottom: 80,
-            }}
-          >
-            <RotatingOrnament position="top-right" size={220} opacity={0.07} />
-            <RotatingOrnament
-              position="bottom-left"
-              size={220}
-              opacity={0.07}
-            />
+        <DetailsSection
+          date={date}
+          time={time}
+          venueName={wedding.venue_name}
+          venueAddress={wedding.venue_address}
+          extras={extras}
+          photo5Url={wedding.photo5_url}
+        />
 
-            {/* ═══════════════════════════════════════════════════
-                SECTION 1: ЕСІМДЕР — Hero + Invitation + Organizer
-            ═══════════════════════════════════════════════════ */}
-            <section id="section-hero">
-              <div className="relative w-full h-[62vh] overflow-hidden">
-                {wedding.main_photo_url ? (
-                  <img
-                    src={wedding.main_photo_url}
-                    alt="Негізгі сурет"
-                    className="w-full h-full object-cover"
-                    style={{ display: "block", border: "none" }}
-                  />
-                ) : (
-                  <div
-                    className="w-full h-full flex items-center justify-center relative overflow-hidden"
-                    style={{
-                      background:
-                        "linear-gradient(135deg,#eef0f8 0%,#dde0ee 50%,#eef0f8 100%)",
-                    }}
-                  >
-                    <div className="relative flex items-center justify-center">
-                      <svg
-                        width="120"
-                        height="120"
-                        viewBox="0 0 120 120"
-                        fill="none"
-                        style={{ animation: "petal-spin 30s linear infinite" }}
-                      >
-                        {[
-                          0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330,
-                        ].map((deg, i) => {
-                          const r = (deg * Math.PI) / 180;
-                          return (
-                            <ellipse
-                              key={i}
-                              cx={60 + Math.cos(r) * 28}
-                              cy={60 + Math.sin(r) * 28}
-                              rx="9"
-                              ry="14"
-                              transform={`rotate(${deg + 90},${60 + Math.cos(r) * 28},${60 + Math.sin(r) * 28})`}
-                              fill="#3d4f7c"
-                              opacity="0.25"
-                            />
-                          );
-                        })}
-                      </svg>
-                      <div className="absolute">
-                        <FaHeart
-                          size={36}
-                          style={{ color: "rgba(37,43,66,0.35)" }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background:
-                      "linear-gradient(to top,#ffffff 0%,transparent 55%)",
-                  }}
-                />
-              </div>
+        <PhotosSection
+          photo3Url={wedding.photo3_url}
+          galleryUrls={wedding.gallery_urls}
+        />
 
-              <div
-                className="mt-10 relative z-10"
-                style={{ background: "#ffffff" }}
-              >
-                <InvitationHero
-                  maleName={wedding.male_name}
-                  femaleName={wedding.female_name}
-                />
-              </div>
+        <MessagesSection weddingId={wedding.id} />
 
-              {wedding.organizer && (
-                <ScrollRevealSection direction="left" delay={0.05}>
-                  <OrganizerBlock
-                    organizer={wedding.organizer}
-                    maleParents={(wedding as any).male_parents}
-                    femaleParents={(wedding as any).female_parents}
-                  />
-                </ScrollRevealSection>
-              )}
-            </section>
-
-            {/* ═══════════════════════════════════════════════════
-                SECTION 2: ФОТОЛАР — Photo3 + Gallery
-            ═══════════════════════════════════════════════════ */}
-            <section id="section-photos">
-              {wedding.photo3_url && (
-                <ScrollRevealSection
-                  direction="up"
-                  delay={0}
-                  style={{
-                    overflow: "hidden",
-                    padding: "0 20px",
-                    marginTop: 16,
-                  }}
-                >
-                  <div
-                    style={{
-                      borderRadius: 16,
-                      overflow: "hidden",
-                      border: "0.5px solid rgba(37,43,66,0.2)",
-                      boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
-                    }}
-                  >
-                    <img
-                      src={wedding.photo3_url}
-                      alt="Ер"
-                      className="w-full object-cover"
-                      style={{
-                        display: "block",
-                        border: "none",
-                        maxHeight: 480,
-                        objectPosition: "center top",
-                      }}
-                    />
-                  </div>
-                </ScrollRevealSection>
-              )}
-
-              {!!wedding.gallery_urls?.length && (
-                <ScrollRevealSection
-                  direction="up"
-                  delay={0}
-                  style={{ marginTop: 32 }}
-                >
-                  <p
-                    className="shimmer-gold my-2 flex justify-center w-full"
-                    style={{ fontSize: 15, fontFamily: "'Optima',sans-serif" }}
-                  >
-                    ❤️ Біздің махаббатымыздың естеліктері ❤️
-                  </p>
-                  <SectionHeader>Суреттер жиынтығы</SectionHeader>
-                  <GallerySwiper urls={wedding.gallery_urls} />
-                </ScrollRevealSection>
-              )}
-            </section>
-
-            {/* ═══════════════════════════════════════════════════
-                SECTION 3: МӘЛІМЕТТЕР — Дата/Уақыт/Мекен/Extras
-            ═══════════════════════════════════════════════════ */}
-            <section id="section-details">
-              {date && (
-                <ScrollRevealSection
-                  direction="up"
-                  delay={0}
-                  style={{ textAlign: "center", marginTop: 20 }}
-                >
-                  <FloralDots />
-                  <p
-                    className="fade-up fade-3 mt-3 uppercase"
-                    style={{
-                      fontSize: 14,
-                      letterSpacing: "0.44em",
-                      fontFamily: "'Optima',sans-serif",
-                      color: "rgba(37,43,66,0.90)",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {date}
-                  </p>
-                </ScrollRevealSection>
-              )}
-
-              {wedding.wedding_date && (
-                <ScrollRevealSection
-                  direction="right"
-                  delay={0.05}
-                  style={{ marginTop: 16, padding: "0 20px" }}
-                >
-                  <AnimatedCalendar dateStr={wedding.wedding_date} />
-                </ScrollRevealSection>
-              )}
-
-              <div style={{ padding: "0 32px", marginTop: 24 }}>
-                <GoldDivider />
-              </div>
-
-              <div className="mx-5 mt-10 mb-2">
-                <GoldDivider className="mb-6" />
-                <Card className="p-6 space-y-5">
-                  {(date || time) && (
-                    <ScrollRevealSection direction="up" delay={0}>
-                      <DateTimeBlock date={date} time={time} />
-                    </ScrollRevealSection>
-                  )}
-
-                  {(wedding.venue_name || wedding.venue_address) && (
-                    <ScrollRevealSection
-                      direction="left"
-                      delay={0.1}
-                      style={{
-                        borderTop: "0.5px solid rgba(37,43,66,0.1)",
-                        paddingTop: 20,
-                      }}
-                    >
-                      <div className="text-center">
-                        <Label>Мекен жайымыз</Label>
-                        <FloralDots />
-                        {wedding.venue_name && (
-                          <p
-                            className="font-light italic mt-3"
-                            style={{
-                              fontSize: 28,
-                              wordBreak: "break-word",
-                              color: "#252b42",
-                              lineHeight: 1.35,
-                              letterSpacing: "0.01em",
-                            }}
-                          >
-                            {wedding.venue_name}
-                          </p>
-                        )}
-                        {wedding.venue_address && (
-                          <div className="flex items-start justify-center gap-1.5 mt-2">
-                            <FaMapMarkerAlt
-                              size={11}
-                              style={{
-                                color: "rgba(37,43,66,0.75)",
-                                flexShrink: 0,
-                                marginTop: 3,
-                              }}
-                            />
-                            <p
-                              style={{
-                                fontSize: 18,
-                                fontWeight: 400,
-                                fontFamily: "'Optima',sans-serif",
-                                wordBreak: "break-word",
-                                letterSpacing: "0.04em",
-                                color: "#252b42",
-                                lineHeight: 1.6,
-                              }}
-                            >
-                              {wedding.venue_address}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </ScrollRevealSection>
-                  )}
-
-                  {extras.length > 0 && (
-                    <div
-                      className="border-t pt-5 space-y-4"
-                      style={{ borderColor: "rgba(37,43,66,0.1)" }}
-                    >
-                      {extras.map((e, i) => (
-                        <ScrollRevealSection
-                          key={i}
-                          direction={i % 2 === 0 ? "left" : "right"}
-                          delay={i * 0.08}
-                        >
-                          <div className="flex items-start gap-3">
-                            <FaStar
-                              size={16}
-                              style={{
-                                color: "rgba(37,43,66,0.6)",
-                                flexShrink: 0,
-                                marginTop: 5,
-                              }}
-                            />
-                            <p
-                              className="leading-relaxed"
-                              style={{
-                                fontSize: 20,
-                                fontFamily: "'Optima',sans-serif",
-                                wordBreak: "break-word",
-                                color: "#252b42",
-                                letterSpacing: "0.02em",
-                                lineHeight: 1.65,
-                                fontWeight: 400,
-                              }}
-                            >
-                              {e}
-                            </p>
-                          </div>
-                        </ScrollRevealSection>
-                      ))}
-                    </div>
-                  )}
-                </Card>
-              </div>
-
-              {wedding.photo5_url && (
-                <ScrollRevealSection
-                  direction="up"
-                  delay={0}
-                  style={{ marginTop: 40, overflow: "hidden" }}
-                >
-                  <GoldDivider className="mb-6 mx-8" />
-                  <div
-                    style={{
-                      width: "100%",
-                      overflow: "hidden",
-                      borderTop: "0.5px solid rgba(37,43,66,0.25)",
-                      borderBottom: "0.5px solid rgba(37,43,66,0.25)",
-                      boxShadow: "0 8px 40px rgba(0,0,0,0.09)",
-                    }}
-                  >
-                    <img
-                      src={wedding.photo5_url}
-                      alt="Қосымша сурет"
-                      style={{
-                        display: "block",
-                        width: "100%",
-                        border: "none",
-                        filter: "brightness(0.93) saturate(0.9)",
-                      }}
-                    />
-                  </div>
-                </ScrollRevealSection>
-              )}
-            </section>
-
-            {/* ═══════════════════════════════════════════════════
-                SECTION 4: ТІЛЕКТЕР — RSVP + Messages
-            ═══════════════════════════════════════════════════ */}
-            <section id="section-messages">
-              <ScrollRevealSection direction="up" delay={0}>
-                <RSVPSection
-                  weddingId={wedding.id}
-                  accentColor="#252b42"
-                  lightColor="#eef0f8"
-                />
-                <MessageSection
-                  weddingId={wedding.id}
-                  accentColor="#252b42"
-                  lightColor="#eef0f8"
-                  borderColor="border-amber-100"
-                />
-              </ScrollRevealSection>
-            </section>
-
-            {/* ═══ FOOTER ═══ */}
-            <div
-              className="text-center py-12 mt-4"
-              style={{ position: "relative", overflow: "hidden" }}
-            >
-              <GoldDivider className="mb-5 mx-8" />
-              {[
-                "Біз екеуміз тек екеуміз",
-                "Жүректермен бір екенбіз",
-                "Мен сен үшін сен мен үшін",
-                "Жаралған екенбіз",
-              ].map((line, i) => (
-                <p
-                  key={i}
-                  className={i === 0 ? "mt-4" : "mt-2"}
-                  style={{
-                    fontSize: 16,
-                    fontFamily: "'Optima',sans-serif",
-                    fontStyle: "italic",
-                    color: "#252b42",
-                  }}
-                >
-                  {line}
-                </p>
-              ))}
-              <FloralDots />
-              <p
-                className="shimmer-gold uppercase mt-4"
-                style={{
-                  fontSize: 18,
-                  fontFamily: "'Optima',sans-serif",
-                  letterSpacing: "0.4em",
-                }}
-              >
-                {wedding.male_name} &amp; {wedding.female_name}
-              </p>
-              {date && (
-                <p
-                  className="mt-2"
-                  style={{
-                    fontSize: 18,
-                    fontFamily: "'Optima',sans-serif",
-                    letterSpacing: "0.24em",
-                    color: "rgba(37,43,66,0.75)",
-                  }}
-                >
-                  {date}
-                </p>
-              )}
-              <div style={{ marginTop: 20 }}>
-                <FloralDots />
-              </div>
-              {[...Array(10)].map((_, i) => (
-                <FaHeart
-                  key={i}
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: `${10 + i * 15}%`,
-                    color: "rgba(37,43,66,0.25)",
-                    fontSize: `${12 + Math.random() * 8}px`,
-                    animation: `floatHeart ${4 + i}s linear infinite`,
-                    animationDelay: `${i * 0.8}s`,
-                    pointerEvents: "none",
-                  }}
-                />
-              ))}
-            </div>
-
-            <div
-              style={{
-                height: 4,
-                background:
-                  "linear-gradient(to right,transparent,rgba(37,43,66,0.55),rgba(37,43,66,0.4),rgba(37,43,66,0.55),transparent)",
-              }}
-            />
-            <Template2Music />
-
-            {/* ═══ BOTTOM NAV ═══ */}
-            <SectionNavBar />
-          </div>
-        </>
-      )}
+        <FooterSection
+          maleName={wedding.male_name}
+          femaleName={wedding.female_name}
+        />
+      </div>
     </>
   );
 }

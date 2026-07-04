@@ -1510,79 +1510,6 @@ function RotatingOrnament({
   );
 }
 
-// ─── RsvpWrapper — wraps RSVPSection in Template6's navy/Optima card style ───
-function RsvpWrapper({ weddingId }: { weddingId: string }) {
-  const { ref, visible } = useInView(0.1);
-  return (
-    <div ref={ref} className="mx-5 mt-2 mb-8">
-      <div
-        style={{
-          opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(24px)",
-          transition:
-            "opacity 0.75s cubic-bezier(0.22,1,0.36,1), transform 0.75s cubic-bezier(0.22,1,0.36,1)",
-        }}
-      >
-        <GoldDivider className="mb-6" />
-        <SectionHeader>Қатысуыңызды растаңыз</SectionHeader>
-        <div
-          style={{
-            borderRadius: 20,
-            background: "#ffffff",
-            border: "0.5px solid rgba(0,65,106,0.18)",
-            boxShadow:
-              "0 2px 20px rgba(0,0,0,0.05),0 1px 4px rgba(0,0,0,0.03),inset 0 0 0 1px rgba(255,255,255,0.8)",
-            padding: "26px 22px 24px",
-          }}
-        >
-          <RSVPSection
-            weddingId={weddingId}
-            accentColor="#00416A"
-            lightColor="#eef0f8"
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── WishesWrapper — wraps MessageSection in Template6's navy/Optima card style ───
-function WishesWrapper({ weddingId }: { weddingId: string }) {
-  const { ref, visible } = useInView(0.1);
-  return (
-    <div ref={ref} className="mx-5 mt-2 mb-4">
-      <div
-        style={{
-          opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(24px)",
-          transition:
-            "opacity 0.75s cubic-bezier(0.22,1,0.36,1) 0.1s, transform 0.75s cubic-bezier(0.22,1,0.36,1) 0.1s",
-        }}
-      >
-        <GoldDivider className="mb-6" />
-        <SectionHeader>Тілек-жеделхаттар</SectionHeader>
-        <div
-          style={{
-            borderRadius: 20,
-            background: "#ffffff",
-            border: "0.5px solid rgba(0,65,106,0.18)",
-            boxShadow:
-              "0 2px 20px rgba(0,0,0,0.05),0 1px 4px rgba(0,0,0,0.03),inset 0 0 0 1px rgba(255,255,255,0.8)",
-            padding: "26px 22px 24px",
-          }}
-        >
-          <MessageSection
-            weddingId={weddingId}
-            accentColor="#00416A"
-            lightColor="#eef0f8"
-            borderColor="border-amber-100"
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ─── SECTION NAV (adapted from Template6, navy palette) ───
 const NAV_ITEMS = [
   { id: "section-hero", emoji: "💍", label: "Love" },
@@ -2185,8 +2112,19 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
                 SECTION 4: ТІЛЕКТЕР — RSVP + Messages
             ═══════════════════════════════════════════════════ */}
             <section id="section-messages">
-              <RsvpWrapper weddingId={wedding.id} />
-              <WishesWrapper weddingId={wedding.id} />
+              <ScrollRevealSection direction="up" delay={0}>
+                <RSVPSection
+                  weddingId={wedding.id}
+                  accentColor="#00416A"
+                  lightColor="#eef0f8"
+                />
+                <MessageSection
+                  weddingId={wedding.id}
+                  accentColor="#00416A"
+                  lightColor="#eef0f8"
+                  borderColor="border-amber-100"
+                />
+              </ScrollRevealSection>
             </section>
 
             {/* ═══ FOOTER ═══ */}
