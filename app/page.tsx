@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-
+export const dynamic = "force-dynamic";
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 

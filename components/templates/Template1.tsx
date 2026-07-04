@@ -1367,7 +1367,7 @@ export default function Template1({
     wedding.photo3_url,
     wedding.photo4_url,
   ].filter(Boolean) as string[];
-
+  console.log("🚀wedding", wedding);
   const venuePhoto = wedding.photo5_url || galleryImages[0] || null;
   const isPaymentLocked = String((wedding as any).payment) === "2";
   return (

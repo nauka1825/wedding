@@ -8,12 +8,20 @@ import Template6 from "@/components/templates/Template6";
 import Template7 from "@/components/templates/Template7";
 import Template8 from "@/components/templates/Template8";
 import type { Metadata } from "next";
+import { unstable_noStore as noStore } from "next/cache";
+
+// Route-ийн бүрэн кэшийг унтраана — Full Route Cache болон Data Cache хоёуланд нөлөөлнө
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
 export async function generateMetadata({
   params,
 }: {
   params: { id: string };
 }): Promise<Metadata> {
+  noStore(); // энэ функцийн хүрээнд кэш ашиглахгүй гэдгийг тодорхой зааж байна
+
   const { data: wedding } = await supabase
     .from("weddings")
     .select("*")
@@ -60,6 +68,8 @@ export default async function WeddingDetailPage({
 }: {
   params: { id: string };
 }) {
+  noStore(); // энд ч мөн адил зааж кэшийг унтраана
+
   const { data: wedding, error } = await supabase
     .from("weddings")
     .select("*")
@@ -133,7 +143,6 @@ export default async function WeddingDetailPage({
         >
           Сілтеме қате немесе мазмұн жойылған болуы мүмкін
         </p>
-
         <a
           href="/"
           style={{
