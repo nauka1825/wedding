@@ -1147,7 +1147,7 @@ export default function Template1({
 
   const invitationBody =
     wedding.description2 ||
-    `Сіздерді балаларымыз ${maleName} мен ${femaleName}ның шаңырақ көтеру тойына арналған салтанатты ақ дастарханымыздың қадірлі қонағы болуға шақырамыз.`;
+    `Сіздерді балаларымыз ${maleName} мен ${femaleName}нің шаңырақ көтеру тойына арналған салтанатты ақ дастарханымыздың қадірлі қонағы болуға шақырамыз.`;
 
   const organizerLines = (wedding.organizer || "").split("\n").filter(Boolean);
   const maleParents = organizerLines[0] || DEFAULTS.maleParents;
@@ -1156,9 +1156,6 @@ export default function Template1({
   const venueName = wedding.venue_name || DEFAULTS.venueName;
   const venueAddress = wedding.venue_address || DEFAULTS.venueAddress;
 
-  // Forward-compatible: once lat/lng columns exist on `weddings`
-  // (and fields are added to WeddingForm), they'll flow straight
-  // through here automatically.
   const latitude = (wedding as any).latitude ?? null;
   const longitude = (wedding as any).longitude ?? null;
 
