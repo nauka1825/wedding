@@ -13,24 +13,47 @@ type Message = {
 const HEADLINE = "'Playfair Display', Georgia, serif";
 const BODY = "'Montserrat', sans-serif";
 
-/* ── shared reveal-on-scroll hook (mirrors Template1's useInView) ── */
-function useInView(threshold = 0.15) {
+const AVATAR_PALETTE_ALPHA = ["28", "1f", "24", "1a", "2c"]; // subtle variety for avatar bg
+
+/* ── shared reveal-on-scroll hook, now with a safety fallback ──
+   If the IntersectionObserver never fires (e.g. rendered inside an
+   iframe/preview container with no real scrolling), we force the
+   content visible after a short delay instead of leaving it hidden
+   forever. */
+function useInView(threshold = 0.15, fallbackMs = 900) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    let settled = false;
+    const markVisible = () => {
+      if (settled) return;
+      settled = true;
+      setVisible(true);
+    };
+
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setVisible(true);
+          markVisible();
           obs.disconnect();
         }
       },
       { threshold },
     );
     obs.observe(el);
-    return () => obs.disconnect();
+
+    // Fallback: some hosting contexts (preview iframes, scaled
+    // thumbnails, non-scrolling wrappers) never fire the observer.
+    // Don't let content stay invisible forever because of that.
+    const fallback = setTimeout(markVisible, fallbackMs);
+
+    return () => {
+      obs.disconnect();
+      clearTimeout(fallback);
+    };
   }, []);
   return { ref, visible };
 }
@@ -102,6 +125,7 @@ export default function MessageSection({
   const [sent, setSent] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [fetchError, setFetchError] = useState(false);
   const sliderRef = useRef<NodeJS.Timeout | null>(null);
 
   const { ref: headerRef, visible: headerVisible } = useInView(0.3);
@@ -116,18 +140,24 @@ export default function MessageSection({
     if (messages.length <= 1) return;
     sliderRef.current = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % Math.min(messages.length, 5));
-    }, 3200);
+    }, 3800);
     return () => {
       if (sliderRef.current) clearInterval(sliderRef.current);
     };
   }, [messages]);
 
   async function fetchMessages() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("wedding_messages")
       .select("*")
       .eq("wedding_id", weddingId)
       .order("created_at", { ascending: false });
+    if (error) {
+      console.error("wedding_messages fetch error:", error);
+      setFetchError(true);
+      return;
+    }
+    setFetchError(false);
     if (data) setMessages(data);
   }
 
@@ -146,12 +176,21 @@ export default function MessageSection({
       setTimeout(() => setSent(false), 3000);
       await fetchMessages();
       setCurrentSlide(0);
+    } else {
+      console.error("wedding_messages insert error:", error);
     }
     setLoading(false);
   }
 
   const top5 = messages.slice(0, 5);
   const disabled = loading || !name.trim() || !text.trim();
+  console.log("🚀top5", top5);
+  function avatarShade(nameStr: string) {
+    let h = 0;
+    for (let i = 0; i < nameStr.length; i++)
+      h = (h * 31 + nameStr.charCodeAt(i)) % AVATAR_PALETTE_ALPHA.length;
+    return AVATAR_PALETTE_ALPHA[h];
+  }
 
   return (
     <div style={{ position: "relative", fontFamily: BODY }}>
@@ -215,7 +254,6 @@ export default function MessageSection({
           ref={sliderWrapRef}
           className="mb-7"
           style={{
-            opacity: sliderVisible ? 1 : 0,
             transform: sliderVisible
               ? "translateY(0) scale(1)"
               : "translateY(18px) scale(0.98)",
@@ -226,13 +264,13 @@ export default function MessageSection({
           <div
             className="relative overflow-hidden"
             style={{
-              background: `${lightColor}99`,
+              background: `linear-gradient(160deg, ${lightColor}c9, ${lightColor}88)`,
               backdropFilter: "blur(20px)",
               WebkitBackdropFilter: "blur(20px)",
               border: `1px solid ${accentColor}22`,
-              borderRadius: 20,
-              boxShadow: `0 10px 32px ${accentColor}1f`,
-              padding: "32px 8px 16px",
+              borderRadius: 22,
+              boxShadow: `0 14px 36px ${accentColor}22, inset 0 1px 0 #ffffff55`,
+              padding: "34px 8px 18px",
             }}
           >
             <div
@@ -240,6 +278,25 @@ export default function MessageSection({
               style={{ opacity: 0.1 }}
             >
               <Icon name="format_quote" size={56} color={accentColor} />
+            </div>
+
+            {/* message counter badge */}
+            <div
+              className="absolute top-3 left-4 flex items-center gap-1.5"
+              style={{
+                fontFamily: BODY,
+                fontSize: 10,
+                letterSpacing: "0.14em",
+                color: `${accentColor}90`,
+              }}
+            >
+              <Icon
+                name="favorite"
+                size={11}
+                filled
+                color={`${accentColor}80`}
+              />
+              {messages.length}
             </div>
 
             <div
@@ -301,7 +358,7 @@ export default function MessageSection({
                     aria-label={`Тілек ${i + 1}`}
                     className="rounded-full transition-all duration-300"
                     style={{
-                      width: currentSlide === i ? 18 : 6,
+                      width: currentSlide === i ? 20 : 6,
                       height: 6,
                       background: accentColor,
                       opacity: currentSlide === i ? 0.9 : 0.22,
@@ -313,6 +370,37 @@ export default function MessageSection({
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* ── Empty state (no messages yet) ── */}
+      {top5.length === 0 && !fetchError && (
+        <div
+          className="mb-7 text-center"
+          style={{
+            padding: "26px 20px",
+            borderRadius: 20,
+            border: `1px dashed ${accentColor}35`,
+            background: `${lightColor}60`,
+          }}
+        >
+          <Icon
+            name="favorite_border"
+            size={22}
+            color={accentColor}
+            style={{ opacity: 0.6 }}
+          />
+          <p
+            style={{
+              fontFamily: HEADLINE,
+              fontStyle: "italic",
+              fontSize: 15,
+              color: `${accentColor}b0`,
+              marginTop: 8,
+            }}
+          >
+            Алғашқы тілекті сіз қалдырыңыз
+          </p>
         </div>
       )}
 
@@ -388,22 +476,34 @@ export default function MessageSection({
           </div>
 
           <div className="relative group">
-            <label
-              style={{
-                fontFamily: BODY,
-                fontSize: 10,
-                letterSpacing: "0.2em",
-                textTransform: "uppercase",
-                color: `${accentColor}99`,
-                display: "block",
-                marginBottom: 4,
-              }}
+            <div
+              className="flex items-center justify-between"
+              style={{ marginBottom: 4 }}
             >
-              Тілегіңіз
-            </label>
+              <label
+                style={{
+                  fontFamily: BODY,
+                  fontSize: 10,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  color: `${accentColor}99`,
+                }}
+              >
+                Тілегіңіз
+              </label>
+              <span
+                style={{
+                  fontFamily: BODY,
+                  fontSize: 10,
+                  color: `${accentColor}60`,
+                }}
+              >
+                {text.length}/500
+              </span>
+            </div>
             <textarea
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => setText(e.target.value.slice(0, 500))}
               placeholder="Жас жұпқа жылы тілектеріңізді жазыңыз..."
               rows={3}
               style={{
@@ -524,7 +624,7 @@ export default function MessageSection({
                         width: 34,
                         height: 34,
                         borderRadius: "50%",
-                        background: `${accentColor}18`,
+                        background: `${accentColor}${avatarShade(m.sender_name)}`,
                         color: accentColor,
                         display: "flex",
                         alignItems: "center",
