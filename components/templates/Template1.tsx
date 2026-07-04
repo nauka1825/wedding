@@ -42,8 +42,8 @@ const DEFAULTS = {
   invitationHeadline: "Құрметті ағайын-туыс, бауырлар, дос-жарандар!",
   maleParents: "Болат & Сәуле",
   femaleParents: "Қайрат & Гүлнар",
-  venueName: `"Royal Tulip" Ballroom`,
-  venueAddress: "Достық даңғылы, 401, Алматы қаласы",
+  venueName: `"Sky" palace`,
+  venueAddress: "Баян-Өлгий,",
 };
 
 const KAZ_MONTHS = [
@@ -200,10 +200,6 @@ function formatTime(iso: string) {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-/* ======================================================================
-   Floating particle hero background — recreated from the HTML's
-   petal/heart/leaf/sparkle rain script
-   ====================================================================== */
 function FloatingPetals() {
   const [petals, setPetals] = useState<
     {
@@ -267,9 +263,6 @@ function FloatingPetals() {
   );
 }
 
-/* ======================================================================
-   Analog clock — recolored to the new palette
-   ====================================================================== */
 function AnalogClock({ time }: { time: string }) {
   const [h, m] = time.split(":").map(Number);
   const [sec, setSec] = useState(0);
