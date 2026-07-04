@@ -1,24 +1,41 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaPlay, FaPause } from "react-icons/fa";
 
-export default function MusicMan() {
+export default function Template2Music() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
 
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (!audio) return;
+
+    audio
+      .play()
+      .then(() => {
+        setPlaying(true);
+      })
+      .catch(() => {
+        console.log("Autoplay blocked");
+      });
+  }, []);
+
   const toggle = () => {
-    if (!audioRef.current) return;
+    const audio = audioRef.current;
 
-    if (playing) {
-      audioRef.current.pause();
+    if (!audio) return;
+
+    if (audio.paused) {
+      audio.play();
+      setPlaying(true);
     } else {
-      audioRef.current.play();
+      audio.pause();
+      setPlaying(false);
     }
-
-    setPlaying(!playing);
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50">
+    <div className="fixed bottom-20 right-5 z-50">
       <button
         onClick={toggle}
         className="bg-white shadow-lg rounded-full p-4 text-sky-600"
