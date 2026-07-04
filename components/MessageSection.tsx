@@ -10,10 +10,84 @@ type Message = {
   created_at: string;
 };
 
+const HEADLINE = "'Playfair Display', Georgia, serif";
+const BODY = "'Montserrat', sans-serif";
+
+/* ── shared reveal-on-scroll hook (mirrors Template1's useInView) ── */
+function useInView(threshold = 0.15) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          obs.disconnect();
+        }
+      },
+      { threshold },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return { ref, visible };
+}
+
+/* Material Symbols icon helper — same pattern used across the site */
+function Icon({
+  name,
+  size = 18,
+  filled = false,
+  color,
+  style = {},
+}: {
+  name: string;
+  size?: number;
+  filled?: boolean;
+  color?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <span
+      className="material-symbols-outlined"
+      style={{
+        fontSize: size,
+        lineHeight: 1,
+        color,
+        fontVariationSettings: filled
+          ? "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24"
+          : "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24",
+        ...style,
+      }}
+    >
+      {name}
+    </span>
+  );
+}
+
+function GlobalFonts() {
+  return (
+    <style jsx global>{`
+      @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 300,
+          "GRAD" 0,
+          "opsz" 24;
+        vertical-align: middle;
+      }
+    `}</style>
+  );
+}
+
 export default function MessageSection({
   weddingId,
-  accentColor = "#7B3F5E",
-  lightColor = "#FDF6F0",
+  accentColor = "#602846",
+  lightColor = "#fdf6f0",
   borderColor = "border-rose-100",
 }: {
   weddingId: string;
@@ -29,6 +103,10 @@ export default function MessageSection({
   const [showAll, setShowAll] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderRef = useRef<NodeJS.Timeout | null>(null);
+
+  const { ref: headerRef, visible: headerVisible } = useInView(0.3);
+  const { ref: sliderWrapRef, visible: sliderVisible } = useInView(0.2);
+  const { ref: formRef, visible: formVisible } = useInView(0.15);
 
   useEffect(() => {
     fetchMessages();
@@ -73,115 +151,141 @@ export default function MessageSection({
   }
 
   const top5 = messages.slice(0, 5);
+  const disabled = loading || !name.trim() || !text.trim();
 
   return (
-    <div className="mx-5 mt-10 mb-2">
-      {/* ── Section header ── */}
-      <div className="flex items-center gap-3 mb-6">
+    <div style={{ position: "relative", fontFamily: BODY }}>
+      <GlobalFonts />
+
+      {/* ── Section eyebrow ── */}
+      <div
+        ref={headerRef}
+        className="flex items-center justify-center gap-3 mb-7"
+        style={{
+          opacity: headerVisible ? 1 : 0,
+          transform: headerVisible ? "translateY(0)" : "translateY(14px)",
+          transition: "opacity 0.7s ease, transform 0.7s ease",
+        }}
+      >
         <div
           className="h-px flex-1"
           style={{
-            background: `linear-gradient(to right, transparent, ${accentColor}40)`,
+            background: `linear-gradient(to right, transparent, ${accentColor}45)`,
           }}
         />
-        <div className="flex items-center gap-2">
-          <svg
-            width="13"
-            height="13"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke={accentColor}
-            strokeWidth="1.5"
-            opacity="0.6"
-          >
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-          <p
-            style={{
-              fontFamily: "'Cinzel', serif",
-              fontSize: 12,
-              letterSpacing: "0.38em",
-              textTransform: "uppercase",
-              color: accentColor,
-              opacity: 1,
-              fontWeight: 500,
-              margin: 0,
-            }}
-          >
-            Тілек қалдыру
-          </p>
-        </div>
+        <Icon
+          name="favorite"
+          size={16}
+          filled
+          color={accentColor}
+          style={{ opacity: 0.55 }}
+        />
+        <p
+          style={{
+            fontFamily: BODY,
+            fontSize: 11,
+            letterSpacing: "0.28em",
+            textTransform: "uppercase",
+            color: accentColor,
+            fontWeight: 600,
+            margin: 0,
+            whiteSpace: "nowrap",
+          }}
+        >
+          Тілек қалдыру
+        </p>
+        <Icon
+          name="favorite"
+          size={16}
+          filled
+          color={accentColor}
+          style={{ opacity: 0.55 }}
+        />
         <div
           className="h-px flex-1"
           style={{
-            background: `linear-gradient(to left, transparent, ${accentColor}40)`,
+            background: `linear-gradient(to left, transparent, ${accentColor}45)`,
           }}
         />
       </div>
 
-      {/* ── Message slider ── */}
+      {/* ── Quote slider ── */}
       {top5.length > 0 && (
-        <div className="mb-5">
+        <div
+          ref={sliderWrapRef}
+          className="mb-7"
+          style={{
+            opacity: sliderVisible ? 1 : 0,
+            transform: sliderVisible
+              ? "translateY(0) scale(1)"
+              : "translateY(18px) scale(0.98)",
+            transition:
+              "opacity 0.75s cubic-bezier(0.22,1,0.36,1), transform 0.75s cubic-bezier(0.22,1,0.36,1)",
+          }}
+        >
           <div
-            className="relative overflow-hidden rounded-2xl border"
+            className="relative overflow-hidden"
             style={{
-              background: lightColor,
-              borderColor: `${accentColor}18`,
-              boxShadow: `0 4px 24px ${accentColor}0D`,
+              background: `${lightColor}99`,
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              border: `1px solid ${accentColor}22`,
+              borderRadius: 20,
+              boxShadow: `0 10px 32px ${accentColor}1f`,
+              padding: "32px 8px 16px",
             }}
           >
             <div
-              className="flex transition-transform duration-600 ease-in-out"
+              className="absolute top-0 right-0 p-4"
+              style={{ opacity: 0.1 }}
+            >
+              <Icon name="format_quote" size={56} color={accentColor} />
+            </div>
+
+            <div
+              className="flex transition-transform duration-700 ease-in-out"
               style={{ transform: `translateX(-${currentSlide * 100}%)` }}
             >
               {top5.map((m) => (
-                <div key={m.id} className="min-w-full px-6 py-5 text-center">
-                  {/* Quote icon */}
-                  <div className="flex justify-center mb-2">
-                    <svg width="22" height="16" viewBox="0 0 40 28" fill="none">
-                      <path
-                        d="M0 28V16C0 9.333 2.667 4.333 8 1L11 4C8.667 5.333 7 7.333 6 10H12V28H0ZM22 28V16C22 9.333 24.667 4.333 30 1L33 4C30.667 5.333 29 7.333 28 10H34V28H22Z"
-                        fill={accentColor}
-                        opacity="0.15"
-                      />
-                    </svg>
-                  </div>
-                  {/* Message text */}
+                <div key={m.id} className="min-w-full px-7 text-center">
                   <p
                     style={{
-                      fontFamily: "'Cormorant Garamond', Georgia, serif",
-                      fontSize: 19,
-                      lineHeight: 1.7,
+                      fontFamily: HEADLINE,
                       fontStyle: "italic",
+                      fontSize: 21,
+                      lineHeight: 1.65,
                       color: accentColor,
-                      opacity: 1,
-                      marginBottom: 14,
+                      marginBottom: 16,
+                      wordBreak: "break-word",
                     }}
                   >
-                    {m.message}
+                    “{m.message}”
                   </p>
-                  {/* Sender */}
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="flex items-center justify-center gap-3">
                     <div
-                      className="w-5 h-px"
-                      style={{ background: accentColor, opacity: 1 }}
+                      className="h-px w-6"
+                      style={{
+                        background: `linear-gradient(to right, transparent, ${accentColor})`,
+                      }}
                     />
                     <p
                       style={{
-                        fontFamily: "'Cinzel', serif",
+                        fontFamily: BODY,
                         fontSize: 11,
-                        letterSpacing: "0.3em",
+                        letterSpacing: "0.28em",
                         textTransform: "uppercase",
+                        fontWeight: 600,
                         color: accentColor,
-                        opacity: 1,
                         margin: 0,
                       }}
                     >
                       {m.sender_name}
                     </p>
                     <div
-                      className="w-5 h-px"
-                      style={{ background: accentColor, opacity: 1 }}
+                      className="h-px w-6"
+                      style={{
+                        background: `linear-gradient(to left, transparent, ${accentColor})`,
+                      }}
                     />
                   </div>
                 </div>
@@ -189,17 +293,20 @@ export default function MessageSection({
             </div>
 
             {top5.length > 1 && (
-              <div className="flex justify-center gap-1.5 pb-3">
+              <div className="flex justify-center gap-1.5 pt-6">
                 {top5.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => setCurrentSlide(i)}
+                    aria-label={`Тілек ${i + 1}`}
                     className="rounded-full transition-all duration-300"
                     style={{
-                      width: currentSlide === i ? 18 : 5,
-                      height: 5,
+                      width: currentSlide === i ? 18 : 6,
+                      height: 6,
                       background: accentColor,
-                      opacity: currentSlide === i ? 0.8 : 0.2,
+                      opacity: currentSlide === i ? 0.9 : 0.22,
+                      border: "none",
+                      cursor: "pointer",
                     }}
                   />
                 ))}
@@ -209,37 +316,32 @@ export default function MessageSection({
         </div>
       )}
 
-      {/* ── Write form ── */}
+      {/* ── Write form — underline inputs, matching the site's premium form style ── */}
       <div
-        className="rounded-2xl p-5 border space-y-3"
+        ref={formRef}
         style={{
-          background: "rgba(255,255,255,0.97)",
+          background: `${lightColor}80`,
           backdropFilter: "blur(14px)",
-          borderColor: `${accentColor}18`,
-          boxShadow: `0 4px 20px ${accentColor}08`,
+          WebkitBackdropFilter: "blur(14px)",
+          border: `1px solid ${accentColor}22`,
+          borderRadius: 20,
+          padding: 28,
+          opacity: formVisible ? 1 : 0,
+          transform: formVisible ? "translateY(0)" : "translateY(20px)",
+          transition:
+            "opacity 0.75s cubic-bezier(0.22,1,0.36,1) 0.1s, transform 0.75s cubic-bezier(0.22,1,0.36,1) 0.1s",
         }}
       >
-        {/* Form label */}
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke={accentColor}
-            strokeWidth="1.5"
-            opacity="0.55"
-          >
-            <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-          </svg>
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <Icon name="edit_note" size={18} color={accentColor} />
           <p
             style={{
-              fontFamily: "'Cinzel', serif",
+              fontFamily: BODY,
               fontSize: 11,
-              letterSpacing: "0.35em",
+              letterSpacing: "0.28em",
               textTransform: "uppercase",
+              fontWeight: 600,
               color: accentColor,
-              opacity: 1,
               margin: 0,
             }}
           >
@@ -247,246 +349,234 @@ export default function MessageSection({
           </p>
         </div>
 
-        {/* Name input */}
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Сіздің атыңыз"
-          style={{
-            width: "100%",
-            borderRadius: 14,
-            padding: "11px 16px",
-            fontSize: 16,
-            fontFamily: "'Cinzel', serif",
-            letterSpacing: "0.04em",
-            color: "#3d3020",
-            border: `1px solid ${accentColor}25`,
-            background: "rgba(255,255,255,0.85)",
-            outline: "none",
-            transition: "border-color 0.2s",
-          }}
-          onFocus={(e) => (e.target.style.borderColor = `${accentColor}60`)}
-          onBlur={(e) => (e.target.style.borderColor = `${accentColor}25`)}
-        />
+        <div className="space-y-7">
+          <div className="relative group">
+            <label
+              style={{
+                fontFamily: BODY,
+                fontSize: 10,
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                color: `${accentColor}99`,
+                display: "block",
+                marginBottom: 4,
+              }}
+            >
+              Есіміңіз
+            </label>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Сіздің есіміңіз..."
+              style={{
+                width: "100%",
+                background: "transparent",
+                border: "none",
+                borderBottom: `1px solid ${accentColor}30`,
+                padding: "8px 0",
+                fontFamily: BODY,
+                fontSize: 15,
+                color: "#1e1b18",
+                outline: "none",
+                transition: "border-color 0.2s",
+              }}
+              onFocus={(e) => (e.target.style.borderBottomColor = accentColor)}
+              onBlur={(e) =>
+                (e.target.style.borderBottomColor = `${accentColor}30`)
+              }
+            />
+          </div>
 
-        {/* Message textarea */}
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Жас жұпқа жылы тілектеріңізді жазыңыз..."
-          rows={3}
-          style={{
-            width: "100%",
-            borderRadius: 14,
-            padding: "11px 16px",
-            fontSize: 17,
-            fontFamily: "'Cormorant Garamond', Georgia, serif",
-            fontStyle: "italic",
-            lineHeight: 1.65,
-            color: "#3d3020",
-            border: `1px solid ${accentColor}25`,
-            background: "rgba(255,255,255,0.85)",
-            outline: "none",
-            resize: "none",
-            transition: "border-color 0.2s",
-          }}
-          onFocus={(e) => (e.target.style.borderColor = `${accentColor}60`)}
-          onBlur={(e) => (e.target.style.borderColor = `${accentColor}25`)}
-        />
+          <div className="relative group">
+            <label
+              style={{
+                fontFamily: BODY,
+                fontSize: 10,
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                color: `${accentColor}99`,
+                display: "block",
+                marginBottom: 4,
+              }}
+            >
+              Тілегіңіз
+            </label>
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Жас жұпқа жылы тілектеріңізді жазыңыз..."
+              rows={3}
+              style={{
+                width: "100%",
+                background: "transparent",
+                border: "none",
+                borderBottom: `1px solid ${accentColor}30`,
+                padding: "8px 0",
+                fontFamily: HEADLINE,
+                fontStyle: "italic",
+                fontSize: 16,
+                lineHeight: 1.6,
+                color: "#1e1b18",
+                outline: "none",
+                resize: "none",
+                transition: "border-color 0.2s",
+              }}
+              onFocus={(e) => (e.target.style.borderBottomColor = accentColor)}
+              onBlur={(e) =>
+                (e.target.style.borderBottomColor = `${accentColor}30`)
+              }
+            />
+          </div>
+        </div>
 
-        {/* Submit button */}
         <button
           onClick={handleSubmit}
-          disabled={loading || !name.trim() || !text.trim()}
+          disabled={disabled}
+          className="w-full flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
           style={{
-            width: "100%",
-            padding: "13px 0",
-            borderRadius: 14,
-            background: `linear-gradient(135deg, ${accentColor}, ${accentColor}CC)`,
+            marginTop: 24,
+            padding: "14px 0",
+            borderRadius: 999,
+            background: accentColor,
             color: "#fff",
-            fontFamily: "'Cinzel', serif",
+            fontFamily: BODY,
             fontSize: 12,
-            letterSpacing: "0.3em",
+            letterSpacing: "0.2em",
+            fontWeight: 600,
             textTransform: "uppercase",
             border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-            opacity: loading || !name.trim() || !text.trim() ? 0.35 : 1,
-            transition: "opacity 0.2s, transform 0.1s",
+            cursor: disabled ? "not-allowed" : "pointer",
+            opacity: disabled ? 0.4 : 1,
+            boxShadow: `0 10px 25px -8px ${accentColor}88`,
           }}
         >
           {sent ? (
             <>
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                strokeWidth="2"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
+              <Icon name="check_circle" size={16} filled color="#fff" />
               Жіберілді!
             </>
           ) : loading ? (
             <>
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                strokeWidth="2"
-                style={{ animation: "msg-spin 1s linear infinite" }}
-              >
-                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-              </svg>
+              <Icon
+                name="progress_activity"
+                size={16}
+                color="#fff"
+                style={{ animation: "msg-spin-t1 1s linear infinite" }}
+              />
               Жіберілуде...
             </>
           ) : (
             <>
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                strokeWidth="1.8"
-              >
-                <line x1="22" y1="2" x2="11" y2="13" />
-                <polygon points="22 2 15 22 11 13 2 9 22 2" />
-              </svg>
+              <Icon name="send" size={16} color="#fff" />
               Жіберу
             </>
           )}
         </button>
       </div>
 
-      {/* ── All messages toggle ── */}
+      {/* ── All messages toggle + feed ── */}
       {messages.length > 0 && (
-        <div className="mt-4">
+        <div className="mt-6 text-center">
           <button
             onClick={() => setShowAll(!showAll)}
+            className="inline-flex items-center gap-3 transition-opacity hover:opacity-70 group"
             style={{
-              width: "100%",
-              padding: "12px 0",
-              borderRadius: 14,
-              border: `1px solid ${accentColor}28`,
-              color: accentColor,
-              background: "rgba(255,255,255,0.9)",
-              fontFamily: "'Cinzel', serif",
-              fontSize: 11,
-              letterSpacing: "0.3em",
-              textTransform: "uppercase",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
+              background: "none",
+              border: "none",
               cursor: "pointer",
-              transition: "opacity 0.2s",
+              color: accentColor,
+              fontFamily: BODY,
+              fontSize: 11,
+              letterSpacing: "0.24em",
+              textTransform: "uppercase",
+              fontWeight: 600,
             }}
           >
-            <svg
-              width="11"
-              height="11"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke={accentColor}
-              strokeWidth="2"
-              style={{
-                transform: showAll ? "rotate(180deg)" : "rotate(0deg)",
-                transition: "transform 0.3s",
-              }}
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-            {showAll ? "Жасыру" : `Барлық тілектер (${messages.length})`}
+            <span
+              className="h-px w-6"
+              style={{ background: `${accentColor}50` }}
+            />
+            {showAll ? "Жасыру" : `Барлық тілектерді көру (${messages.length})`}
+            <span
+              className="h-px w-6"
+              style={{ background: `${accentColor}50` }}
+            />
           </button>
 
           {showAll && (
-            <div className="mt-3 space-y-2">
+            <div className="mt-5 space-y-4 text-left">
               {messages.map((m, idx) => (
                 <div
                   key={m.id}
                   style={{
-                    borderRadius: 14,
-                    padding: "14px 16px",
-                    border: `1px solid ${accentColor}15`,
-                    background: "rgba(255,255,255,0.97)",
-                    animation: `msg-fadeIn 0.4s ease ${idx * 40}ms both`,
+                    background: `${lightColor}80`,
+                    backdropFilter: "blur(14px)",
+                    WebkitBackdropFilter: "blur(14px)",
+                    border: `1px solid ${accentColor}18`,
+                    borderRadius: 18,
+                    padding: "18px 20px",
+                    animation: `msg-fadeIn-t1 0.45s ease ${idx * 45}ms both`,
                   }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      marginBottom: 8,
-                    }}
-                  >
+                  <div className="flex items-center gap-3 mb-3">
                     <div
-                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                      style={{
+                        width: 34,
+                        height: 34,
+                        borderRadius: "50%",
+                        background: `${accentColor}18`,
+                        color: accentColor,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontFamily: HEADLINE,
+                        fontWeight: 700,
+                        fontSize: 15,
+                        flexShrink: 0,
+                      }}
                     >
-                      {/* Avatar */}
-                      <div
-                        style={{
-                          width: 26,
-                          height: 26,
-                          borderRadius: "50%",
-                          background: `${accentColor}15`,
-                          color: accentColor,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontFamily: "'Cinzel', serif",
-                          fontSize: 13,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {m.sender_name.charAt(0).toUpperCase()}
-                      </div>
+                      {m.sender_name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
                       <p
                         style={{
-                          fontFamily: "'Cinzel', serif",
+                          fontFamily: BODY,
                           fontSize: 12,
-                          letterSpacing: "0.1em",
                           fontWeight: 600,
+                          letterSpacing: "0.05em",
                           color: accentColor,
                           margin: 0,
                         }}
                       >
                         {m.sender_name}
                       </p>
+                      <p
+                        style={{
+                          fontFamily: BODY,
+                          fontSize: 10.5,
+                          color: `${accentColor}80`,
+                          margin: 0,
+                        }}
+                      >
+                        {new Date(m.created_at).toLocaleDateString("kk-KZ", {
+                          day: "numeric",
+                          month: "short",
+                        })}
+                      </p>
                     </div>
-                    <p
-                      style={{
-                        fontFamily: "'Cinzel', serif",
-                        fontSize: 11,
-                        color: accentColor,
-                        margin: 0,
-                      }}
-                    >
-                      {new Date(m.created_at).toLocaleDateString("kk-KZ", {
-                        day: "numeric",
-                        month: "short",
-                      })}
-                    </p>
                   </div>
                   <p
                     style={{
-                      fontFamily: "'Cormorant Garamond', Georgia, serif",
-                      fontSize: 17,
-                      lineHeight: 1.65,
+                      fontFamily: HEADLINE,
                       fontStyle: "italic",
-                      color: accentColor,
+                      fontSize: 16,
+                      lineHeight: 1.6,
+                      color: "#3d3438",
                       margin: 0,
+                      wordBreak: "break-word",
                     }}
                   >
-                    {m.message}
+                    “{m.message}”
                   </p>
                 </div>
               ))}
@@ -496,14 +586,8 @@ export default function MessageSection({
       )}
 
       <style>{`
-        @keyframes msg-fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes msg-spin {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(360deg); }
-        }
+        @keyframes msg-fadeIn-t1 { from { opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+        @keyframes msg-spin-t1 { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
       `}</style>
     </div>
   );

@@ -1,23 +1,7 @@
 "use client";
 import { useState, ChangeEvent } from "react";
-import {
-  HiOutlineSparkles,
-  HiOutlineHeart,
-  HiOutlineCamera,
-  HiOutlinePhotograph,
-  HiOutlineUsers,
-  HiOutlineChatAlt2,
-  HiOutlineLocationMarker,
-  HiOutlineCalendar,
-  HiOutlineClock,
-  HiOutlinePhone,
-  HiOutlineInformationCircle,
-  HiOutlineLink,
-  HiOutlineUserGroup,
-  HiOutlineCheckCircle,
-  HiOutlineX,
-} from "react-icons/hi";
 import { supabase, uploadImage, Template, Wedding } from "@/lib/supabase";
+import GoogleMapEmbed from "./GoogleMapEmbed";
 import Template1 from "./templates/Template1";
 import Template2 from "./templates/Template2";
 import Template3 from "./templates/Template3";
@@ -27,54 +11,86 @@ import Template6 from "./templates/Template6";
 import Template7 from "./templates/Template7";
 import Template8 from "./templates/Template8";
 
+/* ---------------------------------------------------------------------- */
+/*  Material Symbols icon helper — matches the reference HTML exactly     */
+/* ---------------------------------------------------------------------- */
+function Icon({
+  name,
+  className = "",
+  filled = false,
+}: {
+  name: string;
+  className?: string;
+  filled?: boolean;
+}) {
+  return (
+    <span
+      className={`material-symbols-outlined ${className}`}
+      style={
+        filled
+          ? {
+              fontVariationSettings:
+                "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24",
+            }
+          : undefined
+      }
+    >
+      {name}
+    </span>
+  );
+}
+
 const TEMPLATES: {
   id: Template;
   name: string;
   desc: string;
-  preview: string;
-  accent: string;
+  swatch: string;
 }[] = [
   {
     id: "romantic",
     name: "Romantic",
     desc: "Ақ · Қызғылт · Гүлді",
-    preview: "bg-gradient-to-br from-rose-100 to-pink-200",
-    accent: "border-rose-400 ring-rose-200",
+    swatch: "bg-gradient-to-br from-rose-100 via-pink-200 to-rose-300",
   },
   {
-    id: "luxury",
-    name: "Luxury",
-    desc: "Ақ · Алтын · Сәнді",
-    preview: "bg-gradient-to-br from-amber-50 to-yellow-100",
-    accent: "border-amber-500 ring-amber-200",
+    id: "blush",
+    name: "Blush",
+    desc: "Тас · Жасыл · Табиғат",
+    swatch: "bg-gradient-to-br from-stone-200 to-emerald-100",
   },
-  // {
-  //   id: "bohemian",
-  //   name: "Bohemian",
-  //   desc: "Тас · Жасыл · Табиғат",
-  //   preview: "bg-gradient-to-br from-stone-200 to-emerald-100",
-  //   accent: "border-emerald-500 ring-emerald-200",
-  // },
 ];
 
 const INPUT =
-  "w-full border border-sky-200/60 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 bg-white/70 backdrop-blur-sm transition-all placeholder:text-slate-300 text-slate-700 font-[Josefin_Sans,sans-serif]";
+  "w-full bg-white/50 border border-sky-accent/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-sky-accent focus:ring-2 focus:ring-sky-accent/15 backdrop-blur-sm transition-all placeholder:text-slate-300 text-on-surface";
 
 const LABEL =
-  "block text-[10px] text-sky-500 font-[Josefin_Sans,sans-serif] uppercase tracking-widest mb-1.5 font-semibold";
+  "text-[11px] uppercase tracking-widest text-slate-400 font-semibold ml-1 mb-1.5 block";
 
-const SECTION =
-  "bg-white/60 backdrop-blur-md rounded-3xl p-5 border border-sky-100/70 shadow-sm shadow-sky-100/30 space-y-4";
+const SECTION = "glass-card rounded-2xl p-6 space-y-5";
 
-const SECTION_TITLE =
-  "text-[11px] text-sky-600 font-[Josefin_Sans,sans-serif] uppercase tracking-widest font-semibold mb-0";
+const SECTION_HEADER =
+  "flex items-center gap-2 border-b border-sky-accent/10 pb-3";
 
-const EMPTY_WEDDING: Omit<Wedding, "id" | "created_at"> = {
+const SECTION_TITLE = "text-lg font-semibold text-slate-700";
+
+// NOTE: `latitude` / `longitude` are added here via an intersection type so
+// this compiles whether or not `Wedding` in "@/lib/supabase" has been
+// updated yet. Once you add the two columns there (see migration notes
+// below), you can drop the `& { latitude...}` part and just add the two
+// fields directly to the `Wedding` interface.
+type WeddingWithCoords = Omit<Wedding, "id" | "created_at"> & {
+  latitude: number | null;
+  longitude: number | null;
+};
+
+const EMPTY_WEDDING: WeddingWithCoords = {
   male_name: "",
   female_name: "",
   wedding_date: null,
   venue_name: null,
   venue_address: null,
+  latitude: null,
+  longitude: null,
   organizer: null,
   phone: null,
   template: "romantic",
@@ -94,58 +110,107 @@ const EMPTY_WEDDING: Omit<Wedding, "id" | "created_at"> = {
   extra5: null,
 };
 
+function GlobalFonts() {
+  return (
+    <style jsx global>{`
+      @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=EB+Garamond:wght@400;500&family=Montserrat:wght@400;500;600&family=Josefin+Sans:wght@300;400;600&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
+
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 300,
+          "GRAD" 0,
+          "opsz" 24;
+        vertical-align: middle;
+      }
+      .font-josefin {
+        font-family: "Josefin Sans", sans-serif;
+      }
+      .font-headline {
+        font-family: "Playfair Display", serif;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.45);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(14, 165, 233, 0.1);
+      }
+      .text-sky-accent {
+        color: #0ea5e9;
+      }
+      .bg-sky-accent {
+        background-color: #0ea5e9;
+      }
+      .border-sky-accent {
+        border-color: #0ea5e9;
+      }
+      .ring-sky-accent {
+        --tw-ring-color: #0ea5e9;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        height: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #0ea5e9;
+        border-radius: 10px;
+      }
+    `}</style>
+  );
+}
+
 function SuccessModal({ onClose }: { onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pb-6 sm:pb-0">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-6 font-josefin">
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
-        <div className="h-1.5 w-full bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500" />
-        <div className="px-6 pt-8 pb-6 text-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-sky-100 to-blue-100 border border-sky-200/60 flex items-center justify-center mx-auto mb-5">
-            <span className="text-3xl">🎉</span>
-          </div>
-          <h2 className="text-lg font-[Josefin_Sans,sans-serif] font-semibold text-slate-800 tracking-wide mb-2">
-            Өтінішіңіз қабылданды!
-          </h2>
-          <p className="text-sm text-slate-500 font-[Josefin_Sans,sans-serif] leading-relaxed mb-1">
-            Сіздің тойыңыздың мәліметтері сәтті тіркелді.
-          </p>
-          <p className="text-sm text-slate-500 font-[Josefin_Sans,sans-serif] leading-relaxed mb-6">
-            Бізбен байланысып,{" "}
-            <span className="text-sky-600 font-semibold">төлемді төлеп</span>,
-            сілтемеңізді алыңыз! 🔗
-          </p>
-          <div className="bg-sky-50/80 border border-sky-100 rounded-2xl px-4 py-3 mb-6 text-left space-y-2">
-            <p className="text-[10px] text-sky-500 font-[Josefin_Sans,sans-serif] uppercase tracking-widest font-semibold mb-2">
-              Байланыс
-            </p>
-            <a
-              href="tel:+97699521825"
-              className="flex items-center gap-2 text-sm text-slate-700 font-[Josefin_Sans,sans-serif] hover:text-sky-600 transition-colors"
-            >
-              <HiOutlinePhone className="w-4 h-4 text-sky-400 flex-shrink-0" />
-              +97699521825 арқылы қоңырау шалу
-            </a>
-            <a
-              href="https://www.facebook.com/naurizbyek.khuatbyekuli?mibextid=ZbWKwL"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-slate-700 font-[Josefin_Sans,sans-serif] hover:text-sky-600 transition-colors"
-            >
-              <span className="text-green-500 text-base leading-none">💬</span>
-              Facebook арқылы жазу
-            </a>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500 text-white text-sm font-[Josefin_Sans,sans-serif] tracking-widest uppercase shadow-lg shadow-sky-200/60 hover:opacity-90 transition-opacity"
-          >
-            Жабу
-          </button>
+      <div className="relative w-full max-w-sm bg-white rounded-3xl p-8 text-center shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
+        <div className="w-20 h-20 bg-sky-accent/10 rounded-full flex items-center justify-center mx-auto mb-6">
+          <span className="text-4xl">🎉</span>
         </div>
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">
+          Өтінішіңіз қабылданды!
+        </h2>
+        <p className="text-slate-500 mb-1 leading-relaxed">
+          Сіздің тойыңыздың мәліметтері сәтті тіркелді.
+        </p>
+        <p className="text-slate-500 mb-8 leading-relaxed">
+          Бізбен байланысып,{" "}
+          <span className="text-sky-accent font-semibold">төлемді төлеп</span>,
+          сілтемеңізді алыңыз! 🔗
+        </p>
+
+        <div className="bg-sky-accent/5 border border-sky-accent/10 rounded-2xl px-4 py-3 mb-6 text-left space-y-3">
+          <p className="text-[11px] uppercase tracking-widest text-slate-400 font-semibold">
+            Байланыс
+          </p>
+          <a
+            href="tel:+97699521825"
+            className="flex items-center gap-2 text-sm text-slate-700 hover:text-sky-accent transition-colors"
+          >
+            <Icon name="call" className="text-[18px] text-sky-accent" />
+            +97699521825 арқылы қоңырау шалу
+          </a>
+          <a
+            href="https://www.facebook.com/naurizbyek.khuatbyekuli?mibextid=ZbWKwL"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-sm text-slate-700 hover:text-sky-accent transition-colors"
+          >
+            <span className="text-base leading-none">💬</span>
+            Facebook арқылы жазу
+          </a>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full py-3.5 bg-sky-accent hover:opacity-90 text-white rounded-2xl font-bold shadow-lg shadow-sky-accent/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+        >
+          <Icon name="check_circle" filled />
+          Жабу
+        </button>
       </div>
     </div>
   );
@@ -167,6 +232,8 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
     time: "",
     venueName: "",
     venueAddress: "",
+    latitude: "",
+    longitude: "",
     organizer: "",
     phone: "",
     desc1: "",
@@ -197,13 +264,15 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
   const [p4Preview, setP4Preview] = useState<string | null>(null);
   const [p5Preview, setP5Preview] = useState<string | null>(null);
 
-  const previewWedding: Omit<Wedding, "id" | "created_at"> = {
+  const previewWedding: WeddingWithCoords = {
     ...EMPTY_WEDDING,
     male_name: f.maleName || "Жасұлан",
     female_name: f.femaleName || "Альбина",
     wedding_date: f.date ? (f.time ? `${f.date}T${f.time}` : f.date) : null,
     venue_name: f.venueName || null,
     venue_address: f.venueAddress || null,
+    latitude: f.latitude ? parseFloat(f.latitude) : null,
+    longitude: f.longitude ? parseFloat(f.longitude) : null,
     organizer: f.organizer || null,
     phone: f.phone || null,
     template,
@@ -271,6 +340,8 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
         wedding_date: weddingDate,
         venue_name: f.venueName || null,
         venue_address: f.venueAddress || null,
+        latitude: f.latitude ? parseFloat(f.latitude) : null,
+        longitude: f.longitude ? parseFloat(f.longitude) : null,
         organizer: f.organizer || null,
         phone: f.phone || null,
         template,
@@ -316,35 +387,50 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
     if (template === "blush") return <Template6 wedding={w} />;
     if (template === "midnight") return <Template7 wedding={w} />;
     if (template === "terracotta") return <Template8 wedding={w} />;
-    return <Template1 wedding={w} />;
+    return <Template1 wedding={w} hideBottomNav />;
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#fdf9f3] font-josefin text-on-surface">
+      <GlobalFonts />
       {showSuccess && <SuccessModal onClose={handleSuccessClose} />}
 
+      {/* Brand header */}
+      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-sky-accent/10 h-16 flex items-center px-6">
+        <div className="flex items-center gap-3">
+          <Icon
+            name="favorite"
+            className="text-sky-accent text-[22px]"
+            filled
+          />
+          <h1 className="text-xl font-semibold tracking-tight text-primary font-headline">
+            Біздің ерекше күн
+          </h1>
+        </div>
+      </div>
+
       {/* Tab switcher */}
-      <div className="sticky top-[57px] z-20 bg-white/80 backdrop-blur-md border-b border-sky-100/60 flex shadow-sm shadow-sky-100/20">
+      <div className="sticky top-16 z-20 bg-white/60 backdrop-blur-md border-b border-sky-accent/5 flex h-12">
         <button
           onClick={() => setShowPreview(false)}
-          className={`flex-1 py-4 text-[11px] font-[Josefin_Sans,sans-serif] tracking-widest uppercase transition-all flex items-center justify-center gap-2 ${
+          className={`flex-1 flex items-center justify-center gap-2 text-sm font-medium transition-all ${
             !showPreview
-              ? "text-sky-700 border-b-2 border-sky-500 bg-white/60"
-              : "text-slate-400 hover:text-sky-500"
+              ? "text-sky-accent border-b-2 border-sky-accent"
+              : "text-slate-400 hover:text-sky-accent"
           }`}
         >
-          <HiOutlineCamera className="w-4 h-4" />
+          <Icon name="edit_note" className="text-[20px]" />
           Толтыру
         </button>
         <button
           onClick={() => setShowPreview(true)}
-          className={`flex-1 py-4 text-[11px] font-[Josefin_Sans,sans-serif] tracking-widest uppercase transition-all flex items-center justify-center gap-2 ${
+          className={`flex-1 flex items-center justify-center gap-2 text-sm font-medium transition-all ${
             showPreview
-              ? "text-sky-700 border-b-2 border-sky-500 bg-white/60"
-              : "text-slate-400 hover:text-sky-500"
+              ? "text-sky-accent border-b-2 border-sky-accent"
+              : "text-slate-400 hover:text-sky-accent"
           }`}
         >
-          <HiOutlineCheckCircle className="w-4 h-4" />
+          <Icon name="visibility" className="text-[20px]" />
           Алдын ала қарау
         </button>
       </div>
@@ -352,17 +438,25 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
       {showPreview ? (
         <div>
           {renderPreview()}
-          <div className="p-4 pb-8 bg-white/80 backdrop-blur-md border-t border-sky-100 space-y-3">
+          <div className="h-28" />
+          <div className="fixed bottom-0 left-0 right-0 z-[100] p-4 pb-8 bg-white/90 backdrop-blur-md border-t border-sky-accent/10 space-y-3 max-w-lg mx-auto">
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="w-full py-4 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-[Josefin_Sans,sans-serif] text-sm tracking-widest uppercase rounded-2xl hover:opacity-90 transition-opacity disabled:opacity-50 shadow-lg shadow-sky-200"
+              className="w-full py-4 bg-sky-accent hover:opacity-90 text-white font-bold rounded-2xl shadow-xl shadow-sky-accent/20 transition-all transform active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {loading ? "⏳ Сақталуда..." : "💾 Сақтау"}
+              {loading ? (
+                "Сақталуда..."
+              ) : (
+                <>
+                  Дайын! Шақыруды сақтау
+                  <Icon name="send" />
+                </>
+              )}
             </button>
             {status && (
               <div
-                className={`rounded-2xl px-4 py-3 text-sm font-[Josefin_Sans,sans-serif] text-center ${
+                className={`rounded-2xl px-4 py-3 text-sm text-center ${
                   status.ok
                     ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
                     : "bg-red-50 text-red-600 border border-red-100"
@@ -374,52 +468,71 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
           </div>
         </div>
       ) : (
-        <div className="px-4 py-5 space-y-4 pb-10">
-          {/* Үлгі таңдау */}
-          <div className={SECTION}>
-            <div className="flex items-center gap-2 mb-1">
-              <HiOutlineSparkles className="w-4 h-4 text-sky-400" />
-              <p className={SECTION_TITLE}>Үлгі таңдау</p>
+        <main className="px-5 py-8 space-y-8 max-w-lg mx-auto">
+          {/* Header introduction */}
+          <section className="text-center space-y-2">
+            <h2 className="text-3xl font-bold text-slate-800 font-headline">
+              Шақыру қағазын жасау
+            </h2>
+            <p className="text-slate-500 font-light">
+              Тойдың барлық мәліметтерін төменде толтырыңыз
+            </p>
+          </section>
+
+          {/* Template selection */}
+          <section className="space-y-4">
+            <div className="flex justify-between items-end">
+              <h3 className="text-lg font-semibold text-slate-700">
+                Дизайн таңдау
+              </h3>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar snap-x">
               {TEMPLATES.map((t) => (
                 <button
                   key={t.id}
                   onClick={() => setTemplate(t.id)}
-                  className={`relative flex gap-3 items-center rounded-2xl overflow-hidden border-2 transition-all p-3 bg-white/80 ${
-                    template === t.id
-                      ? `${t.accent} ring-2`
-                      : "border-sky-100/70 hover:border-sky-200"
-                  }`}
+                  className="flex-shrink-0 w-32 snap-start text-left"
                 >
                   <div
-                    className={`${t.preview} h-12 w-12 rounded-xl flex-shrink-0`}
-                  />
-                  <div className="text-left">
-                    <p className="font-[Josefin_Sans,sans-serif] font-semibold text-[11px] text-slate-700 tracking-wide">
-                      {t.name}
-                    </p>
-                    <p className="text-[10px] text-slate-400 mt-0.5 leading-tight">
-                      {t.desc}
-                    </p>
+                    className={`relative rounded-2xl overflow-hidden aspect-[3/4] transition-all ${
+                      template === t.id
+                        ? "ring-2 ring-sky-accent shadow-lg shadow-sky-accent/10"
+                        : "opacity-60 hover:opacity-100 border-2 border-transparent"
+                    }`}
+                  >
+                    <div className={`absolute inset-0 ${t.swatch}`} />
+                    {template === t.id && (
+                      <div className="absolute bottom-2 right-2 bg-sky-accent text-white rounded-full p-1 shadow-md">
+                        <Icon
+                          name="check_circle"
+                          className="text-[16px]"
+                          filled
+                        />
+                      </div>
+                    )}
                   </div>
-                  {template === t.id && (
-                    <span className="absolute top-2 right-2 bg-sky-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
-                      ✓
-                    </span>
-                  )}
+                  <p
+                    className={`mt-2 text-xs text-center font-medium ${
+                      template === t.id ? "text-sky-accent" : "text-slate-500"
+                    }`}
+                  >
+                    {t.name}
+                  </p>
+                  <p className="text-[10px] text-center text-slate-400">
+                    {t.desc}
+                  </p>
                 </button>
               ))}
             </div>
-          </div>
+          </section>
 
           {/* Жұптың аты */}
-          <div className={SECTION}>
-            <div className="flex items-center gap-2 mb-1">
-              <HiOutlineHeart className="w-4 h-4 text-sky-400" />
-              <p className={SECTION_TITLE}>Жұптың аты</p>
+          <section className={SECTION}>
+            <div className={SECTION_HEADER}>
+              <Icon name="favorite" className="text-sky-accent" />
+              <h3 className={SECTION_TITLE}>Жұптың аты</h3>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={LABEL}>Жігіттің аты *</label>
                 <input
@@ -439,28 +552,30 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 />
               </div>
             </div>
-          </div>
+          </section>
+
           {/* Басты сурет */}
-          <div className={SECTION}>
-            <div className="flex items-center gap-2 mb-1">
-              <HiOutlineCamera className="w-4 h-4 text-sky-400" />
-              <p className={SECTION_TITLE}>Басты сурет</p>
+          <section className={SECTION}>
+            <div className={SECTION_HEADER}>
+              <Icon name="photo_camera" className="text-sky-accent" />
+              <h3 className={SECTION_TITLE}>Басты сурет</h3>
             </div>
-            <label className="flex flex-col items-center justify-center w-full border-2 border-dashed border-sky-200/70 rounded-2xl cursor-pointer hover:border-sky-400 hover:bg-sky-50/30 transition-all overflow-hidden">
+            <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-sky-accent/30 rounded-2xl bg-sky-accent/5 hover:bg-sky-accent/10 transition-colors cursor-pointer overflow-hidden group">
               {mainPreview ? (
                 <img
                   src={mainPreview}
                   alt="preview"
-                  className="w-full h-48 object-cover"
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="py-10 text-center">
-                  <div className="w-12 h-12 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center mx-auto mb-3">
-                    <HiOutlineCamera className="w-5 h-5 text-sky-300" />
-                  </div>
-                  <p className="text-xs text-slate-400 font-[Josefin_Sans,sans-serif] tracking-wide">
-                    Суретті таңдаңыз
-                  </p>
+                <div className="flex flex-col items-center">
+                  <Icon
+                    name="add_a_photo"
+                    className="text-sky-accent text-3xl group-hover:scale-110 transition-transform"
+                  />
+                  <span className="text-xs text-slate-400 mt-2">
+                    Басты мұқаба суретін жүктеу
+                  </span>
                 </div>
               )}
               <input
@@ -476,134 +591,116 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 }}
               />
             </label>
-          </div>
+          </section>
 
           {/* Той иелері */}
-          <div className={SECTION}>
-            <div className="flex items-center gap-2 mb-1">
-              <HiOutlineUserGroup className="w-4 h-4 text-sky-400" />
-              <p className={SECTION_TITLE}>Той иелері</p>
+          <section className={SECTION}>
+            <div className={SECTION_HEADER}>
+              <Icon name="groups" className="text-sky-accent" />
+              <h3 className={SECTION_TITLE}>Той иелері</h3>
             </div>
-            <input
-              value={f.organizer}
-              onChange={upd("organizer")}
-              placeholder="Руслан & Ләйлә"
-              className={INPUT}
-            />
-          </div>
-
-          {/* Фотоальбом */}
-          <div className={SECTION}>
-            <div className="flex items-center gap-2 mb-1">
-              <HiOutlinePhotograph className="w-4 h-4 text-sky-400" />
-              <p className={SECTION_TITLE}>Фотоальбом (макс 5)</p>
-            </div>
-            <label className="flex items-center gap-3 w-full border-2 border-dashed border-sky-200/70 rounded-2xl px-4 py-4 cursor-pointer hover:border-sky-400 hover:bg-sky-50/30 transition-all">
-              <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center flex-shrink-0">
-                <HiOutlinePhotograph className="w-5 h-5 text-sky-300" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-600 font-[Josefin_Sans,sans-serif] font-semibold">
-                  {galleryPreviews.length > 0
-                    ? `${galleryPreviews.length} сурет таңдалды`
-                    : "Бірнеше сурет таңдаңыз"}
-                </p>
-                <p className="text-[10px] text-slate-400 font-[Josefin_Sans,sans-serif] mt-0.5">
-                  Swiper ретінде көрінеді
-                </p>
-              </div>
+            <div>
+              <label className={LABEL}>Атаулары</label>
               <input
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={(e) => {
-                  const files = Array.from(e.target.files || []).slice(0, 5);
-                  setGalleryFiles(files);
-                  setGalleryPreviews(files.map((f) => URL.createObjectURL(f)));
-                }}
+                value={f.organizer}
+                onChange={upd("organizer")}
+                placeholder="Руслан &amp; Ләйлә"
+                className={INPUT}
               />
-            </label>
-            {galleryPreviews.length > 0 && (
-              <div className="flex gap-2 overflow-x-auto pb-1">
+            </div>
+          </section>
+
+          {/* Фотоальбом (gallery, max 5) */}
+          <section className={SECTION}>
+            <div className={SECTION_HEADER}>
+              <Icon name="image" className="text-sky-accent" />
+              <h3 className={SECTION_TITLE}>Фотоальбом (макс 5)</h3>
+            </div>
+            <div className="space-y-2">
+              <label className={LABEL}>Галерея</label>
+              <div className="flex gap-2 flex-wrap">
+                <label className="w-16 h-16 border-2 border-dashed border-sky-accent/20 rounded-xl flex items-center justify-center bg-white/50 cursor-pointer hover:bg-sky-accent/10 transition-colors">
+                  <Icon name="add" className="text-sky-accent text-xl" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []).slice(
+                        0,
+                        5,
+                      );
+                      setGalleryFiles(files);
+                      setGalleryPreviews(
+                        files.map((f) => URL.createObjectURL(f)),
+                      );
+                    }}
+                  />
+                </label>
                 {galleryPreviews.map((p, i) => (
                   <img
                     key={i}
                     src={p}
                     alt="preview"
-                    className="h-16 w-16 flex-shrink-0 object-cover rounded-xl border border-sky-100"
+                    className="w-16 h-16 rounded-xl object-cover border border-sky-accent/10"
                   />
                 ))}
               </div>
-            )}
-          </div>
-          {/* Той суреттері */}
-          <div className={SECTION}>
-            <div className="flex items-center gap-2 mb-1">
-              <HiOutlineUsers className="w-4 h-4 text-sky-400" />
-              <p className={SECTION_TITLE}>Жұптың суреттері</p>
+              <p className="text-[10px] text-slate-400 pl-1">
+                {galleryPreviews.length > 0
+                  ? `${galleryPreviews.length} сурет таңдалды`
+                  : "Swiper ретінде көрінеді"}
+              </p>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                {
-                  file: p3File,
-                  setFile: setP3File,
-                  preview: p3Preview,
-                  setPreview: setP3Preview,
-                  label: "сурет1",
-                  icon: "",
-                },
-                // {
-                //   file: p4File,
-                //   setFile: setP4File,
-                //   preview: p4Preview,
-                //   setPreview: setP4Preview,
-                //   label: "сурет2",
-                //   icon: "",
-                // },
-              ].map((item, i) => (
-                <div key={i}>
-                  <label className={LABEL}>{item.label}</label>
-                  <label className="flex flex-col items-center justify-center border-2 border-dashed border-sky-200/70 rounded-2xl cursor-pointer hover:border-sky-400 hover:bg-sky-50/20 transition-all overflow-hidden aspect-[3/4]">
-                    {item.preview ? (
-                      <img
-                        src={item.preview}
-                        alt="preview"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="text-center px-2">
-                        <p className="text-3xl mb-2">{item.icon}</p>
-                        <p className="text-[10px] text-slate-300 font-[Josefin_Sans,sans-serif] leading-tight">
-                          {item.label}
-                        </p>
-                      </div>
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          item.setFile(file);
-                          item.setPreview(URL.createObjectURL(file));
-                        }
-                      }}
+          </section>
+
+          {/* Жұптың суреттері */}
+          <section className={SECTION}>
+            <div className={SECTION_HEADER}>
+              <Icon name="portrait" className="text-sky-accent" />
+              <h3 className={SECTION_TITLE}>Жұптың суреттері</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={LABEL}>Сурет 1</label>
+                <label className="flex flex-col items-center justify-center border-2 border-dashed border-sky-accent/30 rounded-2xl cursor-pointer hover:bg-sky-accent/5 transition-all overflow-hidden aspect-[3/4]">
+                  {p3Preview ? (
+                    <img
+                      src={p3Preview}
+                      alt="preview"
+                      className="w-full h-full object-cover"
                     />
-                  </label>
-                </div>
-              ))}
+                  ) : (
+                    <Icon
+                      name="add_photo_alternate"
+                      className="text-sky-accent text-3xl"
+                    />
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setP3File(file);
+                        setP3Preview(URL.createObjectURL(file));
+                      }
+                    }}
+                  />
+                </label>
+              </div>
             </div>
-          </div>
+          </section>
 
           {/* Той мекенжайы */}
-          <div className={SECTION}>
-            <div className="flex items-center gap-2 mb-1">
-              <HiOutlineLocationMarker className="w-4 h-4 text-sky-400" />
-              <p className={SECTION_TITLE}>Той мекенжайы</p>
+          <section className={SECTION}>
+            <div className={SECTION_HEADER}>
+              <Icon name="location_on" className="text-sky-accent" />
+              <h3 className={SECTION_TITLE}>Той мекенжайы</h3>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div>
                 <label className={LABEL}>Той залының атауы</label>
                 <input
@@ -615,18 +712,75 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
               </div>
               <div>
                 <label className={LABEL}>Мекенжай</label>
-                <input
-                  value={f.venueAddress}
-                  onChange={upd("venueAddress")}
-                  placeholder="Баян-Өлгий, Улаанбаатар"
-                  className={INPUT}
-                />
+                <div className="relative">
+                  <input
+                    value={f.venueAddress}
+                    onChange={upd("venueAddress")}
+                    placeholder="Баян-Өлгий, Улаанбаатар"
+                    className={`${INPUT} pr-10`}
+                  />
+                  <Icon
+                    name="map"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sky-accent text-[20px]"
+                  />
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+
+              {/* Coordinates (optional, gives an exact map pin) */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className={`${LABEL} mb-0`}>
+                    Координат (міндетті емес)
+                  </label>
+                  <a
+                    href="https://www.google.com/maps"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-sky-accent font-semibold flex items-center gap-1 mr-1"
+                  >
+                    <Icon name="my_location" className="text-[14px]" />
+                    Google Maps-тан алу
+                  </a>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <input
+                    value={f.latitude}
+                    onChange={upd("latitude")}
+                    placeholder="Latitude, мыс. 43.238949"
+                    inputMode="decimal"
+                    className={INPUT}
+                  />
+                  <input
+                    value={f.longitude}
+                    onChange={upd("longitude")}
+                    placeholder="Longitude, мыс. 76.889709"
+                    inputMode="decimal"
+                    className={INPUT}
+                  />
+                </div>
+                <p className="text-[10px] text-slate-400 pl-1 leading-relaxed">
+                  Google Maps-та орынды тауып, оны басып тұрып шыққан
+                  координатты (мыс. 43.238949, 76.889709) осында қойыңыз —
+                  шақыруда картаға дәл сол нүкте белгіленеді.
+                </p>
+                {(f.latitude || f.longitude || f.venueAddress) && (
+                  <GoogleMapEmbed
+                    address={f.venueAddress || undefined}
+                    latitude={f.latitude ? parseFloat(f.latitude) : undefined}
+                    longitude={
+                      f.longitude ? parseFloat(f.longitude) : undefined
+                    }
+                    height={160}
+                  />
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className={LABEL}>
                     <span className="inline-flex items-center gap-1">
-                      <HiOutlineCalendar className="w-3 h-3" /> Күні
+                      <Icon name="calendar_today" className="text-[14px]" />
+                      Күні
                     </span>
                   </label>
                   <input
@@ -639,7 +793,8 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 <div>
                   <label className={LABEL}>
                     <span className="inline-flex items-center gap-1">
-                      <HiOutlineClock className="w-3 h-3" /> Уақыты
+                      <Icon name="schedule" className="text-[14px]" />
+                      Уақыты
                     </span>
                   </label>
                   <input
@@ -653,7 +808,8 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
               <div>
                 <label className={LABEL}>
                   <span className="inline-flex items-center gap-1">
-                    <HiOutlinePhone className="w-3 h-3" /> Телефон
+                    <Icon name="call" className="text-[14px]" />
+                    Байланыс телефоны
                   </span>
                 </label>
                 <input
@@ -664,28 +820,34 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 />
               </div>
             </div>
-          </div>
+          </section>
 
           {/* Қосымша ақпарат */}
-          <div className={SECTION}>
-            <div className="flex items-center gap-2 mb-1">
-              <HiOutlineInformationCircle className="w-4 h-4 text-sky-400" />
-              <p className={SECTION_TITLE}>Қосымша ақпарат</p>
+          <section className={SECTION}>
+            <div className={SECTION_HEADER}>
+              <Icon name="info" className="text-sky-accent" />
+              <h3 className={SECTION_TITLE}>Қосымша ақпарат</h3>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {(["extra1", "extra2", "extra3", "extra4"] as const).map(
                 (k, i) => (
                   <div key={k}>
-                    <label className={LABEL}>Қосымша {i + 1}</label>
+                    <label className={LABEL}>
+                      {i === 0
+                        ? "Дресс-код"
+                        : i === 1
+                          ? "Қонақтарға ескерту"
+                          : `Қосымша ${i + 1}`}
+                    </label>
                     <input
                       value={f[k]}
                       onChange={upd(k)}
                       className={INPUT}
                       placeholder={
                         i === 0
-                          ? "Дресс-код: ақ-қызғылт"
+                          ? "Мысалы: Классикалық стиль, ақ және көк түстер..."
                           : i === 1
-                            ? "уақытында келулеріңізді сұраймыз"
+                            ? "Тойға кешікпей келулеріңізді сұраймыз"
                             : ""
                       }
                     />
@@ -693,15 +855,15 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 ),
               )}
             </div>
-          </div>
+          </section>
 
           {/* Қосымша сурет */}
-          <div className={SECTION}>
-            <div className="flex items-center gap-2 mb-1">
-              <HiOutlinePhotograph className="w-4 h-4 text-sky-400" />
-              <p className={SECTION_TITLE}>Қосымша сурет</p>
+          <section className={SECTION}>
+            <div className={SECTION_HEADER}>
+              <Icon name="image" className="text-sky-accent" />
+              <h3 className={SECTION_TITLE}>Қосымша сурет</h3>
             </div>
-            <label className="flex flex-col items-center justify-center border-2 border-dashed border-sky-200/70 rounded-2xl cursor-pointer hover:border-sky-400 hover:bg-sky-50/30 transition-all overflow-hidden">
+            <label className="flex flex-col items-center justify-center border-2 border-dashed border-sky-accent/30 rounded-2xl cursor-pointer hover:bg-sky-accent/5 transition-all overflow-hidden">
               {p5Preview ? (
                 <img
                   src={p5Preview}
@@ -709,13 +871,14 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                   className="w-full h-44 object-cover"
                 />
               ) : (
-                <div className="py-8 text-center">
-                  <div className="w-12 h-12 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center mx-auto mb-3">
-                    <HiOutlinePhotograph className="w-5 h-5 text-sky-300" />
-                  </div>
-                  <p className="text-xs text-slate-400 font-[Josefin_Sans,sans-serif] tracking-wide">
+                <div className="py-8 flex flex-col items-center">
+                  <Icon
+                    name="add_photo_alternate"
+                    className="text-sky-accent text-3xl mb-2"
+                  />
+                  <span className="text-xs text-slate-400">
                     Суретті таңдаңыз
-                  </p>
+                  </span>
                 </div>
               )}
               <input
@@ -731,11 +894,11 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 }}
               />
             </label>
-          </div>
+          </section>
 
           {status && (
             <div
-              className={`rounded-2xl px-4 py-3 text-sm font-[Josefin_Sans,sans-serif] text-center ${
+              className={`rounded-2xl px-4 py-3 text-sm text-center ${
                 status.ok
                   ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
                   : "bg-red-50 text-red-600 border border-red-100"
@@ -745,14 +908,17 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
             </div>
           )}
 
-          <button
-            onClick={() => setShowPreview(true)}
-            className="w-full py-4 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-[Josefin_Sans,sans-serif] text-sm tracking-widest uppercase rounded-2xl hover:opacity-90 transition-opacity shadow-lg shadow-sky-200 flex items-center justify-center gap-2"
-          >
-            <HiOutlineCheckCircle className="w-5 h-5" />
-            Алдын ала қарау →
-          </button>
-        </div>
+          {/* Action button */}
+          <div className="pt-2">
+            <button
+              onClick={() => setShowPreview(true)}
+              className="w-full bg-sky-accent hover:opacity-90 text-white font-bold py-4 rounded-2xl shadow-xl shadow-sky-accent/20 transition-all transform active:scale-95 flex items-center justify-center gap-2"
+            >
+              <Icon name="check_circle" filled />
+              Алдын ала қарау
+            </button>
+          </div>
+        </main>
       )}
     </div>
   );

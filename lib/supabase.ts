@@ -32,6 +32,8 @@ export type Wedding = {
   extra4: string | null
   extra5: string | null
   created_at: string
+   latitude: number | null;
+  longitude: number | null;
 }
 
 export async function uploadImage(file: File, path: string): Promise<string | null> {

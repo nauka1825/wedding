@@ -52,6 +52,8 @@ const EMPTY_WEDDING: Omit<Wedding, "id" | "created_at"> = {
   extra3: null,
   extra4: null,
   extra5: null,
+  latitude: null,
+  longitude: null,
 };
 
 function SuccessModal({ onClose }: { onClose: () => void }) {
