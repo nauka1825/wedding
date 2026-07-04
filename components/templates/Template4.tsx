@@ -33,6 +33,7 @@ const DEFAULT_WEDDING: Wedding = {
   extra5: null,
   latitude: null,
   longitude: null,
+  payment: null,
 };
 
 // ─── useInView ───

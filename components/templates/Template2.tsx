@@ -1649,7 +1649,7 @@ function RotatingOrnament({
   );
 }
 
-// ─── SECTION NAV (adapted from Template1, navy palette) ───
+// ─── SECTION NAV (adapted from Template2, navy palette) ───
 const NAV_ITEMS = [
   { id: "section-hero", emoji: "💍", label: "Есімдер" },
   { id: "section-photos", emoji: "📸", label: "Фотолар" },

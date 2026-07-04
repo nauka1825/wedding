@@ -54,6 +54,7 @@ const EMPTY_WEDDING: Omit<Wedding, "id" | "created_at"> = {
   extra5: null,
   latitude: null,
   longitude: null,
+  payment: null,
 };
 
 function SuccessModal({ onClose }: { onClose: () => void }) {
@@ -267,6 +268,7 @@ export default function WeddingFormWomen({
         extra3: f.extra3 || null,
         extra4: f.extra4 || null,
         extra5: f.extra5 || null,
+        payment: null,
       });
 
       if (error) throw error;

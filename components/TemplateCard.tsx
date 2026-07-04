@@ -1,7 +1,8 @@
 "use client";
+import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Wedding } from "@/lib/supabase";
+import { supabase, Wedding } from "@/lib/supabase";
 
 const TEMPLATE_STYLES = {
   romantic: {
@@ -93,6 +94,11 @@ export default function TemplateCard({ wedding }: { wedding: Wedding }) {
       (wedding.template as keyof typeof TEMPLATE_STYLES) ?? "romantic"
     ] ?? TEMPLATE_STYLES.romantic;
 
+  const [payment, setPayment] = useState<string | null>(
+    (wedding as any).payment ?? null,
+  );
+  const [updating, setUpdating] = useState(false);
+
   const date = wedding.wedding_date
     ? new Date(wedding.wedding_date).toLocaleDateString("mn-MN", {
         year: "numeric",
@@ -100,6 +106,29 @@ export default function TemplateCard({ wedding }: { wedding: Wedding }) {
         day: "numeric",
       })
     : null;
+
+  async function handlePaymentChange(e: React.MouseEvent, newValue: "1" | "2") {
+    e.stopPropagation(); // card-ийн onClick navigate-г түлхэхээс сэргийлнэ
+    if (updating || payment === newValue) return;
+
+    const prev = payment;
+    setPayment(newValue); // optimistic update
+    setUpdating(true);
+
+    const { error } = await supabase
+      .from("weddings")
+      .update({ payment: newValue })
+      .eq("id", wedding.id);
+
+    if (error) {
+      setPayment(prev); // алдаа гарвал буцаана
+      console.error("Payment update failed:", error);
+    }
+    setUpdating(false);
+  }
+
+  const isPaid = payment === "1";
+  const isUnpaid = payment === "2";
 
   return (
     <div
@@ -185,9 +214,37 @@ export default function TemplateCard({ wedding }: { wedding: Wedding }) {
           </p>
         )}
 
+        {/* Payment toggle */}
+        <div className="mt-2 flex gap-1.5">
+          <button
+            onClick={(e) => handlePaymentChange(e, "1")}
+            disabled={updating}
+            className={`flex-1 text-center py-1.5 rounded-lg border text-[9px] tracking-widest uppercase transition-colors disabled:opacity-50 ${
+              isPaid
+                ? "bg-emerald-500 border-emerald-500 text-white"
+                : "border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+            }`}
+            style={{ fontFamily: "'Jost', sans-serif" }}
+          >
+            Төлсөн
+          </button>
+          <button
+            onClick={(e) => handlePaymentChange(e, "2")}
+            disabled={updating}
+            className={`flex-1 text-center py-1.5 rounded-lg border text-[9px] tracking-widest uppercase transition-colors disabled:opacity-50 ${
+              isUnpaid
+                ? "bg-red-500 border-red-500 text-white"
+                : "border-red-200 text-red-700 hover:bg-red-50"
+            }`}
+            style={{ fontFamily: "'Jost', sans-serif" }}
+          >
+            Төлөгдөөгүй
+          </button>
+        </div>
+
         {/* View button */}
         <div
-          className={`mt-2 w-full text-center py-1.5 rounded-lg border text-[9px] tracking-widest uppercase transition-colors ${style.btn}`}
+          className={`mt-1.5 w-full text-center py-1.5 rounded-lg border text-[9px] tracking-widest uppercase transition-colors ${style.btn}`}
           style={{ fontFamily: "'Jost', sans-serif" }}
         >
           Харах →

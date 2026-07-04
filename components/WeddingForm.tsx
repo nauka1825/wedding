@@ -108,6 +108,7 @@ const EMPTY_WEDDING: WeddingWithCoords = {
   extra3: null,
   extra4: null,
   extra5: null,
+  payment: null,
 };
 
 function GlobalFonts() {
@@ -245,6 +246,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
     extra3: "",
     extra4: "",
     extra5: "",
+    payment: "",
   });
 
   const upd =
@@ -290,6 +292,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
     extra3: f.extra3 || null,
     extra4: f.extra4 || null,
     extra5: f.extra5 || null,
+    payment: f.payment || null,
   };
 
   const handleSubmit = async () => {
@@ -359,6 +362,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
         extra3: f.extra3 || null,
         extra4: f.extra4 || null,
         extra5: f.extra5 || null,
+        payment: f.payment || null,
       });
 
       if (error) throw error;

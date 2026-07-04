@@ -26,7 +26,7 @@ export async function generateMetadata({
       description: "Хуримын урилга",
     };
   }
-  console.log("wedding", wedding);
+
   const image =
     wedding.main_photo_url || wedding.photo3_url || wedding.photo5_url;
 

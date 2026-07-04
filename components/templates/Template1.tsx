@@ -5,6 +5,7 @@ import MessageSection from "@/components/MessageSection";
 import MusicMan from "../MusicMan";
 import RSVPSection from "../RSVPSection";
 import GoogleMapEmbed from "../GoogleMapEmbed";
+import Template2Music from "../template2Music";
 
 const C = {
   primary: "#602846",
@@ -377,7 +378,7 @@ function Hero({
             }}
           >
             <Icon
-              name="favorite"
+              name=""
               size={72}
               filled
               style={{ color: C.primaryContainer, opacity: 0.25 }}
@@ -1193,6 +1194,36 @@ function Footer({
   );
 }
 
+function PaymentLockOverlay() {
+  return (
+    <div
+      className="fixed inset-0 h-full w-full flex items-center justify-center"
+      style={{
+        background: "#000000",
+        zIndex: 9999,
+      }}
+    >
+      <div className="text-center px-6">
+        <Icon
+          name="lock"
+          size={40}
+          style={{ color: "#ffffff", opacity: 0.7, marginBottom: 16 }}
+        />
+        <p
+          style={{
+            fontFamily: HEADLINE,
+            fontWeight: 600,
+            fontSize: 22,
+            color: "#ffffff",
+          }}
+        >
+          Төлем төленбеген
+        </p>
+      </div>
+    </div>
+  );
+}
+
 /* ======================================================================
    Bottom navigation — matches the reference HTML's pill-tab nav
    ====================================================================== */
@@ -1338,14 +1369,15 @@ export default function Template1({
   ].filter(Boolean) as string[];
 
   const venuePhoto = wedding.photo5_url || galleryImages[0] || null;
-
+  const isPaymentLocked = String((wedding as any).payment) === "2";
   return (
     <div
       className="min-h-screen overflow-x-hidden"
       style={{ background: C.background, color: C.onSurface, fontFamily: BODY }}
     >
+      {isPaymentLocked && <PaymentLockOverlay />}
       <GlobalFonts />
-      <MusicMan />
+      <Template2Music extra5={wedding.extra5} />
 
       <Hero
         mainPhoto={wedding.main_photo_url}

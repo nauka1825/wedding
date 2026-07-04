@@ -1,9 +1,13 @@
+"use client";
 import { useEffect, useRef, useState } from "react";
 import { FaPlay, FaPause } from "react-icons/fa";
 
-export default function Template2Music() {
+export default function Template2Music({ extra5 }: { extra5?: string | null }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
+
+  const songSrc =
+    extra5 === "jasjubailar" ? "/songs/jasjubailar.mp3" : "/songs/man.mp3";
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -43,8 +47,8 @@ export default function Template2Music() {
         {playing ? <FaPause /> : <FaPlay />}
       </button>
 
-      <audio ref={audioRef} loop>
-        <source src="/songs/akhbosaga.mp3" type="audio/mpeg" />
+      <audio ref={audioRef} loop key={songSrc}>
+        <source src={songSrc} type="audio/mpeg" />
       </audio>
     </div>
   );
