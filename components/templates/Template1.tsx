@@ -1029,6 +1029,171 @@ function WishesWrapper({ weddingId }: { weddingId: string }) {
 }
 
 /* ======================================================================
+   Footer helpers — GoldDivider, FloralDots
+   ====================================================================== */
+function GoldDivider({ className = "" }: { className?: string }) {
+  return (
+    <div className={`flex items-center justify-center gap-3 ${className}`}>
+      <div
+        className="h-px flex-1 max-w-[60px]"
+        style={{
+          background: `linear-gradient(to right, transparent, ${C.primary}66)`,
+        }}
+      />
+      <Icon
+        name="filter_vintage"
+        size={18}
+        style={{ color: C.primary, opacity: 0.6 }}
+      />
+      <div
+        className="h-px flex-1 max-w-[60px]"
+        style={{
+          background: `linear-gradient(to left, transparent, ${C.primary}66)`,
+        }}
+      />
+    </div>
+  );
+}
+
+function FloralDots() {
+  return (
+    <div className="flex items-center justify-center gap-2 my-2">
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          style={{
+            width: i === 1 ? 6 : 4,
+            height: i === 1 ? 6 : 4,
+            borderRadius: "50%",
+            background: C.secondary,
+            opacity: i === 1 ? 0.6 : 0.35,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ======================================================================
+   Section 8 — FOOTER (poem + floating hearts)
+   ====================================================================== */
+function Footer({
+  maleName,
+  femaleName,
+  dateLabel,
+}: {
+  maleName: string;
+  femaleName: string;
+  dateLabel: string;
+}) {
+  const poem = [
+    "Біз екеуміз тек екеуміз",
+    "Жүректермен бір екенбіз",
+    "Мен сен үшін сен мен үшін",
+    "Жаралған екенбіз",
+  ];
+
+  return (
+    <div
+      className="text-center py-12 mt-4"
+      style={{
+        position: "relative",
+        overflow: "hidden",
+        background: C.background,
+      }}
+    >
+      <style>{`
+        @keyframes floatHeart-t1 {
+          0% { transform: translateY(0) scale(1); opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translateY(-320px) scale(0.6); opacity: 0; }
+        }
+        @keyframes shimmer-gold-t1 { to { background-position: 200% center; } }
+        .shimmer-gold-t1 {
+          background: linear-gradient(90deg, ${C.primary} 0%, #C4A0B0 50%, ${C.primary} 100%);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: shimmer-gold-t1 4s linear infinite;
+        }
+      `}</style>
+
+      <Reveal>
+        <GoldDivider className="mb-5 mx-8" />
+
+        {poem.map((line, i) => (
+          <p
+            key={i}
+            className={i === 0 ? "mt-4" : "mt-2"}
+            style={{
+              fontSize: 16,
+              fontFamily: HEADLINE,
+              fontStyle: "italic",
+              color: C.onSurfaceVariant,
+            }}
+          >
+            {line}
+          </p>
+        ))}
+
+        <FloralDots />
+
+        <p
+          className="shimmer-gold-t1 uppercase mt-4"
+          style={{
+            fontSize: 18,
+            fontFamily: BODY,
+            fontWeight: 600,
+            letterSpacing: "0.4em",
+          }}
+        >
+          {maleName} &amp; {femaleName}
+        </p>
+
+        {dateLabel && (
+          <p
+            className="mt-2"
+            style={{
+              fontSize: 14,
+              fontFamily: BODY,
+              letterSpacing: "0.24em",
+              color: C.outline,
+            }}
+          >
+            {dateLabel}
+          </p>
+        )}
+
+        <div style={{ marginTop: 20 }}>
+          <FloralDots />
+        </div>
+      </Reveal>
+
+      {[...Array(10)].map((_, i) => (
+        <Icon
+          key={i}
+          name="favorite"
+          filled
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: `${10 + i * 15}%`,
+            color: C.primary,
+            opacity: 0.25,
+            fontSize: 12 + ((i * 37) % 8),
+            animation: `floatHeart-t1 ${4 + i}s linear infinite`,
+            animationDelay: `${i * 0.8}s`,
+            pointerEvents: "none",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ======================================================================
    Bottom navigation — matches the reference HTML's pill-tab nav
    ====================================================================== */
 const NAV_ITEMS = [
@@ -1216,29 +1381,11 @@ export default function Template1({
 
       <WishesWrapper weddingId={wedding.id} />
 
-      <div className="text-center py-10" style={{ background: C.background }}>
-        <p
-          style={{
-            fontFamily: BODY,
-            fontSize: 11,
-            letterSpacing: "0.3em",
-            color: C.secondary,
-            textTransform: "uppercase",
-          }}
-        >
-          {maleName} &amp; {femaleName}
-        </p>
-        <p
-          style={{
-            fontFamily: BODY,
-            fontSize: 11,
-            color: C.outline,
-            marginTop: 6,
-          }}
-        >
-          {dateLabel}
-        </p>
-      </div>
+      <Footer
+        maleName={maleName}
+        femaleName={femaleName}
+        dateLabel={dateLabel}
+      />
 
       {!hideBottomNav && <BottomNav />}
     </div>
