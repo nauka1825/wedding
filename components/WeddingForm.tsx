@@ -53,10 +53,22 @@ const TEMPLATES: {
     swatch: "bg-gradient-to-br from-rose-100 via-pink-200 to-rose-300",
   },
   {
-    id: "blush",
-    name: "Blush",
+    id: "luxury",
+    name: "Luxury",
+    desc: "Жасыл · Алтын · Салтанатты",
+    swatch: "bg-gradient-to-br from-emerald-950 via-amber-500 to-emerald-900",
+  },
+  {
+    id: "sage",
+    name: "Sage",
     desc: "Тас · Жасыл · Табиғат",
     swatch: "bg-gradient-to-br from-stone-200 to-emerald-100",
+  },
+  {
+    id: "blush",
+    name: "Blush",
+    desc: "Ақшыл · Күлгін · Нәзік",
+    swatch: "bg-gradient-to-br from-pink-100 via-rose-200 to-pink-300",
   },
 ];
 
@@ -73,11 +85,6 @@ const SECTION_HEADER =
 
 const SECTION_TITLE = "text-lg font-semibold text-slate-700";
 
-// NOTE: `latitude` / `longitude` are added here via an intersection type so
-// this compiles whether or not `Wedding` in "@/lib/supabase" has been
-// updated yet. Once you add the two columns there (see migration notes
-// below), you can drop the `& { latitude...}` part and just add the two
-// fields directly to the `Wedding` interface.
 type WeddingWithCoords = Omit<Wedding, "id" | "created_at"> & {
   latitude: number | null;
   longitude: number | null;
@@ -157,6 +164,43 @@ function GlobalFonts() {
         border-radius: 10px;
       }
     `}</style>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
+/*  Collapsible section — every form section can be expanded/collapsed    */
+/* ---------------------------------------------------------------------- */
+function CollapsibleSection({
+  icon,
+  title,
+  defaultOpen = false,
+  children,
+}: {
+  icon: string;
+  title: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <section className={SECTION}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={`${SECTION_HEADER} w-full text-left`}
+      >
+        <Icon name={icon} className="text-sky-accent" />
+        <h3 className={`${SECTION_TITLE} flex-1`}>{title}</h3>
+        <Icon
+          name="expand_more"
+          className={`text-slate-400 text-[20px] transition-transform duration-200 ${
+            open ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+      {open && <div className="pt-1 space-y-5">{children}</div>}
+    </section>
   );
 }
 
@@ -531,11 +575,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
           </section>
 
           {/* Жұптың аты */}
-          <section className={SECTION}>
-            <div className={SECTION_HEADER}>
-              <Icon name="favorite" className="text-sky-accent" />
-              <h3 className={SECTION_TITLE}>Жұптың аты</h3>
-            </div>
+          <CollapsibleSection icon="favorite" title="Жұптың аты" defaultOpen>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={LABEL}>Жігіттің аты *</label>
@@ -556,14 +596,10 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 />
               </div>
             </div>
-          </section>
+          </CollapsibleSection>
 
           {/* Басты сурет */}
-          <section className={SECTION}>
-            <div className={SECTION_HEADER}>
-              <Icon name="photo_camera" className="text-sky-accent" />
-              <h3 className={SECTION_TITLE}>Басты сурет</h3>
-            </div>
+          <CollapsibleSection icon="photo_camera" title="Басты сурет">
             <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-sky-accent/30 rounded-2xl bg-sky-accent/5 hover:bg-sky-accent/10 transition-colors cursor-pointer overflow-hidden group">
               {mainPreview ? (
                 <img
@@ -595,14 +631,10 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 }}
               />
             </label>
-          </section>
+          </CollapsibleSection>
 
           {/* Той иелері */}
-          <section className={SECTION}>
-            <div className={SECTION_HEADER}>
-              <Icon name="groups" className="text-sky-accent" />
-              <h3 className={SECTION_TITLE}>Той иелері</h3>
-            </div>
+          <CollapsibleSection icon="groups" title="Той иелері">
             <div>
               <label className={LABEL}>Атаулары</label>
               <input
@@ -612,14 +644,10 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 className={INPUT}
               />
             </div>
-          </section>
+          </CollapsibleSection>
 
           {/* Фотоальбом (gallery, max 5) */}
-          <section className={SECTION}>
-            <div className={SECTION_HEADER}>
-              <Icon name="image" className="text-sky-accent" />
-              <h3 className={SECTION_TITLE}>Фотоальбом (макс 5)</h3>
-            </div>
+          <CollapsibleSection icon="image" title="Фотоальбом (макс 5)">
             <div className="space-y-2">
               <label className={LABEL}>Галерея</label>
               <div className="flex gap-2 flex-wrap">
@@ -657,14 +685,10 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                   : "Swiper ретінде көрінеді"}
               </p>
             </div>
-          </section>
+          </CollapsibleSection>
 
           {/* Жұптың суреттері */}
-          <section className={SECTION}>
-            <div className={SECTION_HEADER}>
-              <Icon name="portrait" className="text-sky-accent" />
-              <h3 className={SECTION_TITLE}>Жұптың суреттері</h3>
-            </div>
+          <CollapsibleSection icon="portrait" title="Жұптың суреттері">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={LABEL}>Сурет 1</label>
@@ -696,14 +720,10 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 </label>
               </div>
             </div>
-          </section>
+          </CollapsibleSection>
 
           {/* Той мекенжайы */}
-          <section className={SECTION}>
-            <div className={SECTION_HEADER}>
-              <Icon name="location_on" className="text-sky-accent" />
-              <h3 className={SECTION_TITLE}>Той мекенжайы</h3>
-            </div>
+          <CollapsibleSection icon="location_on" title="Той мекенжайы">
             <div className="space-y-4">
               <div>
                 <label className={LABEL}>Той залының атауы</label>
@@ -824,14 +844,10 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 />
               </div>
             </div>
-          </section>
+          </CollapsibleSection>
 
           {/* Қосымша ақпарат */}
-          <section className={SECTION}>
-            <div className={SECTION_HEADER}>
-              <Icon name="info" className="text-sky-accent" />
-              <h3 className={SECTION_TITLE}>Қосымша ақпарат</h3>
-            </div>
+          <CollapsibleSection icon="info" title="Қосымша ақпарат">
             <div className="space-y-4">
               {(["extra1", "extra2", "extra3", "extra4"] as const).map(
                 (k, i) => (
@@ -859,14 +875,10 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 ),
               )}
             </div>
-          </section>
+          </CollapsibleSection>
 
           {/* Қосымша сурет */}
-          <section className={SECTION}>
-            <div className={SECTION_HEADER}>
-              <Icon name="image" className="text-sky-accent" />
-              <h3 className={SECTION_TITLE}>Қосымша сурет</h3>
-            </div>
+          <CollapsibleSection icon="image" title="Қосымша сурет">
             <label className="flex flex-col items-center justify-center border-2 border-dashed border-sky-accent/30 rounded-2xl cursor-pointer hover:bg-sky-accent/5 transition-all overflow-hidden">
               {p5Preview ? (
                 <img
@@ -898,7 +910,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 }}
               />
             </label>
-          </section>
+          </CollapsibleSection>
 
           {status && (
             <div

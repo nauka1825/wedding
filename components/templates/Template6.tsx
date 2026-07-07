@@ -2111,19 +2111,43 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
             {/* ═══════════════════════════════════════════════════
                 SECTION 4: ТІЛЕКТЕР — RSVP + Messages
             ═══════════════════════════════════════════════════ */}
-            <section id="section-messages">
+            <section
+              id="section-messages"
+              style={{ marginTop: 48, padding: "0 20px" }}
+            >
               <ScrollRevealSection direction="up" delay={0}>
-                <RSVPSection
-                  weddingId={wedding.id}
-                  accentColor="#00416A"
-                  lightColor="#eef0f8"
-                />
-                <MessageSection
-                  weddingId={wedding.id}
-                  accentColor="#00416A"
-                  lightColor="#eef0f8"
-                  borderColor="border-amber-100"
-                />
+                <GoldDivider className="mb-6" />
+                <SectionHeader>Тілектер</SectionHeader>
+                <div
+                  style={{
+                    borderRadius: 20,
+                    padding: "28px 22px 26px",
+                    background: "#ffffff",
+                    border: "0.5px solid rgba(0,65,106,0.16)",
+                    boxShadow:
+                      "0 2px 20px rgba(0,0,0,0.05),0 1px 4px rgba(0,0,0,0.03)",
+                  }}
+                >
+                  <RSVPSection
+                    weddingId={wedding.id}
+                    accentColor="#00416A"
+                    lightColor="#eef0f8"
+                  />
+                  <div
+                    style={{
+                      marginTop: 28,
+                      borderTop: "0.5px solid rgba(0,65,106,0.15)",
+                      paddingTop: 26,
+                    }}
+                  >
+                    <MessageSection
+                      weddingId={wedding.id}
+                      accentColor="#00416A"
+                      lightColor="#eef0f8"
+                      borderColor="border-amber-100"
+                    />
+                  </div>
+                </div>
               </ScrollRevealSection>
             </section>
 
