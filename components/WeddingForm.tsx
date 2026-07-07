@@ -636,20 +636,47 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
           {/* Той иелері */}
           <CollapsibleSection icon="groups" title="Той иелері">
             <div>
-              <label className={LABEL}>Атаулары</label>
-              <input
+              <label className={LABEL}>Толық ақпаратты жазыңыз</label>
+              <textarea
                 value={f.organizer}
                 onChange={upd("organizer")}
                 placeholder="Руслан &amp; Ләйлә"
-                className={INPUT}
+                className={`${INPUT} min-h-[96px] resize-none`}
+                rows={3}
               />
+            </div>
+          </CollapsibleSection>
+
+          {/* Шақыру мәтіні — description1 (шақыру сөзі) / description2 (өлең) */}
+          <CollapsibleSection icon="menu_book" title="Шақыру мәтіні">
+            <div className="space-y-4">
+              <div>
+                <label className={LABEL}>Шақыру сөзі</label>
+                <textarea
+                  value={f.desc1}
+                  onChange={upd("desc1")}
+                  placeholder="Құрметті қонақтар! Балаларымыздың жаңа шаңырақ көтеруіне арналған салтанатты тойымыздың куәсі болып, ақ дастарханымыздан дәм татуға шақырамыз!"
+                  className={`${INPUT} min-h-[120px] resize-none`}
+                  rows={5}
+                />
+              </div>
+              <div>
+                <label className={LABEL}>Өлең / шумақ</label>
+                <textarea
+                  value={f.desc2}
+                  onChange={upd("desc2")}
+                  placeholder="Осы жерге тойға арналған өлеңіңізді жазыңыз..."
+                  className={`${INPUT} min-h-[140px] resize-none`}
+                  rows={6}
+                />
+              </div>
             </div>
           </CollapsibleSection>
 
           {/* Фотоальбом (gallery, max 5) */}
           <CollapsibleSection icon="image" title="Фотоальбом (макс 5)">
             <div className="space-y-2">
-              <label className={LABEL}>Галерея</label>
+              <label className={LABEL}>Суреттер галереясы</label>
               <div className="flex gap-2 flex-wrap">
                 <label className="w-16 h-16 border-2 border-dashed border-sky-accent/20 rounded-xl flex items-center justify-center bg-white/50 cursor-pointer hover:bg-sky-accent/10 transition-colors">
                   <Icon name="add" className="text-sky-accent text-xl" />
@@ -682,16 +709,16 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
               <p className="text-[10px] text-slate-400 pl-1">
                 {galleryPreviews.length > 0
                   ? `${galleryPreviews.length} сурет таңдалды`
-                  : "Swiper ретінде көрінеді"}
+                  : ""}
               </p>
             </div>
           </CollapsibleSection>
 
-          {/* Жұптың суреттері */}
+          {/* Жұптың суреттері — Жігіт (photo3 + link1) / Қыз (photo4 + link2) */}
           <CollapsibleSection icon="portrait" title="Жұптың суреттері">
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={LABEL}>Сурет 1</label>
+              <div className="space-y-2">
+                <label className={LABEL}>Жігіттің суреті</label>
                 <label className="flex flex-col items-center justify-center border-2 border-dashed border-sky-accent/30 rounded-2xl cursor-pointer hover:bg-sky-accent/5 transition-all overflow-hidden aspect-[3/4]">
                   {p3Preview ? (
                     <img
@@ -718,6 +745,60 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                     }}
                   />
                 </label>
+                <div className="relative">
+                  <input
+                    value={f.link1}
+                    onChange={upd("link1")}
+                    placeholder="Instagram (жігіт)"
+                    className={`${INPUT} pr-9 text-xs`}
+                  />
+                  <Icon
+                    name="link"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sky-accent text-[16px]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className={LABEL}>Қыздың суреті</label>
+                <label className="flex flex-col items-center justify-center border-2 border-dashed border-sky-accent/30 rounded-2xl cursor-pointer hover:bg-sky-accent/5 transition-all overflow-hidden aspect-[3/4]">
+                  {p4Preview ? (
+                    <img
+                      src={p4Preview}
+                      alt="preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Icon
+                      name="add_photo_alternate"
+                      className="text-sky-accent text-3xl"
+                    />
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setP4File(file);
+                        setP4Preview(URL.createObjectURL(file));
+                      }
+                    }}
+                  />
+                </label>
+                <div className="relative">
+                  <input
+                    value={f.link2}
+                    onChange={upd("link2")}
+                    placeholder="Instagram (қыз)"
+                    className={`${INPUT} pr-9 text-xs`}
+                  />
+                  <Icon
+                    name="link"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sky-accent text-[16px]"
+                  />
+                </div>
               </div>
             </div>
           </CollapsibleSection>
@@ -874,6 +955,15 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                   </div>
                 ),
               )}
+              <div>
+                <label className={LABEL}>Әннің атауы</label>
+                <input
+                  value={f.extra5}
+                  onChange={upd("extra5")}
+                  className={INPUT}
+                  placeholder="Мысалы: Ты моя нежность"
+                />
+              </div>
             </div>
           </CollapsibleSection>
 

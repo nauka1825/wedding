@@ -40,7 +40,6 @@ const DEFAULTS = {
   femaleName: "Аружан",
   tagline: "Бірге болуға серт бердік",
   isoDate: "2024-06-15T19:00",
-  invitationHeadline: "Құрметті ағайын-туыс, бауырлар, дос-жарандар!",
   maleParents: "Болат & Сәуле",
   femaleParents: "Қайрат & Гүлнар",
   venueName: `"Sky" palace`,
@@ -199,6 +198,55 @@ function formatKazDate(iso: string) {
 function formatTime(iso: string) {
   const d = new Date(iso);
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+/* ------------------------------------------------------------------------
+   HTML-entity decode + multiline text renderer.
+   Form fields (organizer / description1 / description2) are stored with
+   raw entities like "&amp;" and with "\n" line breaks from a <textarea>.
+   These helpers decode the entities and reproduce the line breaks exactly
+   as they were typed.
+   ------------------------------------------------------------------------ */
+function decodeHtmlEntities(str: string | null | undefined): string {
+  if (!str) return "";
+  return str
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#0*39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&nbsp;/g, " ");
+}
+
+function MultilineText({
+  text,
+  style = {},
+  className = "",
+}: {
+  text: string | null | undefined;
+  style?: React.CSSProperties;
+  className?: string;
+}) {
+  const decoded = decodeHtmlEntities(text);
+  const lines = decoded.split("\n");
+  return (
+    <>
+      {lines.map((line, i) => (
+        <p
+          key={i}
+          className={className}
+          style={{
+            margin: 0,
+            marginBottom: i < lines.length - 1 ? 6 : 0,
+            ...style,
+          }}
+        >
+          {line === "" ? "\u00A0" : line}
+        </p>
+      ))}
+    </>
+  );
 }
 
 function FloatingPetals() {
@@ -452,14 +500,11 @@ function Hero({
 
 /* ======================================================================
    Section 2 — INVITATION TEXT
+   Only rendered when description1 (the "invitation speech") is present.
    ====================================================================== */
-function InvitationText({
-  headline,
-  body,
-}: {
-  headline: string;
-  body: string;
-}) {
+function InvitationText({ body }: { body: string | null }) {
+  if (!body) return null;
+
   return (
     <section
       className="py-16 px-6 text-center relative"
@@ -467,24 +512,19 @@ function InvitationText({
     >
       <Reveal className="max-w-lg mx-auto">
         <Icon name="favorite" filled style={{ color: C.primary }} />
-        <h2
-          className="mb-6 mt-4"
-          style={{
-            fontFamily: HEADLINE,
-            fontWeight: 600,
-            fontSize: 26,
-            color: C.primary,
-            lineHeight: 1.4,
-          }}
-        >
-          {headline}
-        </h2>
-        <p
-          className="leading-relaxed mb-10"
-          style={{ fontFamily: BODY, fontSize: 16, color: C.onSurfaceVariant }}
-        >
-          {body}
-        </p>
+        <div className="mb-10">
+          <MultilineText
+            text={body}
+            style={{
+              fontFamily: HEADLINE,
+              fontSize: 16,
+              fontWeight: 600,
+              color: C.primary,
+              lineHeight: 1.7,
+              whiteSpace: "pre-wrap",
+            }}
+          />
+        </div>
         <SectionEyebrow label="" />
       </Reveal>
     </section>
@@ -844,9 +884,14 @@ function VenueSection({
 
 /* ======================================================================
    Section 5 — GALLERY BENTO
+   All images except the last one scroll horizontally as a swiper; the
+   last image is shown large, full-width, below the swiper.
    ====================================================================== */
 function GalleryBento({ images }: { images: string[] }) {
-  const [a, b, c] = images;
+  const last = images.length > 0 ? images[images.length - 1] : null;
+  const rest = images.length > 1 ? images.slice(0, -1) : [];
+  const isEmpty = images.length === 0;
+
   return (
     <section
       id="gallery"
@@ -867,56 +912,175 @@ function GalleryBento({ images }: { images: string[] }) {
             Біздің хикаямыз
           </h2>
         </Reveal>
-        <div className="grid grid-cols-2 gap-3 mb-3">
-          {[a, b].map((src, i) => (
-            <Reveal key={i} delay={i * 0.06}>
-              <div
-                className="h-64 rounded-xl bg-cover bg-center"
-                style={
-                  src
-                    ? { backgroundImage: `url('${src}')` }
-                    : {
-                        background: `linear-gradient(160deg, ${C.secondaryContainer}, ${C.surfaceContainer})`,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }
-                }
-              >
-                {!src && (
-                  <Icon
-                    name="image"
-                    size={30}
-                    style={{ color: C.primary, opacity: 0.35 }}
-                  />
-                )}
-              </div>
-            </Reveal>
-          ))}
-        </div>
-        <Reveal delay={0.12}>
-          <div
-            className="w-full h-80 rounded-xl bg-cover bg-center"
-            style={
-              c
-                ? { backgroundImage: `url('${c}')` }
-                : {
-                    background: `linear-gradient(160deg, ${C.surfaceContainer}, ${C.secondaryContainer})`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }
-            }
-          >
-            {!c && (
+
+        {isEmpty && (
+          <Reveal>
+            <div
+              className="w-full h-64 rounded-xl flex items-center justify-center"
+              style={{
+                background: `linear-gradient(160deg, ${C.secondaryContainer}, ${C.surfaceContainer})`,
+              }}
+            >
               <Icon
                 name="photo_library"
                 size={34}
                 style={{ color: C.primary, opacity: 0.35 }}
               />
-            )}
+            </div>
+          </Reveal>
+        )}
+
+        {rest.length > 0 && (
+          <Reveal>
+            <div
+              className="flex gap-3 overflow-x-auto pb-3 mb-3 snap-x snap-mandatory"
+              style={{ scrollbarWidth: "none" }}
+            >
+              {rest.map((src, i) => (
+                <div
+                  key={i}
+                  className="flex-shrink-0 w-56 h-64 rounded-xl bg-cover bg-center snap-start"
+                  style={{ backgroundImage: `url('${src}')` }}
+                />
+              ))}
+            </div>
+          </Reveal>
+        )}
+
+        {last && (
+          <Reveal delay={0.12}>
+            <div
+              className="w-full h-80 rounded-xl bg-cover bg-top"
+              style={{ backgroundImage: `url('${last}')` }}
+            />
+          </Reveal>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/* ======================================================================
+   Section 5b — POEM + COUPLE PHOTOS
+   Shown only when description2 (the poem/verse) is present. Below the
+   poem, photo3_url / photo4_url appear in a grid (when present), and
+   below that, link1 / link2 appear as Instagram-style buttons.
+   ====================================================================== */
+function PoemAndCoupleSection({
+  poem,
+  photo3,
+  photo4,
+  link1,
+  link2,
+}: {
+  poem: string | null;
+  photo3: string | null;
+  photo4: string | null;
+  link1: string | null;
+  link2: string | null;
+}) {
+  if (!poem) return null;
+
+  const hasPhoto3 = Boolean(photo3);
+  const hasPhoto4 = Boolean(photo4);
+  const hasPhotos = hasPhoto3 || hasPhoto4;
+  const hasLinks = Boolean(link1) || Boolean(link2);
+
+  return (
+    <section
+      className="py-16 px-6"
+      style={{ background: C.surfaceContainerLow }}
+    >
+      <div className="max-w-lg mx-auto text-center">
+        <Reveal>
+          <Icon
+            name="auto_stories"
+            style={{ color: C.primary, marginBottom: 12 }}
+          />
+          <div className="mb-2">
+            <MultilineText
+              text={poem}
+              style={{
+                fontFamily: HEADLINE,
+                fontStyle: "italic",
+                fontSize: 16,
+                color: C.onSurfaceVariant,
+                lineHeight: 1.9,
+                whiteSpace: "pre-wrap",
+              }}
+            />
           </div>
         </Reveal>
+
+        {hasPhotos && (
+          <Reveal delay={0.08}>
+            <div
+              className={`grid gap-3 mt-8 ${
+                hasPhoto3 && hasPhoto4 ? "grid-cols-2" : "grid-cols-1"
+              }`}
+            >
+              {hasPhoto3 && (
+                <div
+                  className="h-72 rounded-xl bg-cover bg-top"
+                  style={{ backgroundImage: `url('${photo3}')` }}
+                />
+              )}
+              {hasPhoto4 && (
+                <div
+                  className="h-72 rounded-xl bg-cover bg-top"
+                  style={{ backgroundImage: `url('${photo4}')` }}
+                />
+              )}
+            </div>
+          </Reveal>
+        )}
+
+        {hasLinks && (
+          <Reveal delay={0.14}>
+            <div className="flex justify-center gap-4 mt-6 flex-wrap">
+              {link1 && (
+                <a
+                  href={link1}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full"
+                  style={{
+                    background: C.primary,
+                    color: C.onPrimary,
+                    fontFamily: BODY,
+                    fontSize: 12,
+                    letterSpacing: "0.1em",
+                    fontWeight: 600,
+                    boxShadow: `0 10px 25px -5px ${C.primary}33`,
+                  }}
+                >
+                  <Icon name="photo_camera" size={16} />
+                  Instagram
+                </a>
+              )}
+              {link2 && (
+                <a
+                  href={link2}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full"
+                  style={{
+                    background: C.primary,
+                    color: C.onPrimary,
+                    fontFamily: BODY,
+                    fontSize: 12,
+                    letterSpacing: "0.1em",
+                    fontWeight: 600,
+                    boxShadow: `0 10px 25px -5px ${C.primary}33`,
+                  }}
+                >
+                  <Icon name="photo_camera" size={16} />
+                  Instagram
+                </a>
+              )}
+            </div>
+          </Reveal>
+        )}
       </div>
     </section>
   );
@@ -1339,13 +1503,12 @@ export default function Template1({
 
   const maleName = wedding.male_name || DEFAULTS.maleName;
   const femaleName = wedding.female_name || DEFAULTS.femaleName;
-  const tagline = wedding.description1 || DEFAULTS.tagline;
+  const tagline = DEFAULTS.tagline;
 
-  const invitationBody =
-    wedding.description2 ||
-    `Сіздерді балаларымыз ${maleName} мен ${femaleName}нің шаңырақ көтеру тойына арналған салтанатты ақ дастарханымыздың қадірлі қонағы болуға шақырамыз.`;
-
-  const organizerLines = (wedding.organizer || "").split("\n").filter(Boolean);
+  const organizerLines = (wedding.organizer || "")
+    .split("\n")
+    .map(decodeHtmlEntities)
+    .filter(Boolean);
   const maleParents = organizerLines[0] || DEFAULTS.maleParents;
   const femaleParents = organizerLines[1] || DEFAULTS.femaleParents;
 
@@ -1362,11 +1525,11 @@ export default function Template1({
     wedding.extra4,
   ].filter(Boolean) as string[];
 
-  const galleryImages = [
-    ...(wedding.gallery_urls || []),
-    wedding.photo3_url,
-    wedding.photo4_url,
-  ].filter(Boolean) as string[];
+  // photo3_url / photo4_url are shown in their own PoemAndCoupleSection now,
+  // so they're excluded from the main gallery to avoid duplication.
+  const galleryImages = [...(wedding.gallery_urls || [])].filter(
+    Boolean,
+  ) as string[];
 
   const venuePhoto = wedding.photo5_url || galleryImages[0] || null;
   const isPaymentLocked = String((wedding as any).payment) === "2";
@@ -1387,10 +1550,7 @@ export default function Template1({
         dateLabel={dateLabel}
       />
 
-      <InvitationText
-        headline={DEFAULTS.invitationHeadline}
-        body={invitationBody}
-      />
+      <InvitationText body={wedding.description1 || null} />
 
       <ParentsAndEventBento
         maleParents={maleParents}
@@ -1408,6 +1568,14 @@ export default function Template1({
       />
 
       <GalleryBento images={galleryImages} />
+
+      <PoemAndCoupleSection
+        poem={wedding.description2 || null}
+        photo3={wedding.photo3_url || null}
+        photo4={wedding.photo4_url || null}
+        link1={wedding.link1 || null}
+        link2={wedding.link2 || null}
+      />
 
       <RsvpWrapper weddingId={wedding.id} />
 
