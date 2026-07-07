@@ -7,7 +7,7 @@ export default function Template6Music({ extra5 }: { extra5?: string | null }) {
   const [playing, setPlaying] = useState(false);
 
   const songSrc =
-    extra5 === "jasjubailar" ? "/songs/jasjubailar.mp3" : "/songs/toi-jiri.mp3";
+    extra5 === "jasjubailar" ? "/songs/jasjubailar.mp3" : "/songs/toijiri.mp3";
 
   useEffect(() => {
     const audio = audioRef.current;
