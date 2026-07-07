@@ -11,8 +11,8 @@ import {
   FaCopy,
   FaCheck,
 } from "react-icons/fa";
-import Template2Music from "../template2Music";
 import RSVPSection from "../RSVPSection";
+import Template6Music from "../template6Music";
 
 // ─── useInView hook ───
 function useInView(threshold = 0.15) {
@@ -1666,7 +1666,7 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
             Төлем төленбеген
           </p>
 
-          <Template2Music />
+          <Template6Music />
         </div>
       ) : (
         <>
@@ -2203,7 +2203,7 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
                   "linear-gradient(to right,transparent,rgba(0,65,106,0.55),rgba(0,65,106,0.4),rgba(0,65,106,0.55),transparent)",
               }}
             />
-            <Template2Music />
+            <Template6Music />
 
             {/* ═══ BOTTOM NAV ═══ */}
             <SectionNavBar />
