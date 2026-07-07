@@ -40,6 +40,7 @@ const DEFAULTS = {
   femaleName: "Аружан",
   tagline: "Бірге болуға серт бердік",
   isoDate: "2024-06-15T19:00",
+
   maleParents: "Болат & Сәуле",
   femaleParents: "Қайрат & Гүлнар",
   venueName: `"Sky" palace`,
@@ -517,9 +518,8 @@ function InvitationText({ body }: { body: string | null }) {
             text={body}
             style={{
               fontFamily: HEADLINE,
-              fontSize: 16,
-              fontWeight: 600,
-              color: C.primary,
+              fontSize: 14,
+              color: C.onSurfaceVariant,
               lineHeight: 1.7,
               whiteSpace: "pre-wrap",
             }}
@@ -534,13 +534,103 @@ function InvitationText({ body }: { body: string | null }) {
 /* ======================================================================
    Section 3 — PARENTS + EVENT BENTO
    ====================================================================== */
+function CalendarDayCard({
+  monthCaps,
+  day,
+  dayCaps,
+}: {
+  monthCaps: string;
+  day: number;
+  dayCaps: string;
+}) {
+  return (
+    <GlassCard
+      style={{
+        padding: 0,
+        height: "100%",
+        overflow: "hidden",
+        position: "relative",
+      }}
+    >
+      {/* spiral-binding holes, like a hanging tear-off calendar page */}
+      <div
+        className="flex justify-center gap-3"
+        style={{ paddingTop: 8, background: C.primary }}
+      >
+        {[0, 1].map((i) => (
+          <div
+            key={i}
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              background: C.surfaceContainerLowest,
+              opacity: 0.9,
+            }}
+          />
+        ))}
+      </div>
+      {/* month banner */}
+      <div style={{ background: C.primary, paddingBottom: 10 }}>
+        <p
+          style={{
+            fontFamily: BODY,
+            fontSize: 12,
+            letterSpacing: "0.15em",
+            fontWeight: 700,
+            color: C.onPrimary,
+            textAlign: "center",
+            margin: 0,
+          }}
+        >
+          {monthCaps}
+        </p>
+      </div>
+      {/* torn edge under the banner */}
+      <div
+        style={{
+          height: 6,
+          background: `repeating-linear-gradient(90deg, ${C.primary} 0 6px, transparent 6px 12px)`,
+        }}
+      />
+      <div
+        className="flex flex-col items-center justify-center"
+        style={{ padding: "18px 12px 20px" }}
+      >
+        <p
+          style={{
+            fontFamily: HEADLINE,
+            fontWeight: 700,
+            fontSize: 44,
+            lineHeight: 1,
+            color: C.primary,
+            margin: 0,
+          }}
+        >
+          {day}
+        </p>
+        <p
+          style={{
+            fontFamily: BODY,
+            fontSize: 12,
+            letterSpacing: "0.15em",
+            fontWeight: 600,
+            color: C.secondary,
+            marginTop: 8,
+          }}
+        >
+          {dayCaps}
+        </p>
+      </div>
+    </GlassCard>
+  );
+}
+
 function ParentsAndEventBento({
-  maleParents,
-  femaleParents,
+  organizerText,
   isoDate,
 }: {
-  maleParents: string;
-  femaleParents: string;
+  organizerText: string;
   isoDate: string | null;
 }) {
   const d = isoDate ? new Date(isoDate) : new Date(DEFAULTS.isoDate);
@@ -555,7 +645,7 @@ function ParentsAndEventBento({
       style={{ background: C.background }}
     >
       <div className="max-w-lg mx-auto space-y-6">
-        {/* Parents card */}
+        {/* Parents / organizer card — shows exactly what was typed */}
         <Reveal>
           <GlassCard style={{ padding: 32 }}>
             <div className="flex flex-col items-center">
@@ -576,53 +666,17 @@ function ParentsAndEventBento({
               >
                 ТОЙ ИЕЛЕРІ:
               </h3>
-              <div className="space-y-4 text-center">
-                <div>
-                  <p
-                    style={{
-                      fontFamily: HEADLINE,
-                      fontWeight: 600,
-                      fontSize: 22,
-                      color: C.onSurface,
-                    }}
-                  >
-                    {maleParents}
-                  </p>
-                  {/* <p
-                    style={{
-                      fontFamily: BODY,
-                      fontSize: 13,
-                      color: C.onSurfaceVariant,
-                    }}
-                  >
-                    Жігіт жағынан
-                  </p> */}
-                </div>
-                <div
-                  className="h-px w-8 mx-auto"
-                  style={{ background: C.outlineVariant }}
+              <div className="text-center">
+                <MultilineText
+                  text={organizerText}
+                  style={{
+                    fontFamily: HEADLINE,
+                    fontWeight: 600,
+                    fontSize: 15,
+                    color: C.onSurface,
+                    whiteSpace: "pre-wrap",
+                  }}
                 />
-                {/* <div>
-                  <p
-                    style={{
-                      fontFamily: HEADLINE,
-                      fontWeight: 600,
-                      fontSize: 22,
-                      color: C.onSurface,
-                    }}
-                  >
-                    {femaleParents}
-                  </p>
-                  <p
-                    style={{
-                      fontFamily: BODY,
-                      fontSize: 13,
-                      color: C.onSurfaceVariant,
-                    }}
-                  >
-                    Қыз жағынан
-                  </p>
-                </div> */}
               </div>
             </div>
           </GlassCard>
@@ -631,46 +685,11 @@ function ParentsAndEventBento({
         {/* Calendar + clock */}
         <div className="grid grid-cols-2 gap-6">
           <Reveal delay={0.05}>
-            <GlassCard
-              className="flex flex-col items-center justify-center"
-              style={{ padding: 24, height: "100%" }}
-            >
-              <p
-                style={{
-                  fontFamily: BODY,
-                  fontSize: 12,
-                  letterSpacing: "0.15em",
-                  fontWeight: 600,
-                  color: C.secondary,
-                  marginBottom: 6,
-                }}
-              >
-                {monthCaps}
-              </p>
-              <p
-                style={{
-                  fontFamily: HEADLINE,
-                  fontWeight: 700,
-                  fontSize: 40,
-                  lineHeight: 1,
-                  color: C.primary,
-                }}
-              >
-                {d.getDate()}
-              </p>
-              <p
-                style={{
-                  fontFamily: BODY,
-                  fontSize: 12,
-                  letterSpacing: "0.15em",
-                  fontWeight: 600,
-                  color: C.secondary,
-                  marginTop: 8,
-                }}
-              >
-                {dayCaps}
-              </p>
-            </GlassCard>
+            <CalendarDayCard
+              monthCaps={monthCaps}
+              day={d.getDate()}
+              dayCaps={dayCaps}
+            />
           </Reveal>
           <Reveal delay={0.1}>
             <GlassCard
@@ -852,13 +871,12 @@ function VenueSection({
               <div className="space-y-3">
                 {extras.map((e, i) => (
                   <div key={i} className="flex items-start gap-3">
-                    <div
-                      className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                      style={{ background: C.secondaryContainer }}
-                    >
-                      <div
-                        className="w-1.5 h-1.5 rounded-full"
-                        style={{ background: C.primary }}
+                    <div className="flex-shrink-0 mt-0.5">
+                      <Icon
+                        name="auto_awesome"
+                        size={16}
+                        filled
+                        style={{ color: C.primary }}
                       />
                     </div>
                     <p
@@ -950,7 +968,7 @@ function GalleryBento({ images }: { images: string[] }) {
         {last && (
           <Reveal delay={0.12}>
             <div
-              className="w-full h-80 rounded-xl bg-cover bg-top"
+              className="w-full h-80 rounded-xl bg-cover bg-center"
               style={{ backgroundImage: `url('${last}')` }}
             />
           </Reveal>
@@ -1021,13 +1039,13 @@ function PoemAndCoupleSection({
             >
               {hasPhoto3 && (
                 <div
-                  className="h-72 rounded-xl bg-cover bg-top"
+                  className="h-72 rounded-xl bg-cover bg-center"
                   style={{ backgroundImage: `url('${photo3}')` }}
                 />
               )}
               {hasPhoto4 && (
                 <div
-                  className="h-72 rounded-xl bg-cover bg-top"
+                  className="h-72 rounded-xl bg-cover bg-center"
                   style={{ backgroundImage: `url('${photo4}')` }}
                 />
               )}
@@ -1505,12 +1523,9 @@ export default function Template1({
   const femaleName = wedding.female_name || DEFAULTS.femaleName;
   const tagline = DEFAULTS.tagline;
 
-  const organizerLines = (wedding.organizer || "")
-    .split("\n")
-    .map(decodeHtmlEntities)
-    .filter(Boolean);
-  const maleParents = organizerLines[0] || DEFAULTS.maleParents;
-  const femaleParents = organizerLines[1] || DEFAULTS.femaleParents;
+  const organizerText = wedding.organizer
+    ? wedding.organizer
+    : `${DEFAULTS.maleParents}\n${DEFAULTS.femaleParents}`;
 
   const venueName = wedding.venue_name || DEFAULTS.venueName;
   const venueAddress = wedding.venue_address || DEFAULTS.venueAddress;
@@ -1552,11 +1567,7 @@ export default function Template1({
 
       <InvitationText body={wedding.description1 || null} />
 
-      <ParentsAndEventBento
-        maleParents={maleParents}
-        femaleParents={femaleParents}
-        isoDate={isoDate}
-      />
+      <ParentsAndEventBento organizerText={organizerText} isoDate={isoDate} />
 
       <VenueSection
         venueName={venueName}
