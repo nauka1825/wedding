@@ -12,7 +12,6 @@ const OPTIONS: { value: RSVPStatus; labelKz: string; desc: string }[] = [
 
 const STORAGE_KEY = (weddingId: string) => `rsvp_sent_${weddingId}`;
 
-// Template1-тэй ижил фонтууд (GlobalFonts-оор ачаалагдсан)
 const HEADLINE = "'Playfair Display', Georgia, serif";
 const BODY = "'Montserrat', sans-serif";
 

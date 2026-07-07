@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { formatDate, Wedding } from "@/lib/supabase";
+import { Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
 import {
   FaHeart,
@@ -15,11 +15,13 @@ import {
   FaEnvelopeOpenText,
   FaChevronLeft,
   FaChevronRight,
+  FaCameraRetro,
 } from "react-icons/fa";
 import { MdOutlineCalendarMonth, MdOutlineSchedule } from "react-icons/md";
 import { BsStars } from "react-icons/bs";
 import Song from "../song";
 import RSVPSection from "../RSVPSection";
+import GoogleMapEmbed from "../GoogleMapEmbed";
 
 /* ───────────────────────────────────────────────────────────
    DESIGN TOKENS — pulled 1:1 from the HTML reference's
@@ -90,6 +92,21 @@ const F_BODY_MD = {
   fontWeight: 400,
 };
 
+const KAZ_MONTHS = [
+  "Қаңтар",
+  "Ақпан",
+  "Наурыз",
+  "Сәуір",
+  "Мамыр",
+  "Маусым",
+  "Шілде",
+  "Тамыз",
+  "Қыркүйек",
+  "Қазан",
+  "Қараша",
+  "Желтоқсан",
+];
+
 /* ─── useInView (scroll-reveal, same behavior as HTML's IntersectionObserver .reveal) ─── */
 function useInView(threshold = 0.12) {
   const ref = useRef<HTMLDivElement>(null);
@@ -136,6 +153,54 @@ function Reveal({
     >
       {children}
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------------
+   HTML-entity decode + multiline text renderer (ported from Template1).
+   organizer / description1 / description2 are stored with raw entities
+   like "&amp;" and with "\n" line breaks from a <textarea>. These helpers
+   decode the entities and reproduce the line breaks exactly as typed.
+   ------------------------------------------------------------------------ */
+function decodeHtmlEntities(str: string | null | undefined): string {
+  if (!str) return "";
+  return str
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#0*39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&nbsp;/g, " ");
+}
+
+function MultilineText({
+  text,
+  style = {},
+  className = "",
+}: {
+  text: string | null | undefined;
+  style?: React.CSSProperties;
+  className?: string;
+}) {
+  const decoded = decodeHtmlEntities(text);
+  const lines = decoded.split("\n");
+  return (
+    <>
+      {lines.map((line, i) => (
+        <p
+          key={i}
+          className={className}
+          style={{
+            margin: 0,
+            marginBottom: i < lines.length - 1 ? 6 : 0,
+            ...style,
+          }}
+        >
+          {line === "" ? "\u00A0" : line}
+        </p>
+      ))}
+    </>
   );
 }
 
@@ -317,6 +382,7 @@ const NAV_ITEMS = [
   { id: "section-hero", icon: FaHeart, label: "Есімдер" },
   { id: "section-photos", icon: FaImages, label: "Фотолар" },
   { id: "section-details", icon: FaCalendarAlt, label: "Мәліметтер" },
+  { id: "section-poem", icon: FaCameraRetro, label: "Хикая" },
   { id: "section-messages", icon: FaEnvelopeOpenText, label: "Тілектер" },
 ];
 
@@ -373,6 +439,7 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
             display: "flex",
             flexDirection: "row",
             gap: 8,
+            flexWrap: "wrap",
           }}
         >
           {NAV_ITEMS.map(({ id, icon: Icon, label }) => (
@@ -380,7 +447,7 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
               key={id}
               onClick={() => scrollTo(id)}
               style={{
-                flex: 1,
+                flex: "1 1 30%",
                 minWidth: 0,
                 display: "flex",
                 flexDirection: "column",
@@ -417,7 +484,10 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
 
 /* ─────────────────────────────────────────────────────────────
    SECTION 1 — Hero (photo + names + invitation text)
-   Matches HTML's Hero section + Names & Invitation section
+   Matches HTML's Hero section + Names & Invitation section.
+   Now renders wedding.description1 (the actual typed invitation
+   speech) when present, falling back to the generic sentence
+   only when the organizer left it blank.
    ───────────────────────────────────────────────────────────── */
 // Hero background — the rings photo used in the original HTML reference design
 const HERO_STOCK_IMAGE =
@@ -427,10 +497,12 @@ function HeroSection({
   mainPhotoUrl,
   maleName,
   femaleName,
+  description1,
 }: {
   mainPhotoUrl?: string | null;
   maleName: string;
   femaleName: string;
+  description1?: string | null;
 }) {
   return (
     <section id="section-hero">
@@ -492,20 +564,34 @@ function HeroSection({
           >
             {maleName} &amp; {femaleName}
           </h3>
-          <p
-            style={{
-              fontFamily: "'EB Garamond', serif",
-              fontSize: 15,
-              lineHeight: 1.7,
-              fontStyle: "italic",
-              color: C.onSurfaceVariant,
-            }}
-          >
-            Құрметті ағайын-туыс, құда-жекжат, дос-жаран, әріптестер мен
-            көршілер! Сіздерді ұлымыз {maleName} пен келініміз {femaleName}
-            -ның үйлену тойына арналған салтанатты ақ дастарханымыздың қадірлі
-            қонағы болуға шақырамыз!
-          </p>
+          {description1 ? (
+            <MultilineText
+              text={description1}
+              style={{
+                fontFamily: "'EB Garamond', serif",
+                fontSize: 15,
+                lineHeight: 1.7,
+                fontStyle: "italic",
+                color: C.onSurfaceVariant,
+                whiteSpace: "pre-wrap",
+              }}
+            />
+          ) : (
+            <p
+              style={{
+                fontFamily: "'EB Garamond', serif",
+                fontSize: 15,
+                lineHeight: 1.7,
+                fontStyle: "italic",
+                color: C.onSurfaceVariant,
+              }}
+            >
+              Құрметті ағайын-туыс, құда-жекжат, дос-жаран, әріптестер мен
+              көршілер! Сіздерді ұлымыз {maleName} пен келініміз {femaleName}
+              -ның үйлену тойына арналған салтанатты ақ дастарханымыздың қадірлі
+              қонағы болуға шақырамыз!
+            </p>
+          )}
         </div>
         <BsStars size={26} style={{ color: C.gold, marginTop: 8 }} />
       </Reveal>
@@ -614,20 +700,21 @@ function OrganizerSection({
 
 /* ─────────────────────────────────────────────────────────────
    SECTION 2 — Photos / gallery
-   Matches HTML's horizontal snap-scroll gallery w/ prev-next arrows
+   Matches HTML's horizontal snap-scroll gallery w/ prev-next arrows.
+   Uses gallery_urls (the actual photo album) and falls back to
+   photo3_url only if no gallery was uploaded, so photo3/photo4
+   stay reserved for the couple-portrait poem section below.
    ───────────────────────────────────────────────────────────── */
 function PhotosSection({
-  photo3Url,
   galleryUrls,
 }: {
-  photo3Url: string | null;
   galleryUrls: string[] | null | undefined;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollBy = (dir: 1 | -1) => {
     scrollRef.current?.scrollBy({ left: dir * 300, behavior: "smooth" });
   };
-  const urls = galleryUrls?.length ? galleryUrls : photo3Url ? [photo3Url] : [];
+  const urls = galleryUrls?.length ? galleryUrls : [];
   if (!urls.length) return <section id="section-photos" />;
 
   return (
@@ -732,8 +819,10 @@ function PhotosSection({
 }
 
 /* ─────────────────────────────────────────────────────────────
-   SECTION 3 — Details (date / time / venue / extras)
-   Matches HTML's Details Section grid + venue block exactly
+   SECTION 3 — Details (date / time / venue / extras / map)
+   Matches HTML's Details Section grid + venue block, now with the
+   real Google Map embed and a working "view on map" link, driven
+   by latitude/longitude — same data Template1 already uses.
    ───────────────────────────────────────────────────────────── */
 function DetailsSection({
   date,
@@ -742,6 +831,8 @@ function DetailsSection({
   venueAddress,
   extras,
   photo5Url,
+  latitude,
+  longitude,
 }: {
   date: string | null;
   time: string | null;
@@ -749,6 +840,8 @@ function DetailsSection({
   venueAddress: string | null;
   extras: (string | null | undefined)[];
   photo5Url: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }) {
   const timeSubtitle = (() => {
     if (!time) return null;
@@ -759,6 +852,20 @@ function DetailsSection({
     h = h % 12 || 12;
     return `Sharp at ${h}:${mStr} ${ampm}`;
   })();
+
+  const hasCoords =
+    typeof latitude === "number" &&
+    typeof longitude === "number" &&
+    !Number.isNaN(latitude) &&
+    !Number.isNaN(longitude);
+
+  const mapsHref = hasCoords
+    ? `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
+    : venueAddress
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+          venueAddress,
+        )}`
+      : null;
 
   return (
     <section
@@ -874,24 +981,68 @@ function DetailsSection({
               {venueAddress}
             </p>
           )}
-          <button
-            style={{
-              marginTop: 24,
-              padding: "12px 32px",
-              background: C.primary,
-              color: C.secondaryFixed,
-              border: `1px solid ${C.secondary}`,
-              ...F_LABEL_CAPS,
-              cursor: "pointer",
-              transition: "background-color 0.2s ease",
-            }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = C.onPrimaryFixedVariant)
-            }
-            onMouseLeave={(e) => (e.currentTarget.style.background = C.primary)}
-          >
-            КАРТАДАН КӨРУ
-          </button>
+
+          {hasCoords && (
+            <div
+              style={{
+                marginTop: 24,
+                maxWidth: 480,
+                marginLeft: "auto",
+                marginRight: "auto",
+              }}
+            >
+              <GoogleMapEmbed
+                address={venueAddress || undefined}
+                latitude={latitude}
+                longitude={longitude}
+                accentColor={C.primary}
+                height={200}
+              />
+            </div>
+          )}
+
+          {mapsHref ? (
+            <a
+              href={mapsHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-block",
+                marginTop: 24,
+                padding: "12px 32px",
+                background: C.primary,
+                color: C.secondaryFixed,
+                border: `1px solid ${C.secondary}`,
+                ...F_LABEL_CAPS,
+                cursor: "pointer",
+                textDecoration: "none",
+                transition: "background-color 0.2s ease",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = C.onPrimaryFixedVariant)
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = C.primary)
+              }
+            >
+              КАРТАДАН КӨРУ
+            </a>
+          ) : (
+            <button
+              disabled
+              style={{
+                marginTop: 24,
+                padding: "12px 32px",
+                background: C.primary,
+                color: C.secondaryFixed,
+                border: `1px solid ${C.secondary}`,
+                opacity: 0.6,
+                ...F_LABEL_CAPS,
+              }}
+            >
+              КАРТАДАН КӨРУ
+            </button>
+          )}
         </Reveal>
       )}
 
@@ -932,6 +1083,166 @@ function DetailsSection({
           />
         </Reveal>
       )}
+    </section>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SECTION — Poem & couple portraits (description2 + photo3/photo4 + links)
+   New section, ported from Template1's PoemAndCoupleSection so the
+   typed verse, the two portrait photos, and the Instagram links that
+   were being dropped now actually show up in Template2.
+   ───────────────────────────────────────────────────────────── */
+function PoemAndCoupleSection({
+  poem,
+  photo3,
+  photo4,
+  link1,
+  link2,
+}: {
+  poem: string | null;
+  photo3: string | null;
+  photo4: string | null;
+  link1: string | null;
+  link2: string | null;
+}) {
+  const hasPhoto3 = Boolean(photo3);
+  const hasPhoto4 = Boolean(photo4);
+  const hasPhotos = hasPhoto3 || hasPhoto4;
+  const hasLinks = Boolean(link1) || Boolean(link2);
+  const hasPoem = Boolean(poem);
+
+  // Only hide the whole section when there's truly nothing to show —
+  // previously this returned null whenever description2 (the poem) was
+  // empty, which also hid photo3/photo4/links even when those were set.
+  if (!hasPoem && !hasPhotos && !hasLinks) return null;
+
+  return (
+    <section
+      id="section-poem"
+      style={{ background: C.surfaceContainerLow, padding: "4rem 5vw" }}
+    >
+      <Reveal
+        className="text-center"
+        style={{ maxWidth: 640, margin: "0 auto" }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: 12,
+          }}
+        >
+          <FaCameraRetro size={24} style={{ color: C.secondary }} />
+        </div>
+        {hasPoem && (
+          <MultilineText
+            text={poem}
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontStyle: "italic",
+              fontSize: 17,
+              color: C.onSurfaceVariant,
+              lineHeight: 1.9,
+              whiteSpace: "pre-wrap",
+            }}
+          />
+        )}
+
+        {hasPhotos && (
+          <div
+            className={`grid gap-3 ${
+              hasPhoto3 && hasPhoto4 ? "grid-cols-2" : "grid-cols-1"
+            }`}
+            style={{ marginTop: 32 }}
+          >
+            {hasPhoto3 && (
+              <div
+                className="h-72"
+                style={{
+                  borderRadius: 8,
+                  overflow: "hidden",
+                  border: `1px solid ${C.secondary}1a`,
+                }}
+              >
+                <img
+                  src={photo3!}
+                  alt="Жігіттің суреті"
+                  className="w-full h-full object-cover"
+                  style={{ display: "block", border: "none" }}
+                />
+              </div>
+            )}
+            {hasPhoto4 && (
+              <div
+                className="h-72"
+                style={{
+                  borderRadius: 8,
+                  overflow: "hidden",
+                  border: `1px solid ${C.secondary}1a`,
+                }}
+              >
+                <img
+                  src={photo4!}
+                  alt="Қыздың суреті"
+                  className="w-full h-full object-cover"
+                  style={{ display: "block", border: "none" }}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {hasLinks && (
+          <div
+            className="flex justify-center gap-4 flex-wrap"
+            style={{ marginTop: 28 }}
+          >
+            {link1 && (
+              <a
+                href={link1}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2"
+                style={{
+                  padding: "10px 24px",
+                  background: C.primary,
+                  color: C.secondaryFixed,
+                  ...F_LABEL_CAPS,
+                  fontSize: 11,
+                  textDecoration: "none",
+                  borderRadius: 999,
+                  border: `1px solid ${C.secondary}`,
+                }}
+              >
+                <FaCameraRetro size={13} />
+                Instagram
+              </a>
+            )}
+            {link2 && (
+              <a
+                href={link2}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2"
+                style={{
+                  padding: "10px 24px",
+                  background: C.primary,
+                  color: C.secondaryFixed,
+                  ...F_LABEL_CAPS,
+                  fontSize: 11,
+                  textDecoration: "none",
+                  borderRadius: 999,
+                  border: `1px solid ${C.secondary}`,
+                }}
+              >
+                <FaCameraRetro size={13} />
+                Instagram
+              </a>
+            )}
+          </div>
+        )}
+      </Reveal>
     </section>
   );
 }
@@ -1149,7 +1460,12 @@ function PaymentLockOverlay({ extra5 }: { extra5?: string | null }) {
 export default function Template2({ wedding }: { wedding: Wedding }) {
   const [navOpen, setNavOpen] = useState(false);
 
-  const date = formatDate(wedding.wedding_date);
+  const isoDate = wedding.wedding_date || null;
+  const dateObj = isoDate ? new Date(isoDate) : null;
+  const date =
+    dateObj && !Number.isNaN(dateObj.getTime())
+      ? `${KAZ_MONTHS[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`
+      : null;
   const time = wedding.wedding_date?.includes("T")
     ? wedding.wedding_date.split("T")[1].slice(0, 5)
     : null;
@@ -1163,6 +1479,9 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
 
   const extra5 = wedding.extra5 ? wedding.extra5 : null;
   const isPaymentLocked = String((wedding as any).payment) === "2";
+
+  const latitude = (wedding as any).latitude ?? null;
+  const longitude = (wedding as any).longitude ?? null;
 
   if (isPaymentLocked) {
     return <PaymentLockOverlay extra5={extra5} />;
@@ -1196,6 +1515,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           mainPhotoUrl={wedding.main_photo_url}
           maleName={wedding.male_name}
           femaleName={wedding.female_name}
+          description1={wedding.description1}
         />
 
         {wedding.organizer && (
@@ -1213,11 +1533,18 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           venueAddress={wedding.venue_address}
           extras={extras}
           photo5Url={wedding.photo5_url}
+          latitude={latitude}
+          longitude={longitude}
         />
 
-        <PhotosSection
-          photo3Url={wedding.photo3_url}
-          galleryUrls={wedding.gallery_urls}
+        <PhotosSection galleryUrls={wedding.gallery_urls} />
+
+        <PoemAndCoupleSection
+          poem={wedding.description2 || null}
+          photo3={wedding.photo3_url || null}
+          photo4={wedding.photo4_url || null}
+          link1={wedding.link1 || null}
+          link2={wedding.link2 || null}
         />
 
         <MessagesSection weddingId={wedding.id} />
