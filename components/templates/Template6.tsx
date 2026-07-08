@@ -2070,28 +2070,6 @@ export default function Template6({
                 SECTION 3: МӘЛІМЕТТЕР — Дата/Уақыт/Мекен/Extras
             ═══════════════════════════════════════════════════ */}
             <section id="section-details">
-              {date && (
-                <ScrollRevealSection
-                  direction="up"
-                  delay={0}
-                  style={{ textAlign: "center", marginTop: 20 }}
-                >
-                  <FloralDots />
-                  <p
-                    className="fade-up fade-3 mt-3 uppercase"
-                    style={{
-                      fontSize: 14,
-                      letterSpacing: "0.44em",
-                      fontFamily: "'Optima',sans-serif",
-                      color: "rgba(0,65,106,0.90)",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {date}
-                  </p>
-                </ScrollRevealSection>
-              )}
-
               {wedding.wedding_date && (
                 <ScrollRevealSection
                   direction="right"
