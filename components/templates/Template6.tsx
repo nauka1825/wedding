@@ -135,7 +135,7 @@ const T6: Record<Lang, T6Translations> = {
     groomSide: "Хүргэн тал",
     brideSide: "Бэр тал",
     timeLabel: "Цаг",
-    venueLabel: "Байршил",
+    venueLabel: "Байршил, хаяг",
     wishesTitle: "Ерөөл хүсэлт",
     galleryTitle: "Зургийн цомог",
     galleryCaption: "❤️ Бидний хайрын дурсамжууд ❤️",
