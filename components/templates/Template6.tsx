@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { formatDate, Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
 import {
@@ -13,6 +13,225 @@ import {
 } from "react-icons/fa";
 import RSVPSection from "../RSVPSection";
 import Template6Music from "../template6Music";
+
+/* ======================================================================
+   BILINGUAL SUPPORT (Kazakh / Mongolian)
+   ====================================================================== */
+export type Lang = "kk" | "mn";
+
+interface T6Translations {
+  langButtonLabel: string;
+  calendarMonths: string[]; // Title case, used for calendar header + date text
+  calendarDays: string[]; // Mon..Sun abbreviations
+  photoWord: string; // "сурет" / "зураг"
+  mainPhotoAlt: string;
+  groomPhotoAlt: string;
+  extraPhotoAlt: string;
+  invitationLine1: string;
+  invitationLine2: string;
+  invitationConnector: string;
+  invitationLine3: string;
+  organizerTitle: string;
+  organizerSubtitle: string;
+  parentsTitle: string;
+  groomSide: string;
+  brideSide: string;
+  timeLabel: string;
+  venueLabel: string;
+  wishesTitle: string;
+  galleryTitle: string;
+  galleryCaption: string;
+  paymentLocked: string;
+  footerPoem: string[];
+  nav: {
+    love: string;
+    photos: string;
+    details: string;
+    wishes: string;
+  };
+}
+
+const T6: Record<Lang, T6Translations> = {
+  kk: {
+    langButtonLabel: "ҚАЗ",
+    calendarMonths: [
+      "Қаңтар",
+      "Ақпан",
+      "Наурыз",
+      "Сәуір",
+      "Мамыр",
+      "Маусым",
+      "Шілде",
+      "Тамыз",
+      "Қыркүйек",
+      "Қазан",
+      "Қараша",
+      "Желтоқсан",
+    ],
+    calendarDays: ["Дс", "Сс", "Ср", "Бс", "Жм", "Сб", "Жк"],
+    photoWord: "сурет",
+    mainPhotoAlt: "Негізгі сурет",
+    groomPhotoAlt: "Ер",
+    extraPhotoAlt: "Қосымша сурет",
+    invitationLine1:
+      "Құрметті ағайын-туыс, құда-жекжат, дос-жаран, әріптестер мен көршілер!",
+    invitationLine2: "Сіздерді ұлымыз",
+    invitationConnector: "пен келініміз",
+    invitationLine3:
+      "ның үйлену тойына арналған салтанатты ақ дастарханымыздың қадірлі қонағы болуға шақырамыз!",
+    organizerTitle: "Той иелері",
+    organizerSubtitle: "Ата анасы",
+    parentsTitle: "Ата-аналары",
+    groomSide: "Күйеу жақ",
+    brideSide: "Келін жақ",
+    timeLabel: "Уақыты",
+    venueLabel: "Мекен жайымыз",
+    wishesTitle: "Тілектер",
+    galleryTitle: "Суреттер жиынтығы",
+    galleryCaption: "❤️ Біздің махаббатымыздың естеліктері ❤️",
+    paymentLocked: "Төлем төленбеген",
+    footerPoem: [
+      "Біз екеуміз тек екеуміз",
+      "Жүректермен бір екенбіз",
+      "Мен сен үшін сен мен үшін",
+      "Жаралған екенбіз",
+    ],
+    nav: {
+      love: "Махаббат",
+      photos: "Фотолар",
+      details: "Мәліметтер",
+      wishes: "Тілектер",
+    },
+  },
+  mn: {
+    langButtonLabel: "МОН",
+    calendarMonths: [
+      "Нэгдүгээр сар",
+      "Хоёрдугаар сар",
+      "Гуравдугаар сар",
+      "Дөрөвдүгээр сар",
+      "Тавдугаар сар",
+      "Зургадугаар сар",
+      "Долдугаар сар",
+      "Наймдугаар сар",
+      "Есдүгээр сар",
+      "Аравдугаар сар",
+      "Арван нэгдүгээр сар",
+      "Арван хоёрдугаар сар",
+    ],
+    calendarDays: ["Да", "Мя", "Лх", "Пү", "Ба", "Бя", "Ня"],
+    photoWord: "зураг",
+    mainPhotoAlt: "Үндсэн зураг",
+    groomPhotoAlt: "Хүргэн",
+    extraPhotoAlt: "Нэмэлт зураг",
+    invitationLine1:
+      "Эрхэм ах дүү нар, худ санваартан, найз нөхөд, хамт олон, хөршүүддээ!",
+    invitationLine2: "Таныг хүү",
+    invitationConnector: "болон бэрийгээ",
+    invitationLine3: "-ын хуримын ёслолд хүндэт зочноор урьж байна!",
+    organizerTitle: "Хурим эзэд",
+    organizerSubtitle: "Эцэг эх",
+    parentsTitle: "Эцэг эхчүүд",
+    groomSide: "Хүргэн тал",
+    brideSide: "Бэр тал",
+    timeLabel: "Цаг",
+    venueLabel: "Байршил",
+    wishesTitle: "Ерөөл хүсэлт",
+    galleryTitle: "Зургийн цомог",
+    galleryCaption: "❤️ Бидний хайрын дурсамжууд ❤️",
+    paymentLocked: "Төлбөр төлөгдөөгүй",
+    footerPoem: [
+      "Чамд дурла гэж заяа минь намайг хөтөлсөн",
+      "Чамайг хайрла гэж хорвоо надад тушаасан",
+      "Хамгаас илүү гэж бурхан надад шивнэсэн",
+      "Хайрлаж явья гэж харин би өөрөө шийдсэн",
+    ],
+    nav: {
+      love: "Хайр",
+      photos: "Зургууд",
+      details: "Дэлгэрэнгүй",
+      wishes: "Ерөөл",
+    },
+  },
+};
+
+const LangContext = createContext<{
+  lang: Lang;
+  t: T6Translations;
+  toggleLang: () => void;
+}>({
+  lang: "kk",
+  t: T6.kk,
+  toggleLang: () => {},
+});
+
+function useLang() {
+  return useContext(LangContext);
+}
+
+function LanguageToggle() {
+  const { lang, toggleLang } = useLang();
+  return (
+    <button
+      onClick={toggleLang}
+      className="fixed top-4 right-4 z-[110] flex items-center gap-1 rounded-full px-3 py-1.5 transition-transform active:scale-95"
+      style={{
+        background: "rgba(255,255,255,0.88)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        border: "0.5px solid rgba(0,65,106,0.25)",
+        boxShadow: "0 6px 16px rgba(0,65,106,0.15)",
+        fontFamily: "'Optima',sans-serif",
+        fontSize: 11,
+        fontWeight: 600,
+        letterSpacing: "0.1em",
+        color: "#00416A",
+      }}
+      aria-label="Switch language / Хэл сэлгэх"
+    >
+      <span style={{ opacity: lang === "kk" ? 1 : 0.4 }}>ҚАЗ</span>
+      <span style={{ opacity: 0.35 }}>/</span>
+      <span style={{ opacity: lang === "mn" ? 1 : 0.4 }}>МОН</span>
+    </button>
+  );
+}
+
+function formatEventDate(
+  iso: string | null | undefined,
+  months: string[],
+): string | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return `${d.getDate()} ${months[d.getMonth()]}, ${d.getFullYear()}`;
+}
+
+/* ------------------------------------------------------------------------
+   pickLang — some wedding fields come from the DB with BOTH languages
+   packed into a single string, e.g.:
+     "kk: Баян-Өлгий қаласы Өлгий сұмыны  mn: Баян-Өлгий аймаг Өлгий сум"
+   This pulls out just the part matching the active language. If only one
+   of "kk:" / "mn:" is present, that one is used regardless of active
+   language. If neither label is present, the original text is returned
+   as-is (so plain, non-tagged fields keep working exactly like before).
+   ------------------------------------------------------------------------ */
+function pickLang(raw: string | null | undefined, lang: Lang): string {
+  if (!raw) return "";
+  const labelRe = /\b(kk|mn)\s*:\s*/gi;
+  const matches = [...raw.matchAll(labelRe)];
+  if (matches.length === 0) return raw.trim();
+
+  const parts: Partial<Record<Lang, string>> = {};
+  matches.forEach((m, i) => {
+    const label = m[1].toLowerCase() as Lang;
+    const start = (m.index ?? 0) + m[0].length;
+    const end = i + 1 < matches.length ? matches[i + 1].index! : raw.length;
+    const value = raw.slice(start, end).trim();
+    if (value) parts[label] = value;
+  });
+
+  return parts[lang] ?? parts.kk ?? parts.mn ?? raw.trim();
+}
 
 // ─── useInView hook ───
 function useInView(threshold = 0.15) {
@@ -138,23 +357,8 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
 }
 
 // ─── AnimatedCalendar ───
-const KAZ_MONTHS = [
-  "Қаңтар",
-  "Ақпан",
-  "Наурыз",
-  "Сәуір",
-  "Мамыр",
-  "Маусым",
-  "Шілде",
-  "Тамыз",
-  "Қыркүйек",
-  "Қазан",
-  "Қараша",
-  "Желтоқсан",
-];
-const KAZ_DAYS = ["Дс", "Сс", "Ср", "Бс", "Жм", "Сб", "Жк"];
-
 function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
+  const { t } = useLang();
   if (!dateStr) return null;
   const d = new Date(dateStr);
   const year = d.getFullYear();
@@ -269,7 +473,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
               zIndex: 1,
             }}
           >
-            {KAZ_MONTHS[month]} · {year}
+            {t.calendarMonths[month]} · {year}
           </p>
         </div>
         <div
@@ -281,7 +485,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
           <div
             style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)" }}
           >
-            {KAZ_DAYS.map((d) => (
+            {t.calendarDays.map((d) => (
               <div
                 key={d}
                 style={{
@@ -400,6 +604,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
 
 // ─── GallerySwiper ───
 function GallerySwiper({ urls }: { urls: string[] }) {
+  const { t } = useLang();
   const [active, setActive] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -478,7 +683,7 @@ function GallerySwiper({ urls }: { urls: string[] }) {
           >
             <img
               src={url}
-              alt={`сурет ${i + 1}`}
+              alt={`${t.photoWord} ${i + 1}`}
               className="w-full h-full object-contain"
               style={{
                 display: "block",
@@ -614,33 +819,6 @@ function Label({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── Card ───
-function Card({
-  children,
-  className = "",
-  style = {},
-}: {
-  children: React.ReactNode;
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <div
-      className={`relative ${className}`}
-      style={{
-        background: "#ffffff",
-        border: "0.5px solid rgba(0,65,106,0.18)",
-        borderRadius: 16,
-        boxShadow:
-          "0 2px 20px rgba(0,0,0,0.05),0 1px 4px rgba(0,0,0,0.03),inset 0 0 0 1px rgba(255,255,255,0.8)",
-        ...style,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
 // ─── SectionHeader ───
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
@@ -694,6 +872,7 @@ function DateTimeBlock({
   date: string | null;
   time: string | null;
 }) {
+  const { t } = useLang();
   const { ref, visible } = useInView(0.2);
   return (
     <div ref={ref} className="text-center" style={{ padding: "4px 0" }}>
@@ -729,7 +908,7 @@ function DateTimeBlock({
           pointer-events: none;
         }
       `}</style>
-      <Label>Уақыты</Label>
+      <Label>{t.timeLabel}</Label>
       <FloralDots />
       <div
         className="dtb-frame mt-4 mx-auto"
@@ -937,6 +1116,7 @@ function InvitationHero({
   maleName: string;
   femaleName: string;
 }) {
+  const { t } = useLang();
   const { ref, visible } = useInView(0.1);
   return (
     <div
@@ -969,7 +1149,7 @@ function InvitationHero({
           animationPlayState: visible ? "running" : "paused",
         }}
       >
-        Құрметті ағайын-туыс, құда-жекжат, дос-жаран, әріптестер мен көршілер!
+        {t.invitationLine1}
       </p>
       <p
         className="inv-from-left"
@@ -986,7 +1166,7 @@ function InvitationHero({
           animationPlayState: visible ? "running" : "paused",
         }}
       >
-        Сіздерді ұлымыз
+        {t.invitationLine2}
       </p>
       <p
         className="name-solid inv-name-pop"
@@ -1036,7 +1216,7 @@ function InvitationHero({
             margin: 0,
           }}
         >
-          пен келініміз
+          {t.invitationConnector}
         </p>
         <div
           style={{
@@ -1079,8 +1259,7 @@ function InvitationHero({
           animationPlayState: visible ? "running" : "paused",
         }}
       >
-        ның үйлену тойына арналған салтанатты ақ дастарханымыздың қадірлі қонағы
-        болуға шақырамыз!
+        {t.invitationLine3}
       </p>
       <div
         className="inv-fade-up"
@@ -1104,6 +1283,7 @@ function OrganizerBlock({
   maleParents?: string | null;
   femaleParents?: string | null;
 }) {
+  const { t } = useLang();
   const lines = organizer.split("\n").filter(Boolean);
   return (
     <div className="mx-5 mt-8 py-2">
@@ -1153,7 +1333,7 @@ function OrganizerBlock({
               textTransform: "uppercase",
             }}
           >
-            Той иелері
+            {t.organizerTitle}
           </p>
           <svg viewBox="0 0 20 18" width="16" height="14">
             <path
@@ -1179,7 +1359,7 @@ function OrganizerBlock({
             color: "#002237",
           }}
         >
-          Ата анасы
+          {t.organizerSubtitle}
         </p>
         <div
           style={{
@@ -1339,7 +1519,7 @@ function OrganizerBlock({
                   textTransform: "uppercase",
                 }}
               >
-                Ата-аналары
+                {t.parentsTitle}
               </p>
               <div
                 style={{
@@ -1371,7 +1551,7 @@ function OrganizerBlock({
                       fontWeight: 400,
                     }}
                   >
-                    Күйеу жақ
+                    {t.groomSide}
                   </p>
                   <p
                     style={{
@@ -1442,7 +1622,7 @@ function OrganizerBlock({
                       fontWeight: 400,
                     }}
                   >
-                    Келін жақ
+                    {t.brideSide}
                   </p>
                   <p
                     style={{
@@ -1510,16 +1690,17 @@ function RotatingOrnament({
   );
 }
 
-// ─── SECTION NAV (adapted from Template6, navy palette) ───
-const NAV_ITEMS = [
-  { id: "section-hero", emoji: "💍", label: "Love" },
-  { id: "section-photos", emoji: "📸", label: "Фотолар" },
-  { id: "section-details", emoji: "📅", label: "Мәліметтер" },
-  { id: "section-messages", emoji: "💌", label: "Тілектер" },
-];
-
+// ─── SECTION NAV ───
 function SectionNavBar() {
+  const { t } = useLang();
   const [active, setActive] = useState("section-hero");
+
+  const NAV_ITEMS = [
+    { id: "section-hero", emoji: "💍", label: t.nav.love },
+    { id: "section-photos", emoji: "📸", label: t.nav.photos },
+    { id: "section-details", emoji: "📅", label: t.nav.details },
+    { id: "section-messages", emoji: "💌", label: t.nav.wishes },
+  ];
 
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
@@ -1544,6 +1725,7 @@ function SectionNavBar() {
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -1635,25 +1817,46 @@ function SectionNavBar() {
 }
 
 // ─── MAIN ───
-export default function Template6({ wedding }: { wedding: Wedding }) {
-  const date = formatDate(wedding.wedding_date);
+export default function Template6({
+  wedding,
+  defaultLang = "kk",
+}: {
+  wedding: Wedding;
+  defaultLang?: Lang;
+}) {
+  const [lang, setLang] = useState<Lang>(defaultLang);
+  const t = T6[lang];
+  const toggleLang = () => setLang((prev) => (prev === "kk" ? "mn" : "kk"));
+
+  const date = formatEventDate(wedding.wedding_date, t.calendarMonths);
   const time = wedding.wedding_date?.includes("T")
     ? wedding.wedding_date.split("T")[1].slice(0, 5)
     : null;
 
+  // Some fields may store both languages inline ("kk: ... mn: ...");
+  // pick out the part matching the active language (falls back to
+  // whatever is available, or the raw text if it isn't tagged at all).
+  const venueName = pickLang(wedding.venue_name, lang);
+  const venueAddress = pickLang(wedding.venue_address, lang);
+  const organizer = pickLang(wedding.organizer, lang);
+  const maleParents = pickLang((wedding as any).male_parents, lang);
+  const femaleParents = pickLang((wedding as any).female_parents, lang);
+  const description1 = pickLang(wedding.description1, lang);
+
   const extras = [
-    wedding.extra1,
-    wedding.extra2,
-    wedding.extra3,
-    wedding.extra4,
+    pickLang(wedding.extra1, lang),
+    pickLang(wedding.extra2, lang),
+    pickLang(wedding.extra3, lang),
+    pickLang(wedding.extra4, lang),
   ].filter(Boolean);
 
   const extra5 = wedding.extra5 ? wedding.extra5 : null;
 
   return (
-    <>
+    <LangContext.Provider value={{ lang, t, toggleLang }}>
       {extra5 ? (
         <div className="fixed inset-0 flex items-center justify-center">
+          <LanguageToggle />
           <p
             style={{
               fontFamily: "'Optima',sans-serif",
@@ -1663,7 +1866,7 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
               textTransform: "uppercase",
             }}
           >
-            Төлем төленбеген
+            {t.paymentLocked}
           </p>
 
           <Template6Music />
@@ -1696,6 +1899,8 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
             style={{ background: "#ffffff" }}
           />
 
+          <LanguageToggle />
+
           <div
             className="relative z-10 min-h-screen overflow-y-auto"
             style={{
@@ -1719,7 +1924,7 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
                 {wedding.main_photo_url ? (
                   <img
                     src={wedding.main_photo_url}
-                    alt="Негізгі сурет"
+                    alt={t.mainPhotoAlt}
                     className="w-full h-full object-cover"
                     style={{ display: "block", border: "none" }}
                   />
@@ -1785,12 +1990,12 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
                 />
               </div>
 
-              {wedding.organizer && (
+              {organizer && (
                 <ScrollRevealSection direction="left" delay={0.05}>
                   <OrganizerBlock
-                    organizer={wedding.organizer}
-                    maleParents={(wedding as any).male_parents}
-                    femaleParents={(wedding as any).female_parents}
+                    organizer={organizer}
+                    maleParents={maleParents || null}
+                    femaleParents={femaleParents || null}
                   />
                 </ScrollRevealSection>
               )}
@@ -1820,7 +2025,7 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
                   >
                     <img
                       src={wedding.photo3_url}
-                      alt="Ер"
+                      alt={t.groomPhotoAlt}
                       className="w-full object-cover"
                       style={{
                         display: "block",
@@ -1843,9 +2048,9 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
                     className="shimmer-gold my-2 flex justify-center w-full"
                     style={{ fontSize: 15, fontFamily: "'Optima',sans-serif" }}
                   >
-                    ❤️ Біздің махаббатымыздың естеліктері ❤️
+                    {t.galleryCaption}
                   </p>
-                  <SectionHeader>Суреттер жиынтығы</SectionHeader>
+                  <SectionHeader>{t.galleryTitle}</SectionHeader>
                   <GallerySwiper urls={wedding.gallery_urls} />
                 </ScrollRevealSection>
               )}
@@ -1899,7 +2104,7 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
                     </ScrollRevealSection>
                   )}
 
-                  {(wedding.venue_name || wedding.venue_address) && (
+                  {(venueName || venueAddress) && (
                     <ScrollRevealSection
                       direction="left"
                       delay={0.1}
@@ -1909,9 +2114,9 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
                       }}
                     >
                       <div className="text-center">
-                        <Label>Мекен жайымыз</Label>
+                        <Label>{t.venueLabel}</Label>
                         <FloralDots />
-                        {wedding.venue_name && (
+                        {venueName && (
                           <p
                             className="font-light italic mt-3"
                             style={{
@@ -1922,10 +2127,10 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
                               letterSpacing: "0.01em",
                             }}
                           >
-                            {wedding.venue_name}
+                            {venueName}
                           </p>
                         )}
-                        {wedding.venue_address && (
+                        {venueAddress && (
                           <div className="flex items-start justify-center gap-1.5 mt-2">
                             <FaMapMarkerAlt
                               size={11}
@@ -1946,7 +2151,7 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
                                 lineHeight: 1.6,
                               }}
                             >
-                              {wedding.venue_address}
+                              {venueAddress}
                             </p>
                           </div>
                         )}
@@ -1996,7 +2201,7 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
                 </div>
               </div>
               {/* DESCRIPTION 1 */}
-              {wedding.description1 && (
+              {description1 && (
                 <ScrollRevealSection
                   direction="up"
                   delay={0}
@@ -2047,7 +2252,7 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
                         />
                       </div>
                       <div>
-                        {wedding.description1
+                        {description1
                           .split(/<br\s*\/?>/i)
                           .map((sub) => sub.trim())
                           .filter(Boolean)
@@ -2095,7 +2300,7 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
                   >
                     <img
                       src={wedding.photo5_url}
-                      alt="Қосымша сурет"
+                      alt={t.extraPhotoAlt}
                       style={{
                         display: "block",
                         width: "100%",
@@ -2117,7 +2322,7 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
             >
               <ScrollRevealSection direction="up" delay={0}>
                 <GoldDivider className="mb-6" />
-                <SectionHeader>Тілектер</SectionHeader>
+                <SectionHeader>{t.wishesTitle}</SectionHeader>
                 <div
                   style={{
                     borderRadius: 20,
@@ -2132,6 +2337,7 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
                     weddingId={wedding.id}
                     accentColor="#00416A"
                     lightColor="#eef0f8"
+                    lang={lang}
                   />
                   <div
                     style={{
@@ -2145,6 +2351,7 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
                       accentColor="#00416A"
                       lightColor="#eef0f8"
                       borderColor="border-amber-100"
+                      lang={lang}
                     />
                   </div>
                 </div>
@@ -2157,12 +2364,7 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
               style={{ position: "relative", overflow: "hidden" }}
             >
               <GoldDivider className="mb-5 mx-8" />
-              {[
-                "Біз екеуміз тек екеуміз",
-                "Жүректермен бір екенбіз",
-                "Мен сен үшін сен мен үшін",
-                "Жаралған екенбіз",
-              ].map((line, i) => (
+              {t.footerPoem.map((line, i) => (
                 <p
                   key={i}
                   className={i === 0 ? "mt-4" : "mt-2"}
@@ -2234,6 +2436,6 @@ export default function Template6({ wedding }: { wedding: Wedding }) {
           </div>
         </>
       )}
-    </>
+    </LangContext.Provider>
   );
 }

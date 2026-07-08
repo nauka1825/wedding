@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { formatDate, Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
 import MusicMan from "../MusicMan";
@@ -38,7 +38,6 @@ const BODY = "'Montserrat', sans-serif";
 const DEFAULTS = {
   maleName: "Арман",
   femaleName: "Аружан",
-  tagline: "Бірге болуға серт бердік",
   isoDate: "2024-06-15T19:00",
 
   maleParents: "Болат & Сәуле",
@@ -47,31 +46,169 @@ const DEFAULTS = {
   venueAddress: "Баян-Өлгий,",
 };
 
-const KAZ_MONTHS = [
-  "Қаңтар",
-  "Ақпан",
-  "Наурыз",
-  "Сәуір",
-  "Мамыр",
-  "Маусым",
-  "Шілде",
-  "Тамыз",
-  "Қыркүйек",
-  "Қазан",
-  "Қараша",
-  "Желтоқсан",
-];
-const KAZ_MONTHS_CAPS = KAZ_MONTHS.map((m) => m.toUpperCase());
-const KAZ_DAYS_FULL = [
-  "ЖЕКСЕНБІ",
-  "ДҮЙСЕНБІ",
-  "СЕЙСЕНБІ",
-  "СӘРСЕНБІ",
-  "БЕЙСЕНБІ",
-  "ЖҰМА",
-  "СЕНБІ",
-];
-const KAZ_DAYS = ["Дс", "Сс", "Ср", "Бс", "Жм", "Сб", "Жк"];
+/* ======================================================================
+   BILINGUAL SUPPORT (Kazakh / Mongolian)
+   ====================================================================== */
+export type Lang = "kk" | "mn";
+
+interface TranslationSet {
+  langButtonLabel: string;
+  tagline: string;
+  monthsCaps: string[];
+  daysFull: string[];
+  organizerLabel: string;
+  eventDetailsTitle: string;
+  extraInfoTitle: string;
+  viewOnMap: string;
+  ourStory: string;
+  rsvpTitle: string;
+  rsvpSubtitle: string;
+  wishesTitle: string;
+  footerPoem: string[];
+  paymentLocked: string;
+  nav: {
+    love: string;
+    gallery: string;
+    event: string;
+    venue: string;
+    rsvp: string;
+  };
+}
+
+const TRANSLATIONS: Record<Lang, TranslationSet> = {
+  kk: {
+    langButtonLabel: "ҚАЗ",
+    tagline: "Бірге болуға серт бердік",
+    monthsCaps: [
+      "ҚАҢТАР",
+      "АҚПАН",
+      "НАУРЫЗ",
+      "СӘУІР",
+      "МАМЫР",
+      "МАУСЫМ",
+      "ШІЛДЕ",
+      "ТАМЫЗ",
+      "ҚЫРКҮЙЕК",
+      "ҚАЗАН",
+      "ҚАРАША",
+      "ЖЕЛТОҚСАН",
+    ],
+    daysFull: [
+      "ЖЕКСЕНБІ",
+      "ДҮЙСЕНБІ",
+      "СЕЙСЕНБІ",
+      "СӘРСЕНБІ",
+      "БЕЙСЕНБІ",
+      "ЖҰМА",
+      "СЕНБІ",
+    ],
+    organizerLabel: "ТОЙ ИЕЛЕРІ:",
+    eventDetailsTitle: "Мерекелік мәліметтер",
+    extraInfoTitle: "ҚОСЫМША АҚПАРАТ",
+    viewOnMap: "КАРТАДАН КӨРУ",
+    ourStory: "Біздің хикаямыз",
+    rsvpTitle: "Тойға келетініңізді растаңыз",
+    rsvpSubtitle: "Өтініш, жауабыңызды алдын ала беріңіз",
+    wishesTitle: "Тілектер мен лебіздер",
+    footerPoem: [
+      "Біз екеуміз тек екеуміз",
+      "Жүректермен бір екенбіз",
+      "Мен сен үшін сен мен үшін",
+      "Жаралған екенбіз",
+    ],
+    paymentLocked: "Төлем төленбеген",
+    nav: {
+      love: "Love",
+      gallery: "Gallery",
+      event: "Event",
+      venue: "Venue",
+      rsvp: "RSVP",
+    },
+  },
+  mn: {
+    langButtonLabel: "МОН",
+    tagline: "Хамт байхаар амлалт өглөө",
+    monthsCaps: [
+      "НЭГДҮГЭЭР САР",
+      "ХОЁРДУГААР САР",
+      "ГУРАВДУГААР САР",
+      "ДӨРӨВДҮГЭЭР САР",
+      "ТАВДУГААР САР",
+      "ЗУРГАДУГААР САР",
+      "ДОЛДУГААР САР",
+      "НАЙМДУГААР САР",
+      "ЕСДҮГЭЭР САР",
+      "АРАВДУГААР САР",
+      "АРВАН НЭГДҮГЭЭР САР",
+      "АРВАН ХОЁРДУГААР САР",
+    ],
+    daysFull: ["НЯМ", "ДАВАА", "МЯГМАР", "ЛХАГВА", "ПҮРЭВ", "БААСАН", "БЯМБА"],
+    organizerLabel: "ХУРИМЫН ЭЗЭД:",
+    eventDetailsTitle: "Баярын дэлгэрэнгүй мэдээлэл",
+    extraInfoTitle: "НЭМЭЛТ МЭДЭЭЛЭЛ",
+    viewOnMap: "ГАЗРЫН ЗУРГААС ХАРАХ",
+    ourStory: "Бидний түүх",
+    rsvpTitle: "Хуримд ирэхээ баталгаажуулна уу",
+    rsvpSubtitle: "Хариугаа урьдчилан мэдэгдэнэ үү",
+    wishesTitle: "Ерөөл хүсэлтүүд",
+    footerPoem: [
+      "Чамд дурла гэж заяа минь намайг хөтөлсөн",
+      "Чамайг хайрла гэж хорвоо надад тушаасан",
+      "Хамгаас илүү гэж бурхан надад шивнэсэн",
+      "Хайрлаж явья гэж харин би өөрөө шийдсэн",
+    ],
+    paymentLocked: "Төлбөр төлөгдөөгүй",
+    nav: {
+      love: "Хайр",
+      gallery: "Цомог",
+      event: "Ёслол",
+      venue: "Байршил",
+      rsvp: "RSVP",
+    },
+  },
+};
+
+const LangContext = createContext<{
+  lang: Lang;
+  t: TranslationSet;
+  toggleLang: () => void;
+}>({
+  lang: "kk",
+  t: TRANSLATIONS.kk,
+  toggleLang: () => {},
+});
+
+function useLang() {
+  return useContext(LangContext);
+}
+
+/* Small fixed-position pill for switching between Kazakh / Mongolian */
+function LanguageToggle() {
+  const { lang, toggleLang } = useLang();
+  return (
+    <button
+      onClick={toggleLang}
+      className="fixed top-4 right-4 z-[60] flex items-center gap-1 rounded-full px-3 py-1.5 transition-transform active:scale-95"
+      style={{
+        background: "rgba(255,248,242,0.85)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        border: `1px solid ${C.outlineVariant}`,
+        boxShadow: "0 6px 16px rgba(96,40,70,0.15)",
+        fontFamily: BODY,
+        fontSize: 11,
+        fontWeight: 700,
+        letterSpacing: "0.1em",
+        color: C.primary,
+      }}
+      aria-label="Switch language / Хэл сэлгэх"
+    >
+      <span style={{ opacity: lang === "kk" ? 1 : 0.4 }}>ҚАЗ</span>
+      <span style={{ opacity: 0.35 }}>/</span>
+      <span style={{ opacity: lang === "mn" ? 1 : 0.4 }}>МОН</span>
+    </button>
+  );
+}
 
 /* ======================================================================
    Shared hooks / small helpers
@@ -191,9 +328,9 @@ function SectionEyebrow({ label }: { label: string }) {
   );
 }
 
-function formatKazDate(iso: string) {
+function formatKazDate(iso: string, t: TranslationSet) {
   const d = new Date(iso);
-  return `${KAZ_MONTHS_CAPS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  return `${t.monthsCaps[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 }
 
 function formatTime(iso: string) {
@@ -399,15 +536,14 @@ function Hero({
   mainPhoto,
   maleName,
   femaleName,
-  tagline,
   dateLabel,
 }: {
   mainPhoto: string | null;
   maleName: string;
   femaleName: string;
-  tagline: string;
   dateLabel: string;
 }) {
+  const { t } = useLang();
   return (
     <header
       id="love"
@@ -475,7 +611,7 @@ function Hero({
           className="italic mb-8"
           style={{ fontFamily: HEADLINE, fontSize: 20, color: C.primary }}
         >
-          {tagline}
+          {t.tagline}
         </p>
         <div className="mt-8">
           <span
@@ -633,10 +769,11 @@ function ParentsAndEventBento({
   organizerText: string;
   isoDate: string | null;
 }) {
+  const { t } = useLang();
   const d = isoDate ? new Date(isoDate) : new Date(DEFAULTS.isoDate);
   const time = isoDate ? formatTime(isoDate) : formatTime(DEFAULTS.isoDate);
-  const monthCaps = KAZ_MONTHS_CAPS[d.getMonth()];
-  const dayCaps = KAZ_DAYS_FULL[d.getDay()];
+  const monthCaps = t.monthsCaps[d.getMonth()];
+  const dayCaps = t.daysFull[d.getDay()];
 
   return (
     <section
@@ -664,7 +801,7 @@ function ParentsAndEventBento({
                   color: C.secondary,
                 }}
               >
-                ТОЙ ИЕЛЕРІ:
+                {t.organizerLabel}
               </h3>
               <div className="text-center">
                 <MultilineText
@@ -735,6 +872,7 @@ function VenueSection({
   latitude?: number | null;
   longitude?: number | null;
 }) {
+  const { t } = useLang();
   const hasCoords =
     typeof latitude === "number" &&
     typeof longitude === "number" &&
@@ -766,7 +904,7 @@ function VenueSection({
               color: C.primary,
             }}
           >
-            Мерекелік мәліметтер
+            {t.eventDetailsTitle}
           </h2>
         </Reveal>
 
@@ -843,7 +981,7 @@ function VenueSection({
                     }}
                   >
                     <Icon name="directions" size={16} />
-                    КАРТАДАН КӨРУ
+                    {t.viewOnMap}
                   </a>
                 </>
               )}
@@ -865,7 +1003,7 @@ function VenueSection({
                     color: C.secondary,
                   }}
                 >
-                  ҚОСЫМША АҚПАРАТ
+                  {t.extraInfoTitle}
                 </h3>
               </div>
               <div className="space-y-3">
@@ -906,6 +1044,7 @@ function VenueSection({
    last image is shown large, full-width, below the swiper.
    ====================================================================== */
 function GalleryBento({ images }: { images: string[] }) {
+  const { t } = useLang();
   const last = images.length > 0 ? images[images.length - 1] : null;
   const rest = images.length > 1 ? images.slice(0, -1) : [];
   const isEmpty = images.length === 0;
@@ -927,7 +1066,7 @@ function GalleryBento({ images }: { images: string[] }) {
               color: C.primary,
             }}
           >
-            Біздің хикаямыз
+            {t.ourStory}
           </h2>
         </Reveal>
 
@@ -1108,6 +1247,7 @@ function PoemAndCoupleSection({
    Section 6 — RSVP  (wraps the existing <RSVPSection/> — untouched)
    ====================================================================== */
 function RsvpWrapper({ weddingId }: { weddingId: string }) {
+  const { t, lang } = useLang();
   return (
     <section
       id="rsvp"
@@ -1130,7 +1270,7 @@ function RsvpWrapper({ weddingId }: { weddingId: string }) {
               marginBottom: 8,
             }}
           >
-            Тойға келетініңізді растаңыз
+            {t.rsvpTitle}
           </h2>
           <p
             style={{
@@ -1139,7 +1279,7 @@ function RsvpWrapper({ weddingId }: { weddingId: string }) {
               color: C.onSurfaceVariant,
             }}
           >
-            Өтініш, жауабыңызды алдын ала беріңіз
+            {t.rsvpSubtitle}
           </p>
         </Reveal>
         <Reveal delay={0.08}>
@@ -1148,6 +1288,7 @@ function RsvpWrapper({ weddingId }: { weddingId: string }) {
               weddingId={weddingId}
               accentColor={C.primary}
               lightColor={C.surfaceContainerLow}
+              lang={lang}
             />
           </GlassCard>
         </Reveal>
@@ -1160,6 +1301,7 @@ function RsvpWrapper({ weddingId }: { weddingId: string }) {
    Section 7 — WISHES / COMMENTS (wraps <MessageSection/> — untouched)
    ====================================================================== */
 function WishesWrapper({ weddingId }: { weddingId: string }) {
+  const { t, lang } = useLang();
   return (
     <section
       id="comments"
@@ -1187,7 +1329,7 @@ function WishesWrapper({ weddingId }: { weddingId: string }) {
               letterSpacing: "0.02em",
             }}
           >
-            Тілектер мен лебіздер
+            {t.wishesTitle}
           </h2>
           <div
             className="h-px w-24 mx-auto mt-4"
@@ -1203,6 +1345,7 @@ function WishesWrapper({ weddingId }: { weddingId: string }) {
               accentColor={C.primary}
               lightColor={C.surfaceContainerLow}
               borderColor="border-[#d5c2c8]"
+              lang={lang}
             />
           </GlassCard>
         </Reveal>
@@ -1269,12 +1412,8 @@ function Footer({
   femaleName: string;
   dateLabel: string;
 }) {
-  const poem = [
-    "Біз екеуміз тек екеуміз",
-    "Жүректермен бір екенбіз",
-    "Мен сен үшін сен мен үшін",
-    "Жаралған екенбіз",
-  ];
+  const { t } = useLang();
+  const poem = t.footerPoem;
 
   return (
     <div
@@ -1377,6 +1516,7 @@ function Footer({
 }
 
 function PaymentLockOverlay() {
+  const { t } = useLang();
   return (
     <div
       className="fixed inset-0 h-full w-full flex items-center justify-center"
@@ -1399,7 +1539,7 @@ function PaymentLockOverlay() {
             color: "#ffffff",
           }}
         >
-          Төлем төленбеген
+          {t.paymentLocked}
         </p>
       </div>
     </div>
@@ -1409,16 +1549,17 @@ function PaymentLockOverlay() {
 /* ======================================================================
    Bottom navigation — matches the reference HTML's pill-tab nav
    ====================================================================== */
-const NAV_ITEMS = [
-  { id: "love", icon: "favorite", label: "Love" },
-  { id: "gallery", icon: "photo_library", label: "Gallery" },
-  { id: "event", icon: "calendar_today", label: "Event" },
-  { id: "venue", icon: "location_on", label: "Venue" },
-  { id: "rsvp", icon: "edit_note", label: "RSVP" },
-];
-
 function BottomNav() {
+  const { t } = useLang();
   const [active, setActive] = useState("love");
+
+  const NAV_ITEMS = [
+    { id: "love", icon: "favorite", label: t.nav.love },
+    { id: "gallery", icon: "photo_library", label: t.nav.gallery },
+    { id: "event", icon: "calendar_today", label: t.nav.event },
+    { id: "venue", icon: "location_on", label: t.nav.venue },
+    { id: "rsvp", icon: "edit_note", label: t.nav.rsvp },
+  ];
 
   useEffect(() => {
     const onScroll = () => {
@@ -1432,6 +1573,7 @@ function BottomNav() {
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -1510,18 +1652,23 @@ function GlobalFonts() {
 export default function Template1({
   wedding,
   hideBottomNav = false,
+  defaultLang = "kk",
 }: {
   wedding: Wedding;
   hideBottomNav?: boolean;
+  defaultLang?: Lang;
 }) {
+  const [lang, setLang] = useState<Lang>(defaultLang);
+  const t = TRANSLATIONS[lang];
+  const toggleLang = () => setLang((prev) => (prev === "kk" ? "mn" : "kk"));
+
   const isoDate = wedding.wedding_date || null;
   const dateLabel = isoDate
-    ? formatKazDate(isoDate)
-    : formatKazDate(DEFAULTS.isoDate);
+    ? formatKazDate(isoDate, t)
+    : formatKazDate(DEFAULTS.isoDate, t);
 
   const maleName = wedding.male_name || DEFAULTS.maleName;
   const femaleName = wedding.female_name || DEFAULTS.femaleName;
-  const tagline = DEFAULTS.tagline;
 
   const organizerText = wedding.organizer
     ? wedding.organizer
@@ -1548,57 +1695,65 @@ export default function Template1({
 
   const venuePhoto = wedding.photo5_url || galleryImages[0] || null;
   const isPaymentLocked = String((wedding as any).payment) === "2";
+
   return (
-    <div
-      className="min-h-screen overflow-x-hidden"
-      style={{ background: C.background, color: C.onSurface, fontFamily: BODY }}
-    >
-      {isPaymentLocked && <PaymentLockOverlay />}
-      <GlobalFonts />
-      <Template2Music extra5={wedding.extra5} />
+    <LangContext.Provider value={{ lang, t, toggleLang }}>
+      <div
+        className="min-h-screen overflow-x-hidden"
+        style={{
+          background: C.background,
+          color: C.onSurface,
+          fontFamily: BODY,
+        }}
+      >
+        {isPaymentLocked && <PaymentLockOverlay />}
+        <GlobalFonts />
+        <Template2Music extra5={wedding.extra5} />
 
-      <Hero
-        mainPhoto={wedding.main_photo_url}
-        maleName={maleName}
-        femaleName={femaleName}
-        tagline={tagline}
-        dateLabel={dateLabel}
-      />
+        <LanguageToggle />
 
-      <InvitationText body={wedding.description1 || null} />
+        <Hero
+          mainPhoto={wedding.main_photo_url}
+          maleName={maleName}
+          femaleName={femaleName}
+          dateLabel={dateLabel}
+        />
 
-      <ParentsAndEventBento organizerText={organizerText} isoDate={isoDate} />
+        <InvitationText body={wedding.description1 || null} />
 
-      <VenueSection
-        venueName={venueName}
-        venueAddress={venueAddress}
-        photo={venuePhoto}
-        extras={extras}
-        latitude={latitude}
-        longitude={longitude}
-      />
+        <ParentsAndEventBento organizerText={organizerText} isoDate={isoDate} />
 
-      <GalleryBento images={galleryImages} />
+        <VenueSection
+          venueName={venueName}
+          venueAddress={venueAddress}
+          photo={venuePhoto}
+          extras={extras}
+          latitude={latitude}
+          longitude={longitude}
+        />
 
-      <PoemAndCoupleSection
-        poem={wedding.description2 || null}
-        photo3={wedding.photo3_url || null}
-        photo4={wedding.photo4_url || null}
-        link1={wedding.link1 || null}
-        link2={wedding.link2 || null}
-      />
+        <GalleryBento images={galleryImages} />
 
-      <RsvpWrapper weddingId={wedding.id} />
+        <PoemAndCoupleSection
+          poem={wedding.description2 || null}
+          photo3={wedding.photo3_url || null}
+          photo4={wedding.photo4_url || null}
+          link1={wedding.link1 || null}
+          link2={wedding.link2 || null}
+        />
 
-      <WishesWrapper weddingId={wedding.id} />
+        <RsvpWrapper weddingId={wedding.id} />
 
-      <Footer
-        maleName={maleName}
-        femaleName={femaleName}
-        dateLabel={dateLabel}
-      />
+        <WishesWrapper weddingId={wedding.id} />
 
-      {!hideBottomNav && <BottomNav />}
-    </div>
+        <Footer
+          maleName={maleName}
+          femaleName={femaleName}
+          dateLabel={dateLabel}
+        />
+
+        {!hideBottomNav && <BottomNav />}
+      </div>
+    </LangContext.Provider>
   );
 }

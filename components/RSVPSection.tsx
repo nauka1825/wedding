@@ -3,17 +3,64 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 
 type RSVPStatus = "attending" | "not_attending" | "maybe";
-
-const OPTIONS: { value: RSVPStatus; labelKz: string; desc: string }[] = [
-  { value: "attending", labelKz: "Келемін", desc: "Тойға қатысамын" },
-  { value: "maybe", labelKz: "Мүмкін", desc: "Әлі белгісіз" },
-  { value: "not_attending", labelKz: "Келе алмаймын", desc: "Қатыса алмаймын" },
-];
+type Lang = "kk" | "mn";
 
 const STORAGE_KEY = (weddingId: string) => `rsvp_sent_${weddingId}`;
 
 const HEADLINE = "'Playfair Display', Georgia, serif";
 const BODY = "'Montserrat', sans-serif";
+
+/* ======================================================================
+   BILINGUAL SUPPORT (Kazakh / Mongolian)
+   ====================================================================== */
+interface RsvpTranslationSet {
+  options: { value: RSVPStatus; label: string; desc: string }[];
+  writeYourName: string;
+  namePlaceholder: string;
+  attendingQuestion: string;
+  errorMsg: string;
+  thanks: string;
+  received: string;
+  sending: string;
+  send: string;
+}
+
+const RSVP_TRANSLATIONS: Record<Lang, RsvpTranslationSet> = {
+  kk: {
+    options: [
+      { value: "attending", label: "Келемін", desc: "Тойға қатысамын" },
+      { value: "maybe", label: "Мүмкін", desc: "Әлі белгісіз" },
+      {
+        value: "not_attending",
+        label: "Келе алмаймын",
+        desc: "Қатыса алмаймын",
+      },
+    ],
+    writeYourName: "Атыңызды жазыңыз",
+    namePlaceholder: "Сіздің атыңыз",
+    attendingQuestion: "Тойға қатысасыз ба?",
+    errorMsg: "Қате орын алды. Қайталап көріңіз.",
+    thanks: "Рахмет!",
+    received: "Жауабыңыз қабылданды.",
+    sending: "Жіберілуде...",
+    send: "Жіберу",
+  },
+  mn: {
+    options: [
+      { value: "attending", label: "Ирнэ", desc: "Хуримд оролцоно" },
+      { value: "maybe", label: "Магадгүй", desc: "Одоохондоо тодорхойгүй" },
+      { value: "not_attending", label: "Ирэхгүй", desc: "Оролцох боломжгүй" },
+    ],
+    writeYourName: "Нэрээ бичнэ үү",
+    namePlaceholder: "Таны нэр",
+    attendingQuestion: "Хуримд ирэх үү?",
+    errorMsg: "Алдаа гарлаа. Дахин оролдоно уу.",
+    thanks: "Баярлалаа!",
+    received: "Таны хариулт хүлээн авлаа.",
+    sending: "Илгээж байна...",
+    send: "Илгээх",
+  },
+};
 
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
@@ -91,11 +138,15 @@ export default function RSVPSection({
   weddingId,
   accentColor = "#7B3F5E",
   lightColor = "#FDF6F0",
+  lang = "kk",
 }: {
   weddingId: string;
   accentColor?: string;
   lightColor?: string;
+  lang?: Lang;
 }) {
+  const t = RSVP_TRANSLATIONS[lang];
+
   const [name, setName] = useState("");
   const [status, setStatus] = useState<RSVPStatus | null>(null);
   const [loading, setLoading] = useState(false);
@@ -120,7 +171,7 @@ export default function RSVPSection({
       status,
     });
     if (err) {
-      setError("Қате орын алды. Қайталап көріңіз.");
+      setError(t.errorMsg);
     } else {
       localStorage.setItem(STORAGE_KEY(weddingId), "1");
       setDone(true);
@@ -135,7 +186,7 @@ export default function RSVPSection({
     `}</style>
   );
 
-  // ── Аль хэдийн явуулсан ──
+  // ── Already sent ──
   if (done) {
     return (
       <div
@@ -154,7 +205,7 @@ export default function RSVPSection({
             marginBottom: 6,
           }}
         >
-          Рахмет!
+          {t.thanks}
         </p>
         <p
           style={{
@@ -164,13 +215,13 @@ export default function RSVPSection({
             margin: 0,
           }}
         >
-          Жауабыңыз қабылданды.
+          {t.received}
         </p>
       </div>
     );
   }
 
-  // ── Форма ──
+  // ── Form ──
   return (
     <div
       ref={cardRef}
@@ -195,14 +246,14 @@ export default function RSVPSection({
             textTransform: "uppercase",
           }}
         >
-          Атыңызды жазыңыз
+          {t.writeYourName}
         </p>
       </div>
 
       <input
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="Сіздің атыңыз"
+        placeholder={t.namePlaceholder}
         style={{
           width: "100%",
           borderRadius: 12,
@@ -238,7 +289,7 @@ export default function RSVPSection({
           textTransform: "uppercase",
         }}
       >
-        Тойға қатысасыз ба?
+        {t.attendingQuestion}
       </p>
 
       <div
@@ -249,7 +300,7 @@ export default function RSVPSection({
           marginBottom: 20,
         }}
       >
-        {OPTIONS.map((opt) => {
+        {t.options.map((opt) => {
           const selected = status === opt.value;
           return (
             <button
@@ -310,7 +361,7 @@ export default function RSVPSection({
                     margin: 0,
                   }}
                 >
-                  {opt.labelKz}
+                  {opt.label}
                 </p>
                 <p
                   style={{
@@ -381,10 +432,10 @@ export default function RSVPSection({
             >
               <path d="M21 12a9 9 0 1 1-6.219-8.56" />
             </svg>
-            Жіберілуде...
+            {t.sending}
           </>
         ) : (
-          "Жіберу"
+          t.send
         )}
       </button>
     </div>

@@ -10,10 +10,67 @@ type Message = {
   created_at: string;
 };
 
+type Lang = "kk" | "mn";
+
 const HEADLINE = "'Playfair Display', Georgia, serif";
 const BODY = "'Montserrat', sans-serif";
 
 const AVATAR_PALETTE_ALPHA = ["28", "1f", "24", "1a", "2c"]; // subtle variety for avatar bg
+
+/* ======================================================================
+   BILINGUAL SUPPORT (Kazakh / Mongolian)
+   ====================================================================== */
+interface MessageTranslationSet {
+  leaveWish: string;
+  wishAriaLabel: (n: number) => string;
+  emptyState: string;
+  writeYourWish: string;
+  nameLabel: string;
+  namePlaceholder: string;
+  wishLabel: string;
+  wishPlaceholder: string;
+  sent: string;
+  sending: string;
+  send: string;
+  hide: string;
+  viewAll: (n: number) => string;
+  dateLocale: string;
+}
+
+const MESSAGE_TRANSLATIONS: Record<Lang, MessageTranslationSet> = {
+  kk: {
+    leaveWish: "Тілек қалдыру",
+    wishAriaLabel: (n) => `Тілек ${n}`,
+    emptyState: "Алғашқы тілекті сіз қалдырыңыз",
+    writeYourWish: "Тілегіңізді жазыңыз",
+    nameLabel: "Есіміңіз",
+    namePlaceholder: "Сіздің есіміңіз...",
+    wishLabel: "Тілегіңіз",
+    wishPlaceholder: "Жас жұпқа жылы тілектеріңізді жазыңыз...",
+    sent: "Жіберілді!",
+    sending: "Жіберілуде...",
+    send: "Жіберу",
+    hide: "Жасыру",
+    viewAll: (n) => `Барлық тілектерді көру (${n})`,
+    dateLocale: "kk-KZ",
+  },
+  mn: {
+    leaveWish: "Ерөөл үлдээх",
+    wishAriaLabel: (n) => `Ерөөл ${n}`,
+    emptyState: "Анхны ерөөлийг та үлдээгээрэй",
+    writeYourWish: "Ерөөлөө бичнэ үү",
+    nameLabel: "Нэр",
+    namePlaceholder: "Таны нэр...",
+    wishLabel: "Таны ерөөл",
+    wishPlaceholder: "Залуу гэр бүлд дулаан ерөөл хүсэлтээ бичнэ үү...",
+    sent: "Илгээгдлээ!",
+    sending: "Илгээж байна...",
+    send: "Илгээх",
+    hide: "Нуух",
+    viewAll: (n) => `Бүх ерөөлийг харах (${n})`,
+    dateLocale: "mn-MN",
+  },
+};
 
 /* ── shared reveal-on-scroll hook, now with a safety fallback ──
    If the IntersectionObserver never fires (e.g. rendered inside an
@@ -112,12 +169,16 @@ export default function MessageSection({
   accentColor = "#602846",
   lightColor = "#fdf6f0",
   borderColor = "border-rose-100",
+  lang = "kk",
 }: {
   weddingId: string;
   accentColor?: string;
   lightColor?: string;
   borderColor?: string;
+  lang?: Lang;
 }) {
+  const t = MESSAGE_TRANSLATIONS[lang];
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [name, setName] = useState("");
   const [text, setText] = useState("");
@@ -184,7 +245,7 @@ export default function MessageSection({
 
   const top5 = messages.slice(0, 5);
   const disabled = loading || !name.trim() || !text.trim();
-  console.log("🚀top5", top5);
+
   function avatarShade(nameStr: string) {
     let h = 0;
     for (let i = 0; i < nameStr.length; i++)
@@ -231,7 +292,7 @@ export default function MessageSection({
             whiteSpace: "nowrap",
           }}
         >
-          Тілек қалдыру
+          {t.leaveWish}
         </p>
         <Icon
           name="favorite"
@@ -355,7 +416,7 @@ export default function MessageSection({
                   <button
                     key={i}
                     onClick={() => setCurrentSlide(i)}
-                    aria-label={`Тілек ${i + 1}`}
+                    aria-label={t.wishAriaLabel(i + 1)}
                     className="rounded-full transition-all duration-300"
                     style={{
                       width: currentSlide === i ? 20 : 6,
@@ -399,7 +460,7 @@ export default function MessageSection({
               marginTop: 8,
             }}
           >
-            Алғашқы тілекті сіз қалдырыңыз
+            {t.emptyState}
           </p>
         </div>
       )}
@@ -433,7 +494,7 @@ export default function MessageSection({
               margin: 0,
             }}
           >
-            Тілегіңізді жазыңыз
+            {t.writeYourWish}
           </p>
         </div>
 
@@ -450,12 +511,12 @@ export default function MessageSection({
                 marginBottom: 4,
               }}
             >
-              Есіміңіз
+              {t.nameLabel}
             </label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Сіздің есіміңіз..."
+              placeholder={t.namePlaceholder}
               style={{
                 width: "100%",
                 background: "transparent",
@@ -489,7 +550,7 @@ export default function MessageSection({
                   color: `${accentColor}99`,
                 }}
               >
-                Тілегіңіз
+                {t.wishLabel}
               </label>
               <span
                 style={{
@@ -504,7 +565,7 @@ export default function MessageSection({
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value.slice(0, 500))}
-              placeholder="Жас жұпқа жылы тілектеріңізді жазыңыз..."
+              placeholder={t.wishPlaceholder}
               rows={3}
               style={{
                 width: "100%",
@@ -553,7 +614,7 @@ export default function MessageSection({
           {sent ? (
             <>
               <Icon name="check_circle" size={16} filled color="#fff" />
-              Жіберілді!
+              {t.sent}
             </>
           ) : loading ? (
             <>
@@ -563,12 +624,12 @@ export default function MessageSection({
                 color="#fff"
                 style={{ animation: "msg-spin-t1 1s linear infinite" }}
               />
-              Жіберілуде...
+              {t.sending}
             </>
           ) : (
             <>
               <Icon name="send" size={16} color="#fff" />
-              Жіберу
+              {t.send}
             </>
           )}
         </button>
@@ -596,7 +657,7 @@ export default function MessageSection({
               className="h-px w-6"
               style={{ background: `${accentColor}50` }}
             />
-            {showAll ? "Жасыру" : `Барлық тілектерді көру (${messages.length})`}
+            {showAll ? t.hide : t.viewAll(messages.length)}
             <span
               className="h-px w-6"
               style={{ background: `${accentColor}50` }}
@@ -658,10 +719,13 @@ export default function MessageSection({
                           margin: 0,
                         }}
                       >
-                        {new Date(m.created_at).toLocaleDateString("kk-KZ", {
-                          day: "numeric",
-                          month: "short",
-                        })}
+                        {new Date(m.created_at).toLocaleDateString(
+                          t.dateLocale,
+                          {
+                            day: "numeric",
+                            month: "short",
+                          },
+                        )}
                       </p>
                     </div>
                   </div>
