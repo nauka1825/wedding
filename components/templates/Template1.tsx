@@ -1710,7 +1710,7 @@ export default function Template1({
         <GlobalFonts />
         <Template2Music extra5={wedding.extra5} />
 
-        <LanguageToggle />
+        {/* <LanguageToggle /> */}
 
         <Hero
           mainPhoto={wedding.main_photo_url}
