@@ -144,7 +144,7 @@ const TRANSLATIONS: Record<Lang, TranslationSet> = {
     ],
     daysFull: ["НЯМ", "ДАВАА", "МЯГМАР", "ЛХАГВА", "ПҮРЭВ", "БААСАН", "БЯМБА"],
     organizerLabel: "ХУРИМЫН ЭЗЭД:",
-    eventDetailsTitle: "Баярын дэлгэрэнгүй мэдээлэл",
+    eventDetailsTitle: "Хурмын мэдээлэл",
     extraInfoTitle: "НЭМЭЛТ МЭДЭЭЛЭЛ",
     viewOnMap: "ГАЗРЫН ЗУРГААС ХАРАХ",
     ourStory: "Бидний түүх",
@@ -208,6 +208,44 @@ function LanguageToggle() {
       <span style={{ opacity: lang === "mn" ? 1 : 0.4 }}>МОН</span>
     </button>
   );
+}
+
+/* ------------------------------------------------------------------------
+   pickLang — some wedding fields come from the DB with BOTH languages
+   packed into a single string, e.g.:
+     "kk: Баян-Өлгий қаласы Өлгий сұмыны  mn: Баян-Өлгий аймаг Өлгий сум"
+   This pulls out just the part matching the active language. If only one
+   of "kk:" / "mn:" is present, that one is used regardless of active
+   language. If neither label is present, the original text is returned
+   as-is (so plain, non-tagged fields keep working exactly like before).
+   Uses a plain regex.exec loop (no matchAll/spread) so it compiles under
+   any TypeScript target/lib setting.
+   ------------------------------------------------------------------------ */
+function pickLang(raw: string | null | undefined, lang: Lang): string {
+  if (!raw) return "";
+  const labelRe = /\b(kk|mn)\s*:\s*/gi;
+
+  const matches: { label: string; index: number; length: number }[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = labelRe.exec(raw)) !== null) {
+    matches.push({
+      label: m[1].toLowerCase(),
+      index: m.index,
+      length: m[0].length,
+    });
+    if (m[0].length === 0) labelRe.lastIndex++;
+  }
+  if (matches.length === 0) return raw.trim();
+
+  const parts: Partial<Record<Lang, string>> = {};
+  matches.forEach((match, i) => {
+    const start = match.index + match.length;
+    const end = i + 1 < matches.length ? matches[i + 1].index : raw.length;
+    const value = raw.slice(start, end).trim();
+    if (value) parts[match.label as Lang] = value;
+  });
+
+  return parts[lang] ?? parts.kk ?? parts.mn ?? raw.trim();
 }
 
 /* ======================================================================
@@ -1670,21 +1708,29 @@ export default function Template1({
   const maleName = wedding.male_name || DEFAULTS.maleName;
   const femaleName = wedding.female_name || DEFAULTS.femaleName;
 
-  const organizerText = wedding.organizer
+  // Some fields may store both languages inline ("kk: ... mn: ...");
+  // pick out the part matching the active language (falls back to
+  // whatever is available, or the raw text if it isn't tagged at all).
+  const organizerRaw = wedding.organizer
     ? wedding.organizer
     : `${DEFAULTS.maleParents}\n${DEFAULTS.femaleParents}`;
+  const organizerText = pickLang(organizerRaw, lang);
 
-  const venueName = wedding.venue_name || DEFAULTS.venueName;
-  const venueAddress = wedding.venue_address || DEFAULTS.venueAddress;
+  const venueName = pickLang(wedding.venue_name, lang) || DEFAULTS.venueName;
+  const venueAddress =
+    pickLang(wedding.venue_address, lang) || DEFAULTS.venueAddress;
+
+  const description1 = pickLang(wedding.description1, lang) || null;
+  const description2 = pickLang(wedding.description2, lang) || null;
 
   const latitude = (wedding as any).latitude ?? null;
   const longitude = (wedding as any).longitude ?? null;
 
   const extras = [
-    wedding.extra1,
-    wedding.extra2,
-    wedding.extra3,
-    wedding.extra4,
+    pickLang(wedding.extra1, lang),
+    pickLang(wedding.extra2, lang),
+    pickLang(wedding.extra3, lang),
+    pickLang(wedding.extra4, lang),
   ].filter(Boolean) as string[];
 
   // photo3_url / photo4_url are shown in their own PoemAndCoupleSection now,
@@ -1710,7 +1756,7 @@ export default function Template1({
         <GlobalFonts />
         <Template2Music extra5={wedding.extra5} />
 
-        {/* <LanguageToggle /> */}
+        <LanguageToggle />
 
         <Hero
           mainPhoto={wedding.main_photo_url}
@@ -1719,7 +1765,7 @@ export default function Template1({
           dateLabel={dateLabel}
         />
 
-        <InvitationText body={wedding.description1 || null} />
+        <InvitationText body={description1} />
 
         <ParentsAndEventBento organizerText={organizerText} isoDate={isoDate} />
 
@@ -1735,7 +1781,7 @@ export default function Template1({
         <GalleryBento images={galleryImages} />
 
         <PoemAndCoupleSection
-          poem={wedding.description2 || null}
+          poem={description2}
           photo3={wedding.photo3_url || null}
           photo4={wedding.photo4_url || null}
           link1={wedding.link1 || null}
