@@ -218,16 +218,26 @@ function formatEventDate(
 function pickLang(raw: string | null | undefined, lang: Lang): string {
   if (!raw) return "";
   const labelRe = /\b(kk|mn)\s*:\s*/gi;
-  const matches = [...raw.matchAll(labelRe)];
+
+  const matches: { label: string; index: number; length: number }[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = labelRe.exec(raw)) !== null) {
+    matches.push({
+      label: m[1].toLowerCase(),
+      index: m.index,
+      length: m[0].length,
+    });
+    // avoid infinite loops on zero-length matches
+    if (m[0].length === 0) labelRe.lastIndex++;
+  }
   if (matches.length === 0) return raw.trim();
 
   const parts: Partial<Record<Lang, string>> = {};
-  matches.forEach((m, i) => {
-    const label = m[1].toLowerCase() as Lang;
-    const start = (m.index ?? 0) + m[0].length;
-    const end = i + 1 < matches.length ? matches[i + 1].index! : raw.length;
+  matches.forEach((match, i) => {
+    const start = match.index + match.length;
+    const end = i + 1 < matches.length ? matches[i + 1].index : raw.length;
     const value = raw.slice(start, end).trim();
-    if (value) parts[label] = value;
+    if (value) parts[match.label as Lang] = value;
   });
 
   return parts[lang] ?? parts.kk ?? parts.mn ?? raw.trim();
