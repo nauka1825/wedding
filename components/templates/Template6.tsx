@@ -125,10 +125,10 @@ const T6: Record<Lang, T6Translations> = {
     groomPhotoAlt: "Хүргэн",
     extraPhotoAlt: "Нэмэлт зураг",
     invitationLine1:
-      "Эрхэм ах дүү нар, худ санваартан, найз нөхөд, хамт олон, хөршүүддээ!",
+      "Эрхэм хүндэт ахан дүүс, төрөл төрөгсөд, худ ураг, найз нөхөд, хамтран ажиллагсад болон хөршүүд ээ!",
     invitationLine2: "Таныг хүү",
-    invitationConnector: "болон бэрийгээ",
-    invitationLine3: "-ын хуримын ёслолд хүндэт зочноор урьж байна!",
+    invitationConnector: "болон бэр",
+    invitationLine3: "-ийн хуримын ёслолд хүндэт зочноор урьж байна!",
     organizerTitle: "Хурим эзэд",
     organizerSubtitle: "Эцэг эх",
     parentsTitle: "Эцэг эхчүүд",
