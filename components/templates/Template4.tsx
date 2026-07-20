@@ -129,15 +129,15 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
     >
       <defs>
         <radialGradient id="t4-clock-bg" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#EAF6FF" />
-          <stop offset="100%" stopColor="#C8E9FA" />
+          <stop offset="0%" stopColor="#e6fff5" />
+          <stop offset="100%" stopColor="#efe0cd" />
         </radialGradient>
         <filter id="t4-clock-shadow">
           <feDropShadow
             dx="0"
             dy="2"
             stdDeviation="3"
-            floodColor="rgba(91,168,213,0.18)"
+            floodColor="rgba(212,175,55,0.18)"
           />
         </filter>
       </defs>
@@ -147,7 +147,7 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
         r="36"
         fill="url(#t4-clock-bg)"
         filter="url(#t4-clock-shadow)"
-        stroke="rgba(91,168,213,0.55)"
+        stroke="rgba(212,175,55,0.55)"
         strokeWidth="0.8"
       />
       <circle
@@ -155,7 +155,7 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
         cy="40"
         r="33"
         fill="none"
-        stroke="rgba(91,168,213,0.18)"
+        stroke="rgba(212,175,55,0.18)"
         strokeWidth="0.4"
       />
       {Array.from({ length: 12 }, (_, i) => {
@@ -169,9 +169,7 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
             y1={40 + r1 * Math.sin(a)}
             x2={40 + r2 * Math.cos(a)}
             y2={40 + r2 * Math.sin(a)}
-            stroke={
-              i % 3 === 0 ? "rgba(29,107,142,0.8)" : "rgba(91,168,213,0.4)"
-            }
+            stroke={i % 3 === 0 ? "rgba(115,92,0,0.8)" : "rgba(212,175,55,0.4)"}
             strokeWidth={i % 3 === 0 ? 1.2 : 0.6}
           />
         );
@@ -181,7 +179,7 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
         y1="40"
         x2={40 + 15 * Math.cos(((hourDeg - 90) * Math.PI) / 180)}
         y2={40 + 15 * Math.sin(((hourDeg - 90) * Math.PI) / 180)}
-        stroke="#1D5F82"
+        stroke="#735c00"
         strokeWidth="2.2"
         strokeLinecap="round"
       />
@@ -190,7 +188,7 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
         y1="40"
         x2={40 + 21 * Math.cos(((minDeg - 90) * Math.PI) / 180)}
         y2={40 + 21 * Math.sin(((minDeg - 90) * Math.PI) / 180)}
-        stroke="#1D5F82"
+        stroke="#735c00"
         strokeWidth="1.5"
         strokeLinecap="round"
       />
@@ -199,11 +197,11 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
         y1="40"
         x2={40 + 23 * Math.cos(((secDeg - 90) * Math.PI) / 180)}
         y2={40 + 23 * Math.sin(((secDeg - 90) * Math.PI) / 180)}
-        stroke="rgba(91,168,213,0.9)"
+        stroke="rgba(212,175,55,0.9)"
         strokeWidth="0.8"
         strokeLinecap="round"
       />
-      <circle cx="40" cy="40" r="2.5" fill="#1D5F82" />
+      <circle cx="40" cy="40" r="2.5" fill="#735c00" />
       <circle cx="40" cy="40" r="1.2" fill="#fff" />
     </svg>
   );
@@ -244,236 +242,130 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
   while (cells.length % 7 !== 0) cells.push(null);
 
   return (
-    <div style={{ position: "relative", margin: "0 auto" }}>
+    <div style={{ position: "relative", margin: "0 auto", maxWidth: 340 }}>
       <style>{`
-        @keyframes t4-cal-drop { 0%{opacity:0;transform:translateY(-18px) scale(0.92)} 60%{transform:translateY(3px) scale(1.02)} 100%{opacity:1;transform:translateY(0) scale(1)} }
-        @keyframes t4-day-pop  { 0%{opacity:0;transform:scale(0.5)} 65%{transform:scale(1.18)} 100%{opacity:1;transform:scale(1)} }
-        @keyframes t4-hrt-beat { 0%,100%{transform:scale(1)} 30%{transform:scale(1.3)} 60%{transform:scale(0.88)} }
-        @keyframes t4-ring-draw{ 0%{stroke-dashoffset:550;opacity:0.2} 100%{stroke-dashoffset:0;opacity:0.55} }
-        @keyframes t4-dot-in   { 0%{opacity:0;transform:scale(0)} 100%{opacity:1;transform:scale(1)} }
-        .t4-cal-ring { stroke-dasharray:550; animation:t4-ring-draw 1.2s cubic-bezier(0.4,0,0.2,1) 0.2s forwards; }
-        .t4-cal-wrap { animation:t4-cal-drop 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s both; }
-        .t4-day-pop  { animation:t4-day-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.55s both; }
-        .t4-hrt-beat { animation:t4-hrt-beat 1.4s ease-in-out 1.2s infinite; transform-origin:center; display:inline-block; }
-        .t4-dot-in   { animation:t4-dot-in 0.4s ease both; }
+        @keyframes t4-cal-drop { 0%{opacity:0;transform:translateY(-14px)} 100%{opacity:1;transform:translateY(0)} }
+        @keyframes t4-day-pop  { 0%{opacity:0;transform:scale(0.6)} 100%{opacity:1;transform:scale(1)} }
+        .t4-cal-wrap { animation:t4-cal-drop 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s both; }
+        .t4-day-pop  { animation:t4-day-pop 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.5s both; }
       `}</style>
-
-      <svg
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          pointerEvents: "none",
-          overflow: "visible",
-          zIndex: 0,
-        }}
-        viewBox="0 0 168 215"
-      >
-        <circle
-          className="t4-cal-ring"
-          cx="84"
-          cy="107"
-          r="90"
-          fill="none"
-          stroke="rgba(91,168,213,0.5)"
-          strokeWidth="0.8"
-          strokeLinecap="round"
-        />
-        <circle
-          cx="84"
-          cy="107"
-          r="97"
-          fill="none"
-          stroke="rgba(168,216,240,0.18)"
-          strokeWidth="0.5"
-        />
-        {[
-          [84, 12],
-          [84, 202],
-          [4, 107],
-          [164, 107],
-          [24, 35],
-          [144, 35],
-          [24, 179],
-          [144, 179],
-        ].map(([cx, cy], i) => (
-          <circle
-            key={i}
-            className="t4-dot-in"
-            cx={cx}
-            cy={cy}
-            r="2"
-            fill="#5BA8D5"
-            opacity="0.6"
-            style={{ animationDelay: `${0.9 + i * 0.07}s` }}
-          />
-        ))}
-      </svg>
 
       <div
         className="t4-cal-wrap"
         style={{
           position: "relative",
-          zIndex: 2,
-          background: "rgba(255,255,255,0.75)",
-          backdropFilter: "blur(16px)",
-          border: "1px solid rgba(168,216,240,0.45)",
-          borderRadius: 20,
+          background: "rgba(255,255,255,0.85)",
+          border: "1px solid rgba(212,175,55,0.35)",
+          borderRadius: 14,
           overflow: "hidden",
-          boxShadow:
-            "0 8px 32px rgba(91,168,213,0.12),0 2px 8px rgba(91,168,213,0.08)",
+          boxShadow: "0 6px 24px rgba(115,92,0,0.1)",
         }}
       >
+        {/* Header — month / year */}
         <div
           style={{
-            background:
-              "linear-gradient(135deg,#C8E9FA 0%,#A8D8F0 50%,#C8E9FA 100%)",
-            padding: "14px 16px 12px",
+            background: "#735c00",
+            padding: "12px 16px",
             textAlign: "center",
-            position: "relative",
           }}
         >
           <p
             style={{
-              fontFamily: "'Cinzel',serif",
-              fontSize: 14,
-              letterSpacing: "0.38em",
-              color: "#1D5F82",
+              fontFamily: "'Playfair Display',serif",
+              fontSize: 15,
+              fontWeight: 600,
+              letterSpacing: "0.18em",
+              color: "#ffe088",
               textTransform: "uppercase",
               margin: 0,
-              position: "relative",
-              zIndex: 1,
             }}
           >
-            {KAZ_MONTHS[month]} · {year}
+            {KAZ_MONTHS[month]} {year}
           </p>
         </div>
+
+        {/* Weekday row */}
         <div
           style={{
-            background: "rgba(91,168,213,0.08)",
-            borderBottom: "0.5px solid rgba(91,168,213,0.2)",
+            display: "grid",
+            gridTemplateColumns: "repeat(7,1fr)",
+            background: "#efe0cd",
+            borderBottom: "1px solid rgba(212,175,55,0.3)",
           }}
         >
-          <div
-            style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)" }}
-          >
-            {KAZ_DAYS.map((d) => (
+          {KAZ_DAYS.map((wd) => (
+            <div
+              key={wd}
+              style={{
+                textAlign: "center",
+                padding: "7px 0",
+                fontFamily: "'Plus Jakarta Sans',sans-serif",
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: "0.03em",
+                color: "#735c00",
+              }}
+            >
+              {wd}
+            </div>
+          ))}
+        </div>
+
+        {/* Day grid — real calendar cells with borders */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(7,1fr)",
+            background: "rgba(255,255,255,0.9)",
+          }}
+        >
+          {cells.map((cell, idx) => {
+            const dow = idx % 7;
+            const isWeekend = dow === 5 || dow === 6;
+            const isTarget = cell === day;
+            return (
               <div
-                key={d}
+                key={idx}
                 style={{
-                  textAlign: "center",
-                  padding: "5px 0",
-                  fontFamily: "'Cinzel',serif",
-                  fontSize: 11.5,
-                  letterSpacing: "0.04em",
-                  color: "rgba(29,95,130,0.9)",
+                  aspectRatio: "1 / 1",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRight:
+                    dow !== 6 ? "1px solid rgba(212,175,55,0.15)" : "none",
+                  borderTop: "1px solid rgba(212,175,55,0.15)",
                 }}
               >
-                {d}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div
-          style={{
-            padding: "6px 8px 10px",
-            background: "rgba(255,255,255,0.85)",
-          }}
-        >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(7,1fr)",
-              gap: 2,
-              textAlign: "center",
-            }}
-          >
-            {cells.map((cell, idx) => {
-              if (!cell) return <div key={idx} />;
-              const dow = (firstDow + cell - 1) % 7;
-              const isWeekend = dow === 5 || dow === 6;
-              const isTarget = cell === day;
-              if (isTarget)
-                return (
-                  <div
-                    key={idx}
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      padding: "3px 0",
-                    }}
-                  >
-                    <div
-                      style={{
-                        position: "relative",
-                        width: 28,
-                        height: 28,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <svg
-                        viewBox="0 0 28 26"
-                        width="28"
-                        height="28"
-                        style={{ position: "absolute", inset: 0 }}
-                      >
-                        <path
-                          d="M14,23 C14,23 2,15 2,7.5 C2,4.5 4.3,2.5 7.5,2.5 C10,2.5 12.2,4 14,6 C15.8,4 18,2.5 20.5,2.5 C23.7,2.5 26,4.5 26,7.5 C26,15 14,23 14,23Z"
-                          fill="rgba(91,168,213,0.22)"
-                          stroke="rgba(29,107,142,0.7)"
-                          strokeWidth="0.9"
-                        />
-                      </svg>
-                      <span
-                        className="t4-day-pop"
-                        style={{
-                          fontFamily: "'Cinzel',serif",
-                          fontSize: 15,
-                          fontWeight: 500,
-                          color: "#1D5F82",
-                          position: "relative",
-                          zIndex: 1,
-                          lineHeight: 1,
-                        }}
-                      >
-                        {cell}
-                      </span>
-                    </div>
-                    <span
-                      className="t4-hrt-beat"
-                      style={{ lineHeight: 1, marginTop: 1 }}
-                    >
-                      <svg viewBox="0 0 12 11" width="10" height="10">
-                        <path
-                          d="M6,9.5 C6,9.5 0.5,6 0.5,3 C0.5,1.6 1.6,0.5 3,0.5 C4.2,0.5 5.2,1.3 6,2.2 C6.8,1.3 7.8,0.5 9,0.5 C10.4,0.5 11.5,1.6 11.5,3 C11.5,6 6,9.5 6,9.5Z"
-                          fill="#5BA8D5"
-                          opacity="0.9"
-                        />
-                      </svg>
-                    </span>
-                  </div>
-                );
-              return (
-                <div key={idx} style={{ padding: "4px 0" }}>
+                {cell && (
                   <span
+                    className={isTarget ? "t4-day-pop" : undefined}
                     style={{
-                      fontFamily: "'Cinzel',serif",
-                      fontSize: 14,
-                      color: isWeekend
-                        ? "rgba(91,168,213,0.65)"
-                        : "rgba(29,95,130,0.45)",
+                      fontFamily: "'Plus Jakarta Sans',sans-serif",
+                      fontSize: 13,
+                      fontWeight: isTarget ? 700 : 400,
+                      width: 26,
+                      height: 26,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: "50%",
+                      background: isTarget ? "#d4af37" : "transparent",
+                      color: isTarget
+                        ? "#ffffff"
+                        : isWeekend
+                          ? "rgba(115,92,0,0.55)"
+                          : "rgba(77,70,53,0.85)",
+                      boxShadow: isTarget
+                        ? "0 2px 8px rgba(212,175,55,0.4)"
+                        : "none",
                     }}
                   >
                     {cell}
                   </span>
-                </div>
-              );
-            })}
-          </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -556,14 +448,14 @@ function GallerySwiper({ urls }: { urls: string[] }) {
               borderRadius: 12,
               border:
                 active === i
-                  ? "1.5px solid rgba(91,168,213,0.75)"
-                  : "1px solid rgba(168,216,240,0.35)",
+                  ? "1.5px solid rgba(212,175,55,0.75)"
+                  : "1px solid rgba(255,224,136,0.35)",
               transition:
                 "transform 0.35s ease,box-shadow 0.35s ease,border-color 0.35s ease",
               transform: active === i ? "scale(1)" : "scale(0.92)",
               boxShadow:
                 active === i
-                  ? "0 10px 40px rgba(91,168,213,0.18),0 2px 8px rgba(91,168,213,0.12)"
+                  ? "0 10px 40px rgba(212,175,55,0.18),0 2px 8px rgba(212,175,55,0.12)"
                   : "0 2px 12px rgba(0,0,0,0.06)",
             }}
           >
@@ -595,7 +487,7 @@ function GallerySwiper({ urls }: { urls: string[] }) {
               style={{
                 width: active === i ? 22 : 7,
                 height: 7,
-                background: "rgba(168,216,240,0.55)",
+                background: "rgba(255,224,136,0.55)",
                 opacity: active === i ? 1 : 0.4,
               }}
             >
@@ -603,7 +495,7 @@ function GallerySwiper({ urls }: { urls: string[] }) {
                 <span
                   className="absolute inset-0 rounded-full"
                   style={{
-                    background: "#5BA8D5",
+                    background: "#d4af37",
                     animation: "t4-progress 5s linear forwards",
                   }}
                 />
@@ -617,14 +509,14 @@ function GallerySwiper({ urls }: { urls: string[] }) {
 }
 
 // ─── Divider ───
-function AzureDivider({ className = "" }: { className?: string }) {
+function GoldDivider({ className = "" }: { className?: string }) {
   return (
     <div className={`flex items-center justify-center gap-3 ${className}`}>
       <div
         className="h-px flex-1"
         style={{
           background:
-            "linear-gradient(to right,transparent,rgba(91,168,213,0.55))",
+            "linear-gradient(to right,transparent,rgba(212,175,55,0.55))",
         }}
       />
       <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -632,16 +524,16 @@ function AzureDivider({ className = "" }: { className?: string }) {
           style={{
             width: 4,
             height: 4,
-            background: "rgba(91,168,213,0.5)",
+            background: "rgba(212,175,55,0.5)",
             transform: "rotate(45deg)",
           }}
         />
-        <IconDiamond size={8} color="rgba(91,168,213,0.75)" />
+        <IconDiamond size={8} color="rgba(212,175,55,0.75)" />
         <div
           style={{
             width: 4,
             height: 4,
-            background: "rgba(91,168,213,0.5)",
+            background: "rgba(212,175,55,0.5)",
             transform: "rotate(45deg)",
           }}
         />
@@ -650,7 +542,7 @@ function AzureDivider({ className = "" }: { className?: string }) {
         className="h-px flex-1"
         style={{
           background:
-            "linear-gradient(to left,transparent,rgba(91,168,213,0.55))",
+            "linear-gradient(to left,transparent,rgba(212,175,55,0.55))",
         }}
       />
     </div>
@@ -676,7 +568,7 @@ function FloralDots() {
             width: i === 2 ? 5 : 3,
             height: i === 2 ? 5 : 3,
             borderRadius: "50%",
-            background: `rgba(91,168,213,${op})`,
+            background: `rgba(212,175,55,${op})`,
           }}
         />
       ))}
@@ -696,15 +588,15 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
         style={{
           width: 30,
           background:
-            "linear-gradient(to right,transparent,rgba(91,168,213,0.45))",
+            "linear-gradient(to right,transparent,rgba(212,175,55,0.45))",
         }}
       />
       <p
         style={{
           fontSize: 12,
           letterSpacing: "0.42em",
-          fontFamily: "'Cinzel',serif",
-          color: "rgba(29,107,142,0.9)",
+          fontFamily: "'Playfair Display',serif",
+          color: "rgba(115,92,0,0.9)",
           textTransform: "uppercase",
           fontWeight: 400,
           margin: 0,
@@ -717,43 +609,14 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
         style={{
           width: 30,
           background:
-            "linear-gradient(to left,transparent,rgba(91,168,213,0.45))",
+            "linear-gradient(to left,transparent,rgba(212,175,55,0.45))",
         }}
       />
     </div>
   );
 }
 
-// ─── OrganizerBlock (from Template2, azure-themed) ───
-function OrganizerParticle({
-  delay,
-  duration,
-  x,
-  size,
-}: {
-  delay: number;
-  duration: number;
-  x: number;
-  size: number;
-}) {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        left: `${x}%`,
-        bottom: -10,
-        width: size,
-        height: size,
-        borderRadius: "50%",
-        background:
-          "radial-gradient(circle, rgba(91,168,213,0.6) 0%, rgba(91,168,213,0.0) 70%)",
-        animation: `t4-org-float ${duration}s ease-in-out ${delay}s infinite`,
-        pointerEvents: "none",
-      }}
-    />
-  );
-}
-
+// ─── OrganizerBlock (from Template2, gold-themed) ───
 function OrganizerBlock({
   organizer,
   maleParents,
@@ -769,358 +632,130 @@ function OrganizerBlock({
   return (
     <div ref={ref} className="mx-5 mt-8 py-2">
       <style>{`
-        @keyframes t4-org-reveal { 0%{opacity:0;transform:translateY(32px) scale(0.96);filter:blur(4px)} 60%{filter:blur(0)} 100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)} }
         @keyframes t4-org-line   { 0%{opacity:0;transform:translateX(-20px)} 100%{opacity:1;transform:translateX(0)} }
-        @keyframes t4-org-float  { 0%,100%{transform:translateY(0) scale(1);opacity:0.5} 50%{transform:translateY(-60px) scale(0.6);opacity:0} }
-        @keyframes t4-org-glow   { 0%,100%{box-shadow:0 0 0px rgba(91,168,213,0)} 50%{box-shadow:0 0 32px rgba(91,168,213,0.2),0 4px 24px rgba(91,168,213,0.12)} }
-        .t4-org-card  { animation:t4-org-reveal 0.9s cubic-bezier(0.22,1,0.36,1) both; }
         .t4-org-line  { animation:t4-org-line   0.6s cubic-bezier(0.22,1,0.36,1) both; }
-        .t4-org-glow  { animation:t4-org-glow   3s ease-in-out 1s infinite; }
       `}</style>
 
-      <AzureDivider className="mb-6" />
+      <GoldDivider className="mb-6" />
 
-      <div
-        className="t4-org-card t4-org-glow"
-        style={{
-          animationPlayState: inView ? "running" : "paused",
-          position: "relative",
-          overflow: "hidden",
-          borderRadius: 20,
-          padding: "28px 24px 24px",
-          background: "rgba(255,255,255,0.72)",
-          backdropFilter: "blur(16px)",
-          border: "1px solid rgba(168,216,240,0.45)",
-          textAlign: "center",
-          boxShadow:
-            "0 4px 32px rgba(91,168,213,0.1),0 1px 6px rgba(0,0,0,0.04)",
-        }}
-      >
-        {inView &&
-          [
-            { delay: 0, duration: 4.5, x: 10, size: 40 },
-            { delay: 1.2, duration: 5.5, x: 85, size: 28 },
-            { delay: 0.6, duration: 6, x: 50, size: 20 },
-            { delay: 2, duration: 4.8, x: 30, size: 16 },
-            { delay: 1.8, duration: 5.2, x: 70, size: 24 },
-          ].map((p, i) => <OrganizerParticle key={i} {...p} />)}
-
-        {/* Corner ornaments */}
-        {[
-          ["top:10px", "left:12px", "M2,20 Q2,2 20,2", "2", "2"],
-          ["top:10px", "right:12px", "M20,20 Q20,2 2,2", "20", "2"],
-          ["bottom:10px", "left:12px", "M2,2 Q2,20 20,20", "2", "20"],
-          ["bottom:10px", "right:12px", "M20,2 Q20,20 2,20", "20", "20"],
-        ].map(([p1, p2, path, cx, cy], i) => (
-          <svg
-            key={i}
-            style={{
-              position: "absolute",
-              [p1.split(":")[0]]: p1.split(":")[1],
-              [p2.split(":")[0]]: p2.split(":")[1],
-              opacity: 0.4,
-            }}
-            width="22"
-            height="22"
-            viewBox="0 0 22 22"
-          >
-            <path d={path} stroke="#5BA8D5" strokeWidth="0.8" fill="none" />
-            <circle cx={cx} cy={cy} r="1.5" fill="#5BA8D5" />
-          </svg>
-        ))}
-
-        <div style={{ position: "relative", zIndex: 1 }}>
-          {/* Header */}
+      <div style={{ textAlign: "center" }}>
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+            marginBottom: 16,
+          }}
+        >
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              marginBottom: 16,
+              height: 1,
+              width: 28,
+              background:
+                "linear-gradient(to right,transparent,rgba(212,175,55,0.6))",
             }}
-          >
-            <div
-              style={{
-                height: 1,
-                width: 28,
-                background:
-                  "linear-gradient(to right,transparent,rgba(91,168,213,0.6))",
-              }}
-            />
-            <IconDiamond size={14} color="rgba(91,168,213,0.7)" />
-            <p
-              style={{
-                fontSize: 14,
-                letterSpacing: "0.45em",
-                fontFamily: "'Cinzel',serif",
-                fontWeight: 500,
-                color: "rgba(29,95,130,0.92)",
-                margin: 0,
-                textTransform: "uppercase",
-              }}
-            >
-              Той иелері
-            </p>
-            <IconDiamond size={14} color="rgba(91,168,213,0.7)" />
-            <div
-              style={{
-                height: 1,
-                width: 28,
-                background:
-                  "linear-gradient(to left,transparent,rgba(91,168,213,0.6))",
-              }}
-            />
-          </div>
-
+          />
+          <IconDiamond size={14} color="rgba(212,175,55,0.7)" />
           <p
-            className="t4-org-line"
             style={{
-              fontFamily: "'Cinzel',serif",
-              fontSize: 16,
+              fontSize: 14,
+              letterSpacing: "0.45em",
+              fontFamily: "'Playfair Display',serif",
               fontWeight: 500,
-              letterSpacing: "0.2em",
-              textTransform: "uppercase",
-              color: "#1D5F82",
-              lineHeight: 1.9,
-              wordBreak: "break-word",
+              color: "rgba(115,92,0,0.92)",
               margin: 0,
-              animationDelay: inView ? "0.2s" : "0s",
-              animationPlayState: inView ? "running" : "paused",
+              textTransform: "uppercase",
             }}
           >
-            Ата анасы
+            Той иелері
           </p>
-
+          <IconDiamond size={14} color="rgba(212,175,55,0.7)" />
           <div
             style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 6,
-              alignItems: "center",
+              height: 1,
+              width: 28,
+              background:
+                "linear-gradient(to left,transparent,rgba(212,175,55,0.6))",
             }}
-          >
-            {(() => {
-              const items = lines.length > 0 ? lines : [organizer];
-              if (items.length === 2)
-                return (
-                  <>
-                    <p
-                      className="t4-org-line"
-                      style={{
-                        fontFamily: "'Cinzel',serif",
-                        fontSize: 18,
-                        fontWeight: 600,
-                        letterSpacing: "0.2em",
-                        textTransform: "uppercase",
-                        color: "#1D5F82",
-                        lineHeight: 1.9,
-                        wordBreak: "break-word",
-                        margin: 0,
-                        animationDelay: inView ? "0.22s" : "0s",
-                        animationPlayState: inView ? "running" : "paused",
-                      }}
-                    >
-                      {items[0]}
-                    </p>
-                    <div
-                      className="t4-org-line"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        animationDelay: inView ? "0.32s" : "0s",
-                        animationPlayState: inView ? "running" : "paused",
-                      }}
-                    >
-                      <div
-                        style={{
-                          height: 1,
-                          width: 24,
-                          background:
-                            "linear-gradient(to right,transparent,rgba(91,168,213,0.55))",
-                        }}
-                      />
-                      <span
-                        style={{
-                          fontFamily: "'Cormorant Garamond',Georgia,serif",
-                          fontSize: 30,
-                          fontStyle: "italic",
-                          color: "rgba(91,168,213,0.8)",
-                          lineHeight: 1,
-                          fontWeight: 500,
-                        }}
-                      >
-                        &amp;
-                      </span>
-                      <div
-                        style={{
-                          height: 1,
-                          width: 24,
-                          background:
-                            "linear-gradient(to left,transparent,rgba(91,168,213,0.55))",
-                        }}
-                      />
-                    </div>
-                    <p
-                      className="t4-org-line"
-                      style={{
-                        fontFamily: "'Cinzel',serif",
-                        fontSize: 18,
-                        fontWeight: 600,
-                        letterSpacing: "0.2em",
-                        textTransform: "uppercase",
-                        color: "#1D5F82",
-                        lineHeight: 1.9,
-                        wordBreak: "break-word",
-                        margin: 0,
-                        animationDelay: inView ? "0.44s" : "0s",
-                        animationPlayState: inView ? "running" : "paused",
-                      }}
-                    >
-                      {items[1]}
-                    </p>
-                  </>
-                );
-              return items.map((line, i) => (
-                <p
-                  key={i}
-                  className="t4-org-line"
-                  style={{
-                    fontFamily: "'Cinzel',serif",
-                    fontSize: 18,
-                    fontWeight: 600,
-                    letterSpacing: "0.2em",
-                    textTransform: "uppercase",
-                    color: "#1D5F82",
-                    lineHeight: 1.9,
-                    wordBreak: "break-word",
-                    margin: 0,
-                    animationDelay: inView ? `${0.2 + i * 0.12}s` : "0s",
-                    animationPlayState: inView ? "running" : "paused",
-                  }}
-                >
-                  {line}
-                </p>
-              ));
-            })()}
-          </div>
+          />
+        </div>
 
-          <FloralDots />
+        <p
+          className="t4-org-line"
+          style={{
+            fontFamily: "'Playfair Display',serif",
+            fontSize: 16,
+            fontWeight: 500,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: "#735c00",
+            lineHeight: 1.9,
+            wordBreak: "break-word",
+            margin: 0,
+            animationDelay: inView ? "0.2s" : "0s",
+            animationPlayState: inView ? "running" : "paused",
+          }}
+        >
+          Ата анасы
+        </p>
 
-          {/* Ata-analary (parents) */}
-          {(maleParents || femaleParents) && (
-            <div
-              style={{
-                marginTop: 22,
-                borderTop: "0.5px solid rgba(91,168,213,0.25)",
-                paddingTop: 18,
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  marginBottom: 14,
-                }}
-              >
-                <div
-                  style={{
-                    height: 1,
-                    width: 22,
-                    background:
-                      "linear-gradient(to right,transparent,rgba(91,168,213,0.5))",
-                  }}
-                />
-                <p
-                  style={{
-                    fontSize: 11,
-                    letterSpacing: "0.38em",
-                    fontFamily: "'Cinzel',serif",
-                    fontWeight: 500,
-                    color: "rgba(29,95,130,0.85)",
-                    margin: 0,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Ата-аналары
-                </p>
-                <div
-                  style={{
-                    height: 1,
-                    width: 22,
-                    background:
-                      "linear-gradient(to left,transparent,rgba(91,168,213,0.5))",
-                  }}
-                />
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 14,
-                  alignItems: "center",
-                }}
-              >
-                {maleParents && (
-                  <div
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+            alignItems: "center",
+          }}
+        >
+          {(() => {
+            const items = lines.length > 0 ? lines : [organizer];
+            if (items.length === 2)
+              return (
+                <>
+                  <p
                     className="t4-org-line"
                     style={{
-                      textAlign: "center",
-                      animationDelay: inView ? "0.55s" : "0s",
+                      fontFamily: "'Playfair Display',serif",
+                      fontSize: 18,
+                      fontWeight: 600,
+                      letterSpacing: "0.2em",
+                      textTransform: "uppercase",
+                      color: "#735c00",
+                      lineHeight: 1.9,
+                      wordBreak: "break-word",
+                      margin: 0,
+                      animationDelay: inView ? "0.22s" : "0s",
                       animationPlayState: inView ? "running" : "paused",
                     }}
                   >
-                    <p
-                      style={{
-                        fontSize: 10,
-                        letterSpacing: "0.32em",
-                        fontFamily: "'Cinzel',serif",
-                        color: "rgba(91,168,213,0.75)",
-                        textTransform: "uppercase",
-                        margin: "0 0 4px",
-                        fontWeight: 500,
-                      }}
-                    >
-                      Күйеу жақ
-                    </p>
-                    <p
-                      style={{
-                        fontFamily: "'Cinzel',serif",
-                        fontSize: 14,
-                        fontWeight: 600,
-                        letterSpacing: "0.15em",
-                        textTransform: "uppercase",
-                        color: "#1D5F82",
-                        lineHeight: 1.75,
-                        wordBreak: "break-word",
-                        margin: 0,
-                      }}
-                    >
-                      {maleParents}
-                    </p>
-                  </div>
-                )}
-                {maleParents && femaleParents && (
+                    {items[0]}
+                  </p>
                   <div
-                    style={{ display: "flex", alignItems: "center", gap: 10 }}
+                    className="t4-org-line"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      animationDelay: inView ? "0.32s" : "0s",
+                      animationPlayState: inView ? "running" : "paused",
+                    }}
                   >
                     <div
                       style={{
                         height: 1,
-                        width: 20,
+                        width: 24,
                         background:
-                          "linear-gradient(to right,transparent,rgba(91,168,213,0.5))",
+                          "linear-gradient(to right,transparent,rgba(212,175,55,0.55))",
                       }}
                     />
                     <span
                       style={{
-                        fontFamily: "'Cormorant Garamond',Georgia,serif",
-                        fontSize: 22,
+                        fontFamily: "'Playfair Display',Georgia,serif",
+                        fontSize: 30,
                         fontStyle: "italic",
-                        color: "rgba(91,168,213,0.75)",
+                        color: "rgba(212,175,55,0.8)",
                         lineHeight: 1,
                         fontWeight: 500,
                       }}
@@ -1130,62 +765,233 @@ function OrganizerBlock({
                     <div
                       style={{
                         height: 1,
-                        width: 20,
+                        width: 24,
                         background:
-                          "linear-gradient(to left,transparent,rgba(91,168,213,0.5))",
+                          "linear-gradient(to left,transparent,rgba(212,175,55,0.55))",
                       }}
                     />
                   </div>
-                )}
-                {femaleParents && (
-                  <div
+                  <p
                     className="t4-org-line"
                     style={{
-                      textAlign: "center",
-                      animationDelay: inView ? "0.68s" : "0s",
+                      fontFamily: "'Playfair Display',serif",
+                      fontSize: 18,
+                      fontWeight: 600,
+                      letterSpacing: "0.2em",
+                      textTransform: "uppercase",
+                      color: "#735c00",
+                      lineHeight: 1.9,
+                      wordBreak: "break-word",
+                      margin: 0,
+                      animationDelay: inView ? "0.44s" : "0s",
                       animationPlayState: inView ? "running" : "paused",
                     }}
                   >
-                    <p
-                      style={{
-                        fontSize: 10,
-                        letterSpacing: "0.32em",
-                        fontFamily: "'Cinzel',serif",
-                        color: "rgba(91,168,213,0.75)",
-                        textTransform: "uppercase",
-                        margin: "0 0 4px",
-                        fontWeight: 500,
-                      }}
-                    >
-                      Келін жақ
-                    </p>
-                    <p
-                      style={{
-                        fontFamily: "'Cinzel',serif",
-                        fontSize: 14,
-                        fontWeight: 600,
-                        letterSpacing: "0.15em",
-                        textTransform: "uppercase",
-                        color: "#1D5F82",
-                        lineHeight: 1.75,
-                        wordBreak: "break-word",
-                        margin: 0,
-                      }}
-                    >
-                      {femaleParents}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+                    {items[1]}
+                  </p>
+                </>
+              );
+            return items.map((line, i) => (
+              <p
+                key={i}
+                className="t4-org-line"
+                style={{
+                  fontFamily: "'Playfair Display',serif",
+                  fontSize: 18,
+                  fontWeight: 600,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  color: "#735c00",
+                  lineHeight: 1.9,
+                  wordBreak: "break-word",
+                  margin: 0,
+                  animationDelay: inView ? `${0.2 + i * 0.12}s` : "0s",
+                  animationPlayState: inView ? "running" : "paused",
+                }}
+              >
+                {line}
+              </p>
+            ));
+          })()}
         </div>
+
+        <FloralDots />
+
+        {/* Ata-analary (parents) */}
+        {(maleParents || femaleParents) && (
+          <div
+            style={{
+              marginTop: 22,
+              borderTop: "0.5px solid rgba(212,175,55,0.25)",
+              paddingTop: 18,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                marginBottom: 14,
+              }}
+            >
+              <div
+                style={{
+                  height: 1,
+                  width: 22,
+                  background:
+                    "linear-gradient(to right,transparent,rgba(212,175,55,0.5))",
+                }}
+              />
+              <p
+                style={{
+                  fontSize: 11,
+                  letterSpacing: "0.38em",
+                  fontFamily: "'Playfair Display',serif",
+                  fontWeight: 500,
+                  color: "rgba(115,92,0,0.85)",
+                  margin: 0,
+                  textTransform: "uppercase",
+                }}
+              >
+                Ата-аналары
+              </p>
+              <div
+                style={{
+                  height: 1,
+                  width: 22,
+                  background:
+                    "linear-gradient(to left,transparent,rgba(212,175,55,0.5))",
+                }}
+              />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 14,
+                alignItems: "center",
+              }}
+            >
+              {maleParents && (
+                <div
+                  className="t4-org-line"
+                  style={{
+                    textAlign: "center",
+                    animationDelay: inView ? "0.55s" : "0s",
+                    animationPlayState: inView ? "running" : "paused",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: 10,
+                      letterSpacing: "0.32em",
+                      fontFamily: "'Playfair Display',serif",
+                      color: "rgba(212,175,55,0.75)",
+                      textTransform: "uppercase",
+                      margin: "0 0 4px",
+                      fontWeight: 500,
+                    }}
+                  >
+                    Күйеу жақ
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "'Playfair Display',serif",
+                      fontSize: 14,
+                      fontWeight: 600,
+                      letterSpacing: "0.15em",
+                      textTransform: "uppercase",
+                      color: "#735c00",
+                      lineHeight: 1.75,
+                      wordBreak: "break-word",
+                      margin: 0,
+                    }}
+                  >
+                    {maleParents}
+                  </p>
+                </div>
+              )}
+              {maleParents && femaleParents && (
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div
+                    style={{
+                      height: 1,
+                      width: 20,
+                      background:
+                        "linear-gradient(to right,transparent,rgba(212,175,55,0.5))",
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontFamily: "'Playfair Display',Georgia,serif",
+                      fontSize: 22,
+                      fontStyle: "italic",
+                      color: "rgba(212,175,55,0.75)",
+                      lineHeight: 1,
+                      fontWeight: 500,
+                    }}
+                  >
+                    &amp;
+                  </span>
+                  <div
+                    style={{
+                      height: 1,
+                      width: 20,
+                      background:
+                        "linear-gradient(to left,transparent,rgba(212,175,55,0.5))",
+                    }}
+                  />
+                </div>
+              )}
+              {femaleParents && (
+                <div
+                  className="t4-org-line"
+                  style={{
+                    textAlign: "center",
+                    animationDelay: inView ? "0.68s" : "0s",
+                    animationPlayState: inView ? "running" : "paused",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: 10,
+                      letterSpacing: "0.32em",
+                      fontFamily: "'Playfair Display',serif",
+                      color: "rgba(212,175,55,0.75)",
+                      textTransform: "uppercase",
+                      margin: "0 0 4px",
+                      fontWeight: 500,
+                    }}
+                  >
+                    Келін жақ
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "'Playfair Display',serif",
+                      fontSize: 14,
+                      fontWeight: 600,
+                      letterSpacing: "0.15em",
+                      textTransform: "uppercase",
+                      color: "#735c00",
+                      lineHeight: 1.75,
+                      wordBreak: "break-word",
+                      margin: 0,
+                    }}
+                  >
+                    {femaleParents}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-// ─── InvitationHero (Template2 style, azure-themed) ───
+// ─── InvitationHero (Template2 style, gold-themed) ───
 function InvitationHero({
   maleName,
   femaleName,
@@ -1197,7 +1003,7 @@ function InvitationHero({
   return (
     <div ref={ref} className="text-center px-6 mt-4 mb-2">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         @keyframes t4-slide-left  { 0%{opacity:0;transform:translateX(-52px)} 100%{opacity:1;transform:translateX(0)} }
         @keyframes t4-slide-right { 0%{opacity:0;transform:translateX(52px)}  100%{opacity:1;transform:translateX(0)} }
         @keyframes t4-fade-up-h   { 0%{opacity:0;transform:translateY(28px)}  100%{opacity:1;transform:translateY(0)} }
@@ -1206,24 +1012,24 @@ function InvitationHero({
         .t4-from-right { animation:t4-slide-right 0.8s cubic-bezier(0.22,1,0.36,1) both; }
         .t4-fade-up-h  { animation:t4-fade-up-h  0.7s cubic-bezier(0.22,1,0.36,1) both; }
         .t4-name-pop   { animation:t4-name-pop   0.9s cubic-bezier(0.34,1.4,0.64,1) both; }
-        @keyframes t4-shimmer-azure {
+        @keyframes t4-shimmer-gold {
           0%{background-position:-200% center} 100%{background-position:200% center}
         }
         .t4-shimmer-name {
-          background:linear-gradient(90deg,#0d4a6e 15%,#5BA8D5 42%,#1D6B8E 58%,#0d4a6e 85%);
+          background:linear-gradient(90deg,#4a3a00 15%,#d4af37 42%,#8a6d00 58%,#4a3a00 85%);
           background-size:200% auto;
           -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-          animation:t4-shimmer-azure 5s linear infinite;
+          animation:t4-shimmer-gold 5s linear infinite;
         }
       `}</style>
 
       <p
         className="t4-from-left"
         style={{
-          fontFamily: "'Cormorant Garamond',Georgia,serif",
+          fontFamily: "'Playfair Display',Georgia,serif",
           fontSize: 15,
           letterSpacing: "0.2em",
-          color: "rgba(29,95,130,0.95)",
+          color: "rgba(115,92,0,0.95)",
           lineHeight: 2,
           textTransform: "uppercase",
           fontWeight: 700,
@@ -1237,7 +1043,7 @@ function InvitationHero({
       <p
         className="t4-shimmer-name t4-name-pop"
         style={{
-          fontFamily: "'Great Vibes',cursive",
+          fontFamily: "'Playfair Display',serif",
           fontSize: "clamp(2.8rem,11vw,4.2rem)",
           fontWeight: 400,
           lineHeight: 1.15,
@@ -1252,10 +1058,10 @@ function InvitationHero({
       <p
         className="t4-from-right"
         style={{
-          fontFamily: "'Cormorant Garamond',Georgia,serif",
+          fontFamily: "'Playfair Display',Georgia,serif",
           fontSize: 15,
           letterSpacing: "0.13em",
-          color: "rgba(29,95,130,0.88)",
+          color: "rgba(115,92,0,0.88)",
           lineHeight: 1.95,
           textTransform: "uppercase",
           fontWeight: 700,
@@ -1297,9 +1103,9 @@ function DateTimeBlock({
         style={{
           fontSize: 16,
           letterSpacing: "0.38em",
-          fontFamily: "'Cinzel',serif",
+          fontFamily: "'Playfair Display',serif",
           fontWeight: 600,
-          color: "rgba(29,95,130,0.95)",
+          color: "rgba(115,92,0,0.95)",
           margin: "0 0 10px 0",
           textTransform: "uppercase",
         }}
@@ -1325,19 +1131,19 @@ function DateTimeBlock({
               display: "inline-flex",
               alignItems: "center",
               gap: 8,
-              background: "rgba(200,233,250,0.45)",
-              border: "1px solid rgba(91,168,213,0.35)",
+              background: "rgba(239,224,205,0.45)",
+              border: "1px solid rgba(212,175,55,0.35)",
               borderRadius: 10,
               padding: "7px 18px",
             }}
           >
-            <IconClock size={11} color="#5BA8D5" />
+            <IconClock size={11} color="#d4af37" />
             <p
               style={{
-                fontFamily: "'Cinzel',serif",
+                fontFamily: "'Playfair Display',serif",
                 fontSize: 22,
                 letterSpacing: "0.32em",
-                color: "#1D5F82",
+                color: "#735c00",
                 fontWeight: 500,
                 margin: 0,
                 lineHeight: 1,
@@ -1352,9 +1158,9 @@ function DateTimeBlock({
         <div style={{ marginTop: 14 }}>
           <p
             style={{
-              fontFamily: "'Cormorant Garamond',Georgia,serif",
+              fontFamily: "'Playfair Display',Georgia,serif",
               fontSize: 26,
-              color: "#1D5F82",
+              color: "#735c00",
               letterSpacing: "0.02em",
               lineHeight: 1.3,
               margin: 0,
@@ -1373,7 +1179,7 @@ function DateTimeBlock({
 // ─── Icon Components ───
 const IconDiamond = ({
   size = 14,
-  color = "#A8D8F0",
+  color = "#ffe088",
 }: {
   size?: number;
   color?: string;
@@ -1384,7 +1190,7 @@ const IconDiamond = ({
 );
 const IconClock = ({
   size = 13,
-  color = "#5BA8D5",
+  color = "#d4af37",
 }: {
   size?: number;
   color?: string;
@@ -1405,7 +1211,7 @@ const IconClock = ({
 
 const IconMapPin = ({
   size = 15,
-  color = "#6BB8D8",
+  color = "#d4af37",
 }: {
   size?: number;
   color?: string;
@@ -1426,7 +1232,7 @@ const IconMapPin = ({
 
 const IconCheck = ({
   size = 10,
-  color = "#5BA8D5",
+  color = "#d4af37",
 }: {
   size?: number;
   color?: string;
@@ -1474,19 +1280,19 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
       className="min-h-screen relative overflow-x-hidden"
       style={{
         background:
-          "linear-gradient(160deg,#EAF6FF 0%,#F5FBFF 30%,#EDF4FB 60%,#DDEEFA 100%)",
+          "linear-gradient(160deg,#e6fff5 0%,#e6fff5 30%,#c9ffec 60%,#bbfbe6 100%)",
         fontFamily: "'Playfair Display','Georgia',serif",
       }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cinzel:wght@400;500&family=Jost:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         * { box-sizing:border-box; }
         img { border:none !important; outline:none !important; }
 
         @keyframes t4-float-slow { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-14px) scale(1.03)} }
         @keyframes t4-drift      { 0%,100%{transform:translateX(0)} 50%{transform:translateX(8px)} }
         @keyframes t4-shimmer    { 0%{background-position:-200% center} 100%{background-position:200% center} }
-        @keyframes t4-pulse-ring { 0%{box-shadow:0 0 0 0 rgba(168,216,240,0.45)} 70%{box-shadow:0 0 0 10px rgba(168,216,240,0)} 100%{box-shadow:0 0 0 0 rgba(168,216,240,0)} }
+        @keyframes t4-pulse-ring { 0%{box-shadow:0 0 0 0 rgba(255,224,136,0.45)} 70%{box-shadow:0 0 0 10px rgba(255,224,136,0)} 100%{box-shadow:0 0 0 0 rgba(255,224,136,0)} }
         @keyframes t4-spin-slow  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
         @keyframes t4-twinkle    { 0%,100%{opacity:0.12;transform:scale(0.8)} 50%{opacity:0.55;transform:scale(1.2)} }
         @keyframes t4-hero-reveal{ from{clip-path:inset(100% 0 0 0);opacity:0} to{clip-path:inset(0% 0 0 0);opacity:1} }
@@ -1496,7 +1302,7 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
         .t4-float-orb { animation:t4-float-slow 7s ease-in-out infinite; }
         .t4-drift-orb { animation:t4-drift 9s ease-in-out infinite; }
         .t4-shimmer-text {
-          background:linear-gradient(90deg,#0d4a6e 30%,#7EC8F0 50%,#0d4a6e 70%);
+          background:linear-gradient(90deg,#4a3a00 30%,#f7e68e 50%,#4a3a00 70%);
           background-size:200% auto;
           -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
           animation:t4-shimmer 4s linear infinite;
@@ -1505,16 +1311,16 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
         .t4-twinkle:nth-child(2) { animation-delay:0.8s; }
         .t4-twinkle:nth-child(3) { animation-delay:1.6s; }
 
-        .t4-label  { font-family:'Jost',sans-serif;font-weight:400;letter-spacing:0.38em;text-transform:uppercase;font-size:10px;color:rgba(91,168,213,0.65); }
-        .t4-body   { font-family:'Jost',sans-serif;font-weight:300; }
-        .t4-display{ font-family:'Cormorant Garamond',serif;font-weight:300; }
+        .t4-label  { font-family:'Plus Jakarta Sans',sans-serif;font-weight:400;letter-spacing:0.38em;text-transform:uppercase;font-size:10px;color:rgba(212,175,55,0.65); }
+        .t4-body   { font-family:'Plus Jakarta Sans',sans-serif;font-weight:300; }
+        .t4-display{ font-family:'Playfair Display',serif;font-weight:300; }
         .t4-heading{ font-family:'Playfair Display',serif; }
 
         .t4-glass {
           background:rgba(255,255,255,0.62);
           backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-          border:1px solid rgba(168,216,240,0.35);border-radius:20px;
-          box-shadow:0 8px 32px rgba(91,168,213,0.08),0 1px 0 rgba(255,255,255,0.9) inset;
+          border:1px solid rgba(255,224,136,0.35);border-radius:20px;
+          box-shadow:0 8px 32px rgba(212,175,55,0.08),0 1px 0 rgba(255,255,255,0.9) inset;
         }
       `}</style>
 
@@ -1523,7 +1329,7 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
         className="h-[2px] w-full"
         style={{
           background:
-            "linear-gradient(to right,#C8E9FA,#5BA8D5,#A8D8F0,#5BA8D5,#C8E9FA)",
+            "linear-gradient(to right,#efe0cd,#d4af37,#ffe088,#d4af37,#efe0cd)",
         }}
       />
 
@@ -1532,7 +1338,7 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
         className="t4-float-orb absolute top-24 right-4 w-36 h-36 rounded-full pointer-events-none"
         style={{
           background:
-            "radial-gradient(circle,rgba(168,216,240,0.18) 0%,transparent 70%)",
+            "radial-gradient(circle,rgba(255,224,136,0.18) 0%,transparent 70%)",
           zIndex: 0,
         }}
       />
@@ -1540,7 +1346,7 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
         className="t4-drift-orb absolute top-60 left-2 w-24 h-24 rounded-full pointer-events-none"
         style={{
           background:
-            "radial-gradient(circle,rgba(100,180,230,0.12) 0%,transparent 70%)",
+            "radial-gradient(circle,rgba(212,175,55,0.12) 0%,transparent 70%)",
           zIndex: 0,
         }}
       />
@@ -1561,7 +1367,7 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
           >
             <path
               d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"
-              fill="#A8D8F0"
+              fill="#ffe088"
             />
           </svg>
         ))}
@@ -1589,7 +1395,7 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
         <div
           className="absolute inset-0"
           style={{
-            background: "linear-gradient(to top,#EAF6FF 0%,transparent 55%)",
+            background: "linear-gradient(to top,#e6fff5 0%,transparent 55%)",
           }}
         />
       </div>
@@ -1601,32 +1407,32 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
           style={{
             background: "rgba(255,255,255,0.75)",
             backdropFilter: "blur(16px)",
-            border: "1px solid rgba(168,216,240,0.45)",
+            border: "1px solid rgba(255,224,136,0.45)",
             boxShadow:
-              "0 4px 20px rgba(91,168,213,0.12),inset 0 1px 0 rgba(255,255,255,0.85)",
+              "0 4px 20px rgba(212,175,55,0.12),inset 0 1px 0 rgba(255,255,255,0.85)",
           }}
         >
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "linear-gradient(105deg,transparent 30%,rgba(168,216,240,0.2) 50%,transparent 70%)",
+                "linear-gradient(105deg,transparent 30%,rgba(255,224,136,0.2) 50%,transparent 70%)",
               backgroundSize: "200% 100%",
               animation: "t4-shimmer 3s linear infinite",
             }}
           />
-          <IconDiamond size={11} color="#6BB8D8" />
+          <IconDiamond size={11} color="#d4af37" />
           <span
             className="t4-label relative"
             style={{
-              color: "#1D6B8E",
+              color: "#8a6d00",
               letterSpacing: "0.42em",
               fontSize: "10px",
             }}
           >
             Қыз ұзату
           </span>
-          <IconDiamond size={11} color="#6BB8D8" />
+          <IconDiamond size={11} color="#d4af37" />
         </div>
       </FadeIn>
 
@@ -1649,8 +1455,8 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
             style={{
               borderRadius: 16,
               overflow: "hidden",
-              border: "0.5px solid rgba(91,168,213,0.3)",
-              boxShadow: "0 4px 24px rgba(91,168,213,0.1)",
+              border: "0.5px solid rgba(212,175,55,0.3)",
+              boxShadow: "0 4px 24px rgba(212,175,55,0.1)",
             }}
           >
             <img
@@ -1689,7 +1495,7 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
             <span
               className="absolute -top-4 left-5 text-5xl leading-none"
               style={{
-                color: "#A8D8F0",
+                color: "#ffe088",
                 fontFamily: "'Playfair Display',serif",
                 fontWeight: 400,
               }}
@@ -1698,14 +1504,14 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
             </span>
             <p
               className="t4-display italic leading-relaxed text-center mt-1"
-              style={{ color: "#2F6E91", fontSize: "17px" }}
+              style={{ color: "#6d5a1f", fontSize: "17px" }}
             >
               {wedding.description1}
             </p>
             <span
               className="absolute -bottom-5 right-5 text-5xl leading-none rotate-180 block"
               style={{
-                color: "#A8D8F0",
+                color: "#ffe088",
                 fontFamily: "'Playfair Display',serif",
                 fontWeight: 400,
               }}
@@ -1727,7 +1533,7 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
       {/* ─── INFO CARD ─── */}
       <div className="mx-5 mt-10 mb-2 relative z-10">
         <FadeIn>
-          <AzureDivider className="mb-6" />
+          <GoldDivider className="mb-6" />
         </FadeIn>
 
         <FadeIn>
@@ -1753,30 +1559,30 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
                 delay={100}
                 from="left"
                 style={{
-                  borderTop: "0.5px solid rgba(168,216,240,0.3)",
+                  borderTop: "0.5px solid rgba(255,224,136,0.3)",
                   paddingTop: 20,
                 }}
               >
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-2 mb-2.5">
-                    <IconMapPin size={14} color="#6BB8D8" />
+                    <IconMapPin size={14} color="#d4af37" />
                     <p className="t4-label">Той орны мекенжайы</p>
                   </div>
                   {wedding.venue_name && (
                     <p
                       className="t4-heading italic font-normal text-center"
-                      style={{ color: "#1D5F82", fontSize: "20px" }}
+                      style={{ color: "#735c00", fontSize: "20px" }}
                     >
                       {wedding.venue_name}
                     </p>
                   )}
                   {wedding.venue_address && (
                     <div className="flex items-center justify-center gap-1.5 mt-2">
-                      <IconMapPin size={12} color="#8BBDD4" />
+                      <IconMapPin size={12} color="#c9a86b" />
                       <p
                         className="t4-body text-center"
                         style={{
-                          color: "#6AA8C4",
+                          color: "#a68a4a",
                           fontSize: "12px",
                           letterSpacing: "0.04em",
                         }}
@@ -1792,20 +1598,89 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
         </FadeIn>
       </div>
 
-      {/* Messages */}
-      <FadeIn delay={0} className="relative z-10">
-        <RSVPSection
-          weddingId={wedding.id}
-          accentColor="#2C5F7A"
-          lightColor="#EAF6FF"
-        />
-        <MessageSection
-          weddingId={wedding.id}
-          accentColor="#2C5F7A"
-          lightColor="#EAF6FF"
-          borderColor="border-sky-100"
-        />
-      </FadeIn>
+      {/* ─── RSVP ─── */}
+      <div className="mx-5 mt-14 relative z-10">
+        <FadeIn>
+          <GoldDivider className="mb-6" />
+          <div className="text-center mb-6">
+            <IconCheck size={22} color="#735c00" />
+            <h2
+              className="t4-heading"
+              style={{
+                fontSize: 22,
+                fontWeight: 600,
+                color: "#735c00",
+                marginTop: 8,
+                letterSpacing: "0.02em",
+              }}
+            >
+              Қатысуыңызды растаңыз
+            </h2>
+            <p
+              className="t4-body"
+              style={{ fontSize: 13, color: "#6d5a1f", marginTop: 6 }}
+            >
+              Өтініш, жауабыңызды алдын ала беріңіз
+            </p>
+          </div>
+        </FadeIn>
+        <FadeIn delay={80}>
+          <div className="t4-glass p-6">
+            <RSVPSection
+              weddingId={wedding.id}
+              accentColor="#735c00"
+              lightColor="#efe0cd"
+            />
+          </div>
+        </FadeIn>
+      </div>
+
+      {/* ─── WISHES / COMMENTS ─── */}
+      <div className="mx-5 mt-14 mb-4 relative z-10">
+        <FadeIn>
+          <div className="text-center mb-6">
+            <div className="flex justify-center mb-3">
+              <svg
+                width="34"
+                height="34"
+                viewBox="0 0 100 100"
+                fill="#d4af37"
+                style={{ opacity: 0.55 }}
+              >
+                <path d="M50 10 C60 30 90 40 90 50 C90 60 60 70 50 90 C40 70 10 60 10 50 C10 40 40 30 50 10" />
+              </svg>
+            </div>
+            <h2
+              className="t4-heading"
+              style={{
+                fontSize: 22,
+                fontWeight: 600,
+                color: "#735c00",
+                letterSpacing: "0.02em",
+              }}
+            >
+              Тілектер мен лебіздер
+            </h2>
+            <div
+              className="h-px w-24 mx-auto mt-4"
+              style={{
+                background:
+                  "linear-gradient(to right,transparent,rgba(212,175,55,0.4),transparent)",
+              }}
+            />
+          </div>
+        </FadeIn>
+        <FadeIn delay={80}>
+          <div className="t4-glass p-6">
+            <MessageSection
+              weddingId={wedding.id}
+              accentColor="#735c00"
+              lightColor="#efe0cd"
+              borderColor="border-amber-100"
+            />
+          </div>
+        </FadeIn>
+      </div>
 
       {/* ─── FOOTER ─── */}
       <div className="text-center py-12 mt-4 relative z-10 overflow-hidden">
@@ -1813,7 +1688,7 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
           className="t4-shimmer-text uppercase mt-4"
           style={{
             fontSize: 18,
-            fontFamily: "'Cinzel',serif",
+            fontFamily: "'Playfair Display',serif",
             letterSpacing: "0.4em",
           }}
         >
@@ -1824,9 +1699,9 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
             className="mt-2"
             style={{
               fontSize: 18,
-              fontFamily: "'Cinzel',serif",
+              fontFamily: "'Playfair Display',serif",
               letterSpacing: "0.24em",
-              color: "rgba(91,168,213,0.75)",
+              color: "rgba(212,175,55,0.75)",
             }}
           >
             {date}
@@ -1852,7 +1727,7 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
               pointerEvents: "none",
             }}
           >
-            <g fill="rgba(255,192,203,0.35)">
+            <g fill="rgba(247,230,142,0.35)">
               <circle cx="20" cy="9" r="7" />
               <circle cx="31" cy="17" r="7" />
               <circle cx="27" cy="30" r="7" />
@@ -1870,7 +1745,7 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
         className="h-[2px] w-full"
         style={{
           background:
-            "linear-gradient(to right,#C8E9FA,#5BA8D5,#A8D8F0,#5BA8D5,#C8E9FA)",
+            "linear-gradient(to right,#efe0cd,#d4af37,#ffe088,#d4af37,#efe0cd)",
         }}
       />
       <MusicPlayer />
