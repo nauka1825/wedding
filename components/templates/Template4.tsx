@@ -1250,6 +1250,59 @@ const IconCheck = ({
   </svg>
 );
 
+const IconLock = ({
+  size = 40,
+  color = "#ffffff",
+}: {
+  size?: number;
+  color?: string;
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    strokeWidth="1.6"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="4" y="10" width="16" height="10" rx="2" />
+    <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+  </svg>
+);
+
+// ─── PaymentLockOverlay ───
+// Shown as a full-screen block when the wedding's payment status
+// indicates the invitation has not been paid for (payment === "2"),
+// mirroring the behaviour used in Template1.
+function PaymentLockOverlay() {
+  return (
+    <div
+      className="fixed inset-0 h-full w-full flex items-center justify-center"
+      style={{
+        background: "#000000",
+        zIndex: 9999,
+      }}
+    >
+      <div className="text-center px-6">
+        <IconLock size={40} color="#ffffff" />
+        <p
+          style={{
+            fontFamily: "'Playfair Display',serif",
+            fontWeight: 600,
+            fontSize: 22,
+            color: "#ffffff",
+            marginTop: 16,
+          }}
+        >
+          Төлем төленбеген
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN ───
 export default function Template4({ wedding: raw }: { wedding: Wedding }) {
   const wedding: Wedding = {
@@ -1260,6 +1313,8 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
       ),
     ),
   };
+
+  const isPaymentLocked = String((raw as any).payment) === "2";
 
   const date = formatDate(wedding.wedding_date);
   const time = wedding.wedding_date?.includes("T")
@@ -1284,6 +1339,8 @@ export default function Template4({ wedding: raw }: { wedding: Wedding }) {
         fontFamily: "'Playfair Display','Georgia',serif",
       }}
     >
+      {isPaymentLocked && <PaymentLockOverlay />}
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         * { box-sizing:border-box; }

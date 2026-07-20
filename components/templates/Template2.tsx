@@ -1414,8 +1414,13 @@ function GlobalStyles() {
   );
 }
 
-/* ─── PaymentLockOverlay — brought over from Template1's design ─── */
-function PaymentLockOverlay({ extra5 }: { extra5?: string | null }) {
+/* ─── PaymentLockOverlay ───
+   Brought over from Template1: a full-screen black overlay shown
+   ON TOP of the invitation (z-index 9999) when payment is unpaid,
+   instead of replacing the whole component tree. This matches
+   Template1's pattern exactly — the page still mounts underneath,
+   only a fixed overlay blocks it visually. */
+function PaymentLockOverlay() {
   return (
     <div
       className="fixed inset-0 h-full w-full flex items-center justify-center"
@@ -1439,16 +1444,6 @@ function PaymentLockOverlay({ extra5 }: { extra5?: string | null }) {
         >
           Төлем төленбеген
         </p>
-        <div
-          style={{
-            color: "#ffffff",
-            width: 32,
-            height: 32,
-            margin: "16px auto 0",
-          }}
-        >
-          <Song extra5={extra5} />
-        </div>
       </div>
     </div>
   );
@@ -1477,19 +1472,16 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
     wedding.extra4,
   ].filter(Boolean);
 
-  const extra5 = wedding.extra5 ? wedding.extra5 : null;
   const isPaymentLocked = String((wedding as any).payment) === "2";
 
   const latitude = (wedding as any).latitude ?? null;
   const longitude = (wedding as any).longitude ?? null;
 
-  if (isPaymentLocked) {
-    return <PaymentLockOverlay extra5={extra5} />;
-  }
-
   return (
     <>
       <GlobalStyles />
+      {isPaymentLocked && <PaymentLockOverlay />}
+
       <div className="fixed inset-0 z-0" style={{ background: C.background }} />
 
       <HeaderBar
