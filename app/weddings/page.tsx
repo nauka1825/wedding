@@ -18,6 +18,15 @@ export default function WeddingsPage() {
   const [passError, setPassError] = useState(false);
   const [shake, setShake] = useState(false);
 
+  // ─── Delete state ───
+  // weddingPendingDelete holds the record awaiting confirmation (null = no
+  // confirmation dialog open). deletingId tracks which row is actively
+  // being deleted so we can show a spinner / disable the button.
+  const [weddingPendingDelete, setWeddingPendingDelete] =
+    useState<Wedding | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
   // Check sessionStorage on mount
   useEffect(() => {
     if (sessionStorage.getItem("admin_authed") === "true") {
@@ -70,6 +79,63 @@ export default function WeddingsPage() {
       setFiltered(data);
     }
     setLoading(false);
+  }
+
+  // ─── Cascading delete ───
+  // Removes the wedding's RSVP + wishes/wedding_messages rows first, then the
+  // wedding row itself. Table/column names assumed: "rsvp" and
+  // "wedding_messages", both keyed by a "wedding_id" foreign column — adjust
+  // these two table names below if your schema differs.
+  async function confirmDelete() {
+    if (!weddingPendingDelete) return;
+    const id = weddingPendingDelete.id;
+    setDeletingId(id);
+    setDeleteError(null);
+
+    const { error: rsvpError } = await supabase
+      .from("rsvp")
+      .delete()
+      .eq("wedding_id", id);
+
+    if (rsvpError) {
+      setDeleteError(
+        "RSVP мэдээллийг устгах үед алдаа гарлаа: " + rsvpError.message,
+      );
+      setDeletingId(null);
+      return;
+    }
+
+    const { error: messagesError } = await supabase
+      .from("wedding_messages")
+      .delete()
+      .eq("wedding_id", id);
+
+    if (messagesError) {
+      setDeleteError(
+        "Тілек/захидлын мэдээллийг устгах үед алдаа гарлаа: " +
+          messagesError.message,
+      );
+      setDeletingId(null);
+      return;
+    }
+
+    const { error: weddingError } = await supabase
+      .from("weddings")
+      .delete()
+      .eq("id", id);
+
+    if (weddingError) {
+      setDeleteError(
+        "Бүртгэлийг устгах үед алдаа гарлаа: " + weddingError.message,
+      );
+      setDeletingId(null);
+      return;
+    }
+
+    setWeddings((prev) => prev.filter((w) => w.id !== id));
+    setFiltered((prev) => prev.filter((w) => w.id !== id));
+    setDeletingId(null);
+    setWeddingPendingDelete(null);
   }
 
   // ─── PASSWORD GATE ───
@@ -313,12 +379,158 @@ export default function WeddingsPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               {filtered.map((w) => (
-                <TemplateCard key={w.id} wedding={w} />
+                <div key={w.id} className="relative">
+                  <TemplateCard wedding={w} />
+
+                  {/* Delete trigger — opens the confirmation dialog below */}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setDeleteError(null);
+                      setWeddingPendingDelete(w);
+                    }}
+                    aria-label="Устгах"
+                    className="absolute top-2 right-2 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                    style={{
+                      background: "rgba(255,255,255,0.92)",
+                      border: "1px solid rgba(220,100,120,0.35)",
+                      boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
+                    }}
+                  >
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#C8506A"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                    </svg>
+                  </button>
+                </div>
               ))}
             </div>
           </>
         )}
       </div>
+
+      {/* ─── Delete confirmation modal ─── */}
+      {weddingPendingDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-6"
+          style={{ background: "rgba(30,20,25,0.45)" }}
+          onClick={() => {
+            if (!deletingId) setWeddingPendingDelete(null);
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-[320px] rounded-2xl p-6 text-center"
+            style={{
+              background: "#fffdfb",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+            }}
+          >
+            <div
+              className="w-12 h-12 rounded-full mx-auto mb-4 flex items-center justify-center"
+              style={{ background: "rgba(220,100,120,0.12)" }}
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#C8506A"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                <path d="M10 11v6" />
+                <path d="M14 11v6" />
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+              </svg>
+            </div>
+
+            <p
+              style={{
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontStyle: "italic",
+                fontSize: "19px",
+                color: "#453035",
+                marginBottom: "8px",
+              }}
+            >
+              Устгахдаа итгэлтэй байна уу?
+            </p>
+            <p
+              className="text-xs text-stone-400 mb-1"
+              style={{ fontFamily: "'Jost', sans-serif" }}
+            >
+              {weddingPendingDelete.male_name} &amp;{" "}
+              {weddingPendingDelete.female_name}
+            </p>
+            <p
+              className="text-[11px] text-stone-400 mb-5 leading-relaxed"
+              style={{ fontFamily: "'Jost', sans-serif" }}
+            >
+              Энэ бүртгэл, түүнтэй холбоотой бүх RSVP болон тілек/захидлын
+              мэдээлэл бүрмөсөн устгагдана. Энэ үйлдлийг буцаах боломжгүй.
+            </p>
+
+            {deleteError && (
+              <p
+                className="text-[11px] mb-4"
+                style={{
+                  color: "rgba(200,80,100,0.9)",
+                  fontFamily: "'Jost', sans-serif",
+                }}
+              >
+                {deleteError}
+              </p>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setWeddingPendingDelete(null)}
+                disabled={!!deletingId}
+                className="flex-1 py-2.5 rounded-xl text-xs tracking-widest uppercase transition-colors"
+                style={{
+                  fontFamily: "'Jost', sans-serif",
+                  border: "1px solid rgba(0,0,0,0.1)",
+                  color: "#7A6B70",
+                  background: "transparent",
+                  opacity: deletingId ? 0.5 : 1,
+                }}
+              >
+                Болих
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={!!deletingId}
+                className="flex-1 py-2.5 rounded-xl text-xs tracking-widest uppercase text-white transition-colors"
+                style={{
+                  fontFamily: "'Jost', sans-serif",
+                  background:
+                    "linear-gradient(135deg, #E27C93 0%, #C8506A 100%)",
+                  opacity: deletingId ? 0.7 : 1,
+                }}
+              >
+                {deletingId ? "Устгаж байна..." : "Устгах"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
