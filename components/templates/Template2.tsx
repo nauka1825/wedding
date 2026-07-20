@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
 import {
@@ -106,6 +106,205 @@ const KAZ_MONTHS = [
   "Қараша",
   "Желтоқсан",
 ];
+
+const MON_MONTHS = [
+  "1-р сар",
+  "2-р сар",
+  "3-р сар",
+  "4-р сар",
+  "5-р сар",
+  "6-р сар",
+  "7-р сар",
+  "8-р сар",
+  "9-р сар",
+  "10-р сар",
+  "11-р сар",
+  "12-р сар",
+];
+
+/* ======================================================================
+   BILINGUAL SUPPORT (Kazakh / Mongolian) — ported 1:1 from Template1
+   ====================================================================== */
+export type Lang = "kk" | "mn";
+
+interface T2Translations {
+  langButtonLabel: string;
+  nav: {
+    hero: string;
+    photos: string;
+    details: string;
+    poem: string;
+    messages: string;
+  };
+  heroEyebrow: string;
+  heroFallback: (maleName: string, femaleName: string) => string;
+  organizerTitle: string;
+  groomSide: string;
+  brideSide: string;
+  ourStoryLabel: string;
+  weddingMemories: string;
+  dateLabel: string;
+  timeLabel: string;
+  atTime: (time: string) => string;
+  venueLabel: string;
+  viewOnMap: string;
+  rsvpTitle: string;
+  rsvpSubtitle: string;
+  footerPoem: string;
+  builtWithLove: string;
+  paymentLocked: string;
+}
+
+const T2_TRANSLATIONS: Record<Lang, T2Translations> = {
+  kk: {
+    langButtonLabel: "ҚАЗ",
+    nav: {
+      hero: "Есімдер",
+      photos: "Фотолар",
+      details: "Мәліметтер",
+      poem: "Хикая",
+      messages: "Тілектер",
+    },
+    heroEyebrow: "Үйлену тойына шақыру",
+    heroFallback: (male, female) =>
+      `Құрметті ағайын-туыс, құда-жекжат, дос-жаран, әріптестер мен көршілер! Сіздерді ұлымыз ${male} пен келініміз ${female}-ның үйлену тойына арналған салтанатты ақ дастарханымыздың қадірлі қонағы болуға шақырамыз!`,
+    organizerTitle: "Той иелері",
+    groomSide: "Күйеу жақ",
+    brideSide: "Келін жақ",
+    ourStoryLabel: "Біздің хикая",
+    weddingMemories: "Той естеліктері",
+    dateLabel: "Күні / Date",
+    timeLabel: "Уақыты / Time",
+    atTime: (time) => `Сағат ${time}-де`,
+    venueLabel: "Мекен-жайы / Venue",
+    viewOnMap: "КАРТАДАН КӨРУ",
+    rsvpTitle: "RSVP",
+    rsvpSubtitle: "Сіздің келуіңіз біз үшін үлкен мәртебе!",
+    footerPoem:
+      "Біз екеуміз тек екеуміз\nЖүректермен бір екенбіз\nМен сен үшін сен мен үшін\nЖаралған екенбіз",
+    builtWithLove: "СҮЙІСПЕНШІЛІКПЕН ЖАСАЛДЫ.",
+    paymentLocked: "Төлем төленбеген",
+  },
+  mn: {
+    langButtonLabel: "МОН",
+    nav: {
+      hero: "Нэрс",
+      photos: "Зурагнууд",
+      details: "Мэдээлэл",
+      poem: "Түүх",
+      messages: "Ерөөлүүд",
+    },
+    heroEyebrow: "Хуримын урилга",
+    heroFallback: (male, female) =>
+      `Эрхэм ах эгч дүү нар, худ худгуй, найз нөхөд, хамт олон, хөрш зэргэлдээ нар аа! Хүү маань ${male} болон бэр маань ${female}-ийн хуримын баярт цагаан дэрвэлгэрийн хүндэт зочин болохыг урьж байна!`,
+    organizerTitle: "Хуримын эзэд",
+    groomSide: "Хүргэн тал",
+    brideSide: "Бэр тал",
+    ourStoryLabel: "Бидний түүх",
+    weddingMemories: "Хуримын дурсамжууд",
+    dateLabel: "Огноо / Date",
+    timeLabel: "Цаг / Time",
+    atTime: (time) => `${time} цагт`,
+    venueLabel: "Байршил / Venue",
+    viewOnMap: "ГАЗРЫН ЗУРГААС ХАРАХ",
+    rsvpTitle: "RSVP",
+    rsvpSubtitle: "Таны ирэх нь бидний хувьд том хүндэтгэл!",
+    footerPoem:
+      "Чамд дурла гэж заяа минь намайг хөтөлсөн\nЧамайг хайрла гэж хорвоо надад тушаасан\nХамгаас илүү гэж бурхан надад шивнэсэн\nХайрлаж явья гэж харин би өөрөө шийдсэн",
+    builtWithLove: "ХАЙРААР БҮТЭЭВ.",
+    paymentLocked: "Төлбөр төлөгдөөгүй",
+  },
+};
+
+const LangContext = createContext<{
+  lang: Lang;
+  t: T2Translations;
+  toggleLang: () => void;
+}>({
+  lang: "kk",
+  t: T2_TRANSLATIONS.kk,
+  toggleLang: () => {},
+});
+
+function useLang() {
+  return useContext(LangContext);
+}
+
+/* Small fixed-position pill for switching between Kazakh / Mongolian.
+   Sits just under the fixed header so it never overlaps the menu/music
+   buttons. */
+function LanguageToggle() {
+  const { lang, toggleLang } = useLang();
+  return (
+    <button
+      onClick={toggleLang}
+      style={{
+        position: "fixed",
+        top: 74,
+        right: 16,
+        zIndex: 100,
+        display: "flex",
+        alignItems: "center",
+        gap: 4,
+        borderRadius: 999,
+        padding: "6px 12px",
+        background: "rgba(255,248,245,0.9)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        border: `1px solid ${C.gold}4d`,
+        boxShadow: "0 6px 16px rgba(0,43,20,0.15)",
+        fontFamily: "'Montserrat', sans-serif",
+        fontSize: 11,
+        fontWeight: 700,
+        letterSpacing: "0.1em",
+        color: C.primary,
+        cursor: "pointer",
+      }}
+      aria-label="Switch language / Хэл сэлгэх"
+    >
+      <span style={{ opacity: lang === "kk" ? 1 : 0.4 }}>ҚАЗ</span>
+      <span style={{ opacity: 0.35 }}>/</span>
+      <span style={{ opacity: lang === "mn" ? 1 : 0.4 }}>МОН</span>
+    </button>
+  );
+}
+
+/* ------------------------------------------------------------------------
+   pickLang — some wedding fields come from the DB with BOTH languages
+   packed into a single string, e.g.:
+     "kk: Баян-Өлгій қаласы  mn: Баян-Өлгий аймаг Өлгий сум"
+   This pulls out just the part matching the active language. If only one
+   of "kk:" / "mn:" is present, that one is used regardless of active
+   language. If neither label is present, the original text is returned
+   as-is (so plain, non-tagged fields keep working exactly like before).
+   Ported 1:1 from Template1.
+   ------------------------------------------------------------------------ */
+function pickLang(raw: string | null | undefined, lang: Lang): string {
+  if (!raw) return "";
+  const labelRe = /\b(kk|mn)\s*:\s*/gi;
+
+  const matches: { label: string; index: number; length: number }[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = labelRe.exec(raw)) !== null) {
+    matches.push({
+      label: m[1].toLowerCase(),
+      index: m.index,
+      length: m[0].length,
+    });
+    if (m[0].length === 0) labelRe.lastIndex++;
+  }
+  if (matches.length === 0) return raw.trim();
+
+  const parts: Partial<Record<Lang, string>> = {};
+  matches.forEach((match, i) => {
+    const start = match.index + match.length;
+    const end = i + 1 < matches.length ? matches[i + 1].index : raw.length;
+    const value = raw.slice(start, end).trim();
+    if (value) parts[match.label as Lang] = value;
+  });
+
+  return parts[lang] ?? parts.kk ?? parts.mn ?? raw.trim();
+}
 
 /* ─── useInView (scroll-reveal, same behavior as HTML's IntersectionObserver .reveal) ─── */
 function useInView(threshold = 0.12) {
@@ -377,16 +576,19 @@ function HeaderBar({
    NAV DRAWER — replaces the always-visible footer nav.
    Hidden by default; slides up from the bottom when the header
    menu button is tapped. Tapping a link scrolls + closes it.
+   Labels now come from the active-language translation set.
    ───────────────────────────────────────────────────────────── */
-const NAV_ITEMS = [
-  { id: "section-hero", icon: FaHeart, label: "Есімдер" },
-  { id: "section-photos", icon: FaImages, label: "Фотолар" },
-  { id: "section-details", icon: FaCalendarAlt, label: "Мәліметтер" },
-  { id: "section-poem", icon: FaCameraRetro, label: "Хикая" },
-  { id: "section-messages", icon: FaEnvelopeOpenText, label: "Тілектер" },
-];
-
 function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useLang();
+
+  const navItems = [
+    { id: "section-hero", icon: FaHeart, label: t.nav.hero },
+    { id: "section-photos", icon: FaImages, label: t.nav.photos },
+    { id: "section-details", icon: FaCalendarAlt, label: t.nav.details },
+    { id: "section-poem", icon: FaCameraRetro, label: t.nav.poem },
+    { id: "section-messages", icon: FaEnvelopeOpenText, label: t.nav.messages },
+  ];
+
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -442,7 +644,7 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
             flexWrap: "wrap",
           }}
         >
-          {NAV_ITEMS.map(({ id, icon: Icon, label }) => (
+          {navItems.map(({ id, icon: Icon, label }) => (
             <button
               key={id}
               onClick={() => scrollTo(id)}
@@ -485,9 +687,9 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
 /* ─────────────────────────────────────────────────────────────
    SECTION 1 — Hero (photo + names + invitation text)
    Matches HTML's Hero section + Names & Invitation section.
-   Now renders wedding.description1 (the actual typed invitation
-   speech) when present, falling back to the generic sentence
-   only when the organizer left it blank.
+   Renders wedding.description1 (the actual typed invitation
+   speech, run through pickLang) when present, falling back to
+   the generic translated sentence only when it's blank.
    ───────────────────────────────────────────────────────────── */
 // Hero background — the rings photo used in the original HTML reference design
 const HERO_STOCK_IMAGE =
@@ -504,6 +706,7 @@ function HeroSection({
   femaleName: string;
   description1?: string | null;
 }) {
+  const { t } = useLang();
   return (
     <section id="section-hero">
       <div className="relative h-[75vh] w-full overflow-hidden flex items-end justify-center pb-12">
@@ -531,7 +734,7 @@ function HeroSection({
           style={{ padding: "0 5vw" }}
         >
           <p style={{ ...F_LABEL_CAPS, color: C.secondary, marginBottom: 8 }}>
-            Wedding Invitation
+            {t.heroEyebrow}
           </p>
           <h2
             style={{
@@ -586,10 +789,7 @@ function HeroSection({
                 color: C.onSurfaceVariant,
               }}
             >
-              Құрметті ағайын-туыс, құда-жекжат, дос-жаран, әріптестер мен
-              көршілер! Сіздерді ұлымыз {maleName} пен келініміз {femaleName}
-              -ның үйлену тойына арналған салтанатты ақ дастарханымыздың қадірлі
-              қонағы болуға шақырамыз!
+              {t.heroFallback(maleName, femaleName)}
             </p>
           )}
         </div>
@@ -612,6 +812,7 @@ function OrganizerSection({
   maleParents?: string | null;
   femaleParents?: string | null;
 }) {
+  const { t } = useLang();
   const lines = organizer.split("\n").filter(Boolean);
   return (
     <Reveal
@@ -619,7 +820,7 @@ function OrganizerSection({
       style={{ background: C.surfaceContainerLow, padding: "4rem 5vw" }}
     >
       <h4 style={{ ...F_LABEL_CAPS, color: C.secondary, marginBottom: 16 }}>
-        Той иелері: Ата-анасы
+        {t.organizerTitle}
       </h4>
       <div className="flex flex-col items-center gap-4">
         <GlassCard
@@ -654,7 +855,7 @@ function OrganizerSection({
                     marginBottom: 4,
                   }}
                 >
-                  Күйеу жақ
+                  {t.groomSide}
                 </p>
                 <p
                   style={{
@@ -677,7 +878,7 @@ function OrganizerSection({
                     marginBottom: 4,
                   }}
                 >
-                  Келін жақ
+                  {t.brideSide}
                 </p>
                 <p
                   style={{
@@ -710,6 +911,7 @@ function PhotosSection({
 }: {
   galleryUrls: string[] | null | undefined;
 }) {
+  const { t } = useLang();
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollBy = (dir: 1 | -1) => {
     scrollRef.current?.scrollBy({ left: dir * 300, behavior: "smooth" });
@@ -735,7 +937,7 @@ function PhotosSection({
                 marginBottom: 4,
               }}
             >
-              Our Story
+              {t.ourStoryLabel}
             </h4>
             <h3
               style={{
@@ -747,7 +949,7 @@ function PhotosSection({
                 margin: 0,
               }}
             >
-              Wedding Memories
+              {t.weddingMemories}
             </h3>
           </div>
           <div className="flex gap-2">
@@ -843,15 +1045,7 @@ function DetailsSection({
   latitude?: number | null;
   longitude?: number | null;
 }) {
-  const timeSubtitle = (() => {
-    if (!time) return null;
-    const [hStr, mStr] = time.split(":");
-    let h = parseInt(hStr, 10);
-    if (Number.isNaN(h)) return null;
-    const ampm = h >= 12 ? "PM" : "AM";
-    h = h % 12 || 12;
-    return `Sharp at ${h}:${mStr} ${ampm}`;
-  })();
+  const { t } = useLang();
 
   const hasCoords =
     typeof latitude === "number" &&
@@ -886,7 +1080,7 @@ function DetailsSection({
               <h5
                 style={{ ...F_LABEL_CAPS, color: C.primary, marginBottom: 10 }}
               >
-                Күні / Date
+                {t.dateLabel}
               </h5>
               <p
                 style={{
@@ -916,7 +1110,7 @@ function DetailsSection({
               <h5
                 style={{ ...F_LABEL_CAPS, color: C.primary, marginBottom: 10 }}
               >
-                Уақыты / Time
+                {t.timeLabel}
               </h5>
               <p
                 style={{
@@ -928,21 +1122,8 @@ function DetailsSection({
                   margin: 0,
                 }}
               >
-                Сағат {time}-де
+                {t.atTime(time)}
               </p>
-              {timeSubtitle && (
-                <p
-                  style={{
-                    ...F_BODY_MD,
-                    fontSize: 15,
-                    fontStyle: "italic",
-                    color: C.secondary,
-                    margin: "4px 0 0",
-                  }}
-                >
-                  {timeSubtitle}
-                </p>
-              )}
             </GlassCard>
           </Reveal>
         )}
@@ -956,7 +1137,7 @@ function DetailsSection({
           <h5
             style={{ ...F_LABEL_CAPS, color: C.primary, margin: "16px 0 8px" }}
           >
-            Мекен-жайы / Venue
+            {t.venueLabel}
           </h5>
           {venueName && (
             <p
@@ -1025,7 +1206,7 @@ function DetailsSection({
                 (e.currentTarget.style.background = C.primary)
               }
             >
-              КАРТАДАН КӨРУ
+              {t.viewOnMap}
             </a>
           ) : (
             <button
@@ -1040,7 +1221,7 @@ function DetailsSection({
                 ...F_LABEL_CAPS,
               }}
             >
-              КАРТАДАН КӨРУ
+              {t.viewOnMap}
             </button>
           )}
         </Reveal>
@@ -1089,9 +1270,8 @@ function DetailsSection({
 
 /* ─────────────────────────────────────────────────────────────
    SECTION — Poem & couple portraits (description2 + photo3/photo4 + links)
-   New section, ported from Template1's PoemAndCoupleSection so the
-   typed verse, the two portrait photos, and the Instagram links that
-   were being dropped now actually show up in Template2.
+   Ported from Template1's PoemAndCoupleSection so the typed verse, the
+   two portrait photos, and the Instagram links show up in Template2 too.
    ───────────────────────────────────────────────────────────── */
 function PoemAndCoupleSection({
   poem,
@@ -1252,6 +1432,7 @@ function PoemAndCoupleSection({
    Matches HTML's glass-card RSVP form container
    ───────────────────────────────────────────────────────────── */
 function MessagesSection({ weddingId }: { weddingId: string }) {
+  const { t, lang } = useLang();
   return (
     <section
       id="section-messages"
@@ -1270,7 +1451,7 @@ function MessagesSection({ weddingId }: { weddingId: string }) {
               marginBottom: 8,
             }}
           >
-            RSVP
+            {t.rsvpTitle}
           </h3>
           <p
             style={{
@@ -1280,13 +1461,14 @@ function MessagesSection({ weddingId }: { weddingId: string }) {
               marginBottom: 32,
             }}
           >
-            Сіздің келуіңіз біз үшін үлкен мәртебе!
+            {t.rsvpSubtitle}
           </p>
           <div style={{ marginBottom: 40 }}>
             <RSVPSection
               weddingId={weddingId}
               accentColor={C.primary}
               lightColor="#f7f0dc"
+              lang={lang}
             />
           </div>
           <div
@@ -1297,6 +1479,7 @@ function MessagesSection({ weddingId }: { weddingId: string }) {
               accentColor={C.primary}
               lightColor="#f7f0dc"
               borderColor="border-amber-100"
+              lang={lang}
             />
           </div>
         </GlassCard>
@@ -1315,6 +1498,7 @@ function FooterSection({
   maleName: string;
   femaleName: string;
 }) {
+  const { t } = useLang();
   return (
     <footer
       className="flex flex-col items-center text-center footer-gradient-bg"
@@ -1352,9 +1536,7 @@ function FooterSection({
             marginBottom: 32,
           }}
         >
-          {
-            "Біз екеуміз тек екеуміз\nЖүректермен бір екенбіз\nМен сен үшін сен мен үшін\nЖаралған екенбіз"
-          }
+          {t.footerPoem}
         </p>
         <div
           className="flex items-center justify-center gap-4"
@@ -1395,7 +1577,7 @@ function FooterSection({
         }}
       >
         © {new Date().getFullYear()} {maleName.toUpperCase()} &amp;{" "}
-        {femaleName.toUpperCase()}. BUILT WITH LOVE.
+        {femaleName.toUpperCase()}. {t.builtWithLove}
       </p>
     </footer>
   );
@@ -1419,8 +1601,9 @@ function GlobalStyles() {
    ON TOP of the invitation (z-index 9999) when payment is unpaid,
    instead of replacing the whole component tree. This matches
    Template1's pattern exactly — the page still mounts underneath,
-   only a fixed overlay blocks it visually. */
+   only a fixed overlay blocks it visually. Text is now translated. */
 function PaymentLockOverlay() {
+  const { t } = useLang();
   return (
     <div
       className="fixed inset-0 h-full w-full flex items-center justify-center"
@@ -1442,7 +1625,7 @@ function PaymentLockOverlay() {
             color: "#ffffff",
           }}
         >
-          Төлем төленбеген
+          {t.paymentLocked}
         </p>
       </div>
     </div>
@@ -1452,24 +1635,43 @@ function PaymentLockOverlay() {
 /* ─────────────────────────────────────────────────────────────
    MAIN
    ───────────────────────────────────────────────────────────── */
-export default function Template2({ wedding }: { wedding: Wedding }) {
+export default function Template2({
+  wedding,
+  defaultLang = "kk",
+}: {
+  wedding: Wedding;
+  defaultLang?: Lang;
+}) {
   const [navOpen, setNavOpen] = useState(false);
+  const [lang, setLang] = useState<Lang>(defaultLang);
+  const t = T2_TRANSLATIONS[lang];
+  const toggleLang = () => setLang((prev) => (prev === "kk" ? "mn" : "kk"));
 
   const isoDate = wedding.wedding_date || null;
   const dateObj = isoDate ? new Date(isoDate) : null;
+  const months = lang === "mn" ? MON_MONTHS : KAZ_MONTHS;
   const date =
     dateObj && !Number.isNaN(dateObj.getTime())
-      ? `${KAZ_MONTHS[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`
+      ? `${months[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`
       : null;
   const time = wedding.wedding_date?.includes("T")
     ? wedding.wedding_date.split("T")[1].slice(0, 5)
     : null;
 
+  // Some fields may store both languages inline ("kk: ... mn: ...");
+  // pick out the part matching the active language (falls back to
+  // whatever is available, or the raw text if it isn't tagged at all).
+  const organizerText = pickLang(wedding.organizer, lang) || null;
+  const venueNameText = pickLang(wedding.venue_name, lang) || null;
+  const venueAddressText = pickLang(wedding.venue_address, lang) || null;
+  const description1Text = pickLang(wedding.description1, lang) || null;
+  const description2Text = pickLang(wedding.description2, lang) || null;
+
   const extras = [
-    wedding.extra1,
-    wedding.extra2,
-    wedding.extra3,
-    wedding.extra4,
+    pickLang(wedding.extra1, lang),
+    pickLang(wedding.extra2, lang),
+    pickLang(wedding.extra3, lang),
+    pickLang(wedding.extra4, lang),
   ].filter(Boolean);
 
   const isPaymentLocked = String((wedding as any).payment) === "2";
@@ -1478,7 +1680,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
   const longitude = (wedding as any).longitude ?? null;
 
   return (
-    <>
+    <LangContext.Provider value={{ lang, t, toggleLang }}>
       <GlobalStyles />
       {isPaymentLocked && <PaymentLockOverlay />}
 
@@ -1491,6 +1693,8 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
         onMenuClick={() => setNavOpen((v) => !v)}
         navOpen={navOpen}
       />
+
+      <LanguageToggle />
 
       <NavDrawer open={navOpen} onClose={() => setNavOpen(false)} />
 
@@ -1507,12 +1711,12 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           mainPhotoUrl={wedding.main_photo_url}
           maleName={wedding.male_name}
           femaleName={wedding.female_name}
-          description1={wedding.description1}
+          description1={description1Text}
         />
 
-        {wedding.organizer && (
+        {organizerText && (
           <OrganizerSection
-            organizer={wedding.organizer}
+            organizer={organizerText}
             maleParents={(wedding as any).male_parents}
             femaleParents={(wedding as any).female_parents}
           />
@@ -1521,8 +1725,8 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
         <DetailsSection
           date={date}
           time={time}
-          venueName={wedding.venue_name}
-          venueAddress={wedding.venue_address}
+          venueName={venueNameText}
+          venueAddress={venueAddressText}
           extras={extras}
           photo5Url={wedding.photo5_url}
           latitude={latitude}
@@ -1532,7 +1736,7 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
         <PhotosSection galleryUrls={wedding.gallery_urls} />
 
         <PoemAndCoupleSection
-          poem={wedding.description2 || null}
+          poem={description2Text}
           photo3={wedding.photo3_url || null}
           photo4={wedding.photo4_url || null}
           link1={wedding.link1 || null}
@@ -1546,6 +1750,6 @@ export default function Template2({ wedding }: { wedding: Wedding }) {
           femaleName={wedding.female_name}
         />
       </div>
-    </>
+    </LangContext.Provider>
   );
 }

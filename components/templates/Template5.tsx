@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
-import { formatDate, Wedding } from "@/lib/supabase";
+import { createContext, useContext, useEffect, useState } from "react";
+import { Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
 import RSVPSection from "@/components/RSVPSection";
 import Song from "../song";
@@ -22,6 +22,197 @@ const COLORS = {
   onSurfaceVariant: "#424842",
 };
 
+/* ======================================================================
+   BILINGUAL SUPPORT (Kazakh / Mongolian) — ported 1:1 from Template1/2
+   ====================================================================== */
+export type Lang = "kk" | "mn";
+
+const KAZ_MONTHS_FULL = [
+  "қаңтар",
+  "ақпан",
+  "наурыз",
+  "сәуір",
+  "мамыр",
+  "маусым",
+  "шілде",
+  "тамыз",
+  "қыркүйек",
+  "қазан",
+  "қараша",
+  "желтоқсан",
+];
+
+const MON_MONTHS_FULL = [
+  "1-р сар",
+  "2-р сар",
+  "3-р сар",
+  "4-р сар",
+  "5-р сар",
+  "6-р сар",
+  "7-р сар",
+  "8-р сар",
+  "9-р сар",
+  "10-р сар",
+  "11-р сар",
+  "12-р сар",
+];
+
+interface T5Translations {
+  nav: {
+    home: string;
+    story: string;
+    venue: string;
+    gallery: string;
+    rsvp: string;
+  };
+  heroEyebrow: string;
+  organizerEyebrow: string;
+  galleryEyebrow: string;
+  galleryTitle: string;
+  viewOnMap: string;
+  paymentLocked: string;
+  invitationFallback: string;
+  quoteFallback: string;
+  joinUsTitle: string;
+  joinUsSubtitle: string;
+  monthLabel: string;
+  dayLabel: string;
+  timeLabel: string;
+  rsvpEyebrow: string;
+}
+
+const T5_TRANSLATIONS: Record<Lang, T5Translations> = {
+  kk: {
+    nav: {
+      home: "Басты бет",
+      story: "Тарихымыз",
+      venue: "Орын",
+      gallery: "Фотолар",
+      rsvp: "RSVP",
+    },
+    heroEyebrow: "Той шақыруы",
+    organizerEyebrow: "Той иелері",
+    galleryEyebrow: "Жылы естеліктер",
+    galleryTitle: "Суреттер топтамасы",
+    viewOnMap: "КАРТАДАН КӨРУ",
+    paymentLocked: "Төлем төленбеген",
+    invitationFallback:
+      "Құрметті қонақтар! Балаларымыздың жаңа шаңырақ көтеруіне арналған салтанатты тойымыздың куәсі болып, ақ дастарханымыздан дәм татуға шақырамыз!",
+    quoteFallback:
+      "Махаббат дегеніміз — бір-біріңе қарау емес, бірге бір бағытқа қарау.",
+    joinUsTitle: "Бізбен бірге болыңыз",
+    joinUsSubtitle: "Өміріміздің ең қымбат сәтіне куә болуға шақырамыз.",
+    monthLabel: "Ай",
+    dayLabel: "Күн",
+    timeLabel: "Уақыт",
+    rsvpEyebrow: "Қатысуыңызды растаңыз",
+  },
+  mn: {
+    nav: {
+      home: "Нүүр",
+      story: "Түүх",
+      venue: "Байршил",
+      gallery: "Зурагнууд",
+      rsvp: "RSVP",
+    },
+    heroEyebrow: "Хуримын урилга",
+    organizerEyebrow: "Хуримын эзэд",
+    galleryEyebrow: "Дулаан дурсамжууд",
+    galleryTitle: "Зургийн цомог",
+    viewOnMap: "ГАЗРЫН ЗУРГААС ХАРАХ",
+    paymentLocked: "Төлбөр төлөгдөөгүй",
+    invitationFallback:
+      "Эрхэм хүндэт зочид оо! Үр хүүхдүүдийн маань шинэ өрх гэрээ байгуулж буй энэхүү баярт хуримын ёслолын гэрч болж, хүндэтгэлийн цагаан ширээний маань зоогноос хүртэхээр хүрэлцэн ирэхийг та бүхэндээ хүндэтгэн урьж байна.",
+    quoteFallback:
+      "Хайр гэдэг нь бие биеэ ширтэхдээ бус, нэгэн зүгийг хамтдаа ширтэн, нэгэн мөрөөдлийн төлөө зэрэгцэн алхахад оршдог.",
+    joinUsTitle: "Бидэнтэй хамт байгаарай",
+    joinUsSubtitle: "Амьдралынхаа хамгийн эрхэм мөчид гэрч болохыг урьж байна.",
+    monthLabel: "Сар",
+    dayLabel: "Өдөр",
+    timeLabel: "Цаг",
+    rsvpEyebrow: "Ирэхээ баталгаажуулна уу",
+  },
+};
+
+const LangContext = createContext<{
+  lang: Lang;
+  t: T5Translations;
+  toggleLang: () => void;
+}>({
+  lang: "kk",
+  t: T5_TRANSLATIONS.kk,
+  toggleLang: () => {},
+});
+
+function useLang() {
+  return useContext(LangContext);
+}
+
+/* Small fixed-position pill for switching between Kazakh / Mongolian.
+   Sits just under the fixed header so it never overlaps the couple name. */
+function LanguageToggle() {
+  const { lang, toggleLang } = useLang();
+  return (
+    <button
+      onClick={toggleLang}
+      style={{
+        position: "fixed",
+        top: 70,
+        right: 16,
+        zIndex: 105,
+        display: "flex",
+        alignItems: "center",
+        gap: 4,
+        borderRadius: 999,
+        padding: "6px 12px",
+        background: "rgba(255,255,255,0.9)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        border: `1px solid ${COLORS.outlineVariant}`,
+        boxShadow: "0 6px 16px rgba(61,107,69,0.15)",
+        fontFamily: BODY,
+        fontSize: 11,
+        fontWeight: 700,
+        letterSpacing: "0.1em",
+        color: COLORS.primaryDark,
+        cursor: "pointer",
+      }}
+      aria-label="Switch language / Хэл сэлгэх"
+    >
+      <span style={{ opacity: lang === "kk" ? 1 : 0.4 }}>ҚАЗ</span>
+      <span style={{ opacity: 0.35 }}>/</span>
+      <span style={{ opacity: lang === "mn" ? 1 : 0.4 }}>МОН</span>
+    </button>
+  );
+}
+
+function pickLang(raw: string | null | undefined, lang: Lang): string {
+  if (!raw) return "";
+  const labelRe = /\b(kk|mn)\s*:\s*/gi;
+
+  const matches: { label: string; index: number; length: number }[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = labelRe.exec(raw)) !== null) {
+    matches.push({
+      label: m[1].toLowerCase(),
+      index: m.index,
+      length: m[0].length,
+    });
+    if (m[0].length === 0) labelRe.lastIndex++;
+  }
+  if (matches.length === 0) return raw.trim();
+
+  const parts: Partial<Record<Lang, string>> = {};
+  matches.forEach((match, i) => {
+    const start = match.index + match.length;
+    const end = i + 1 < matches.length ? matches[i + 1].index : raw.length;
+    const value = raw.slice(start, end).trim();
+    if (value) parts[match.label as Lang] = value;
+  });
+
+  return parts[lang] ?? parts.kk ?? parts.mn ?? raw.trim();
+}
+
 function getWeddingDateObj(dateStr: string | null | undefined) {
   if (!dateStr) return null;
   const d = new Date(dateStr);
@@ -32,11 +223,20 @@ function getWeddingDay(d: Date) {
   return d.getUTCDate();
 }
 
-function getWeddingMonthName(d: Date) {
-  return new Intl.DateTimeFormat("kk-KZ", {
-    month: "long",
-    timeZone: "UTC",
-  }).format(d);
+function getWeddingMonthName(d: Date, lang: Lang) {
+  const months = lang === "mn" ? MON_MONTHS_FULL : KAZ_MONTHS_FULL;
+  return months[d.getUTCMonth()];
+}
+
+/** Local replacement for the old `formatDate` import so the footer / hero
+ *  date respects the active language instead of always rendering Kazakh. */
+function formatWeddingDate(
+  dateStr: string | null | undefined,
+  lang: Lang,
+): string | null {
+  const d = getWeddingDateObj(dateStr);
+  if (!d) return null;
+  return `${getWeddingDay(d)} ${getWeddingMonthName(d, lang)}, ${d.getUTCFullYear()}`;
 }
 
 function Icon({
@@ -227,6 +427,7 @@ function GallerySection({
   photo3Url: string | null;
   photo4Url: string | null;
 }) {
+  const { t } = useLang();
   const urls = [
     ...(galleryUrls || []),
     ...(photo3Url ? [photo3Url] : []),
@@ -240,12 +441,12 @@ function GallerySection({
   return (
     <section id="section-gallery" className="mt-8 px-5">
       <div className="text-center mb-6">
-        <Eyebrow text="Жылы естеліктер" color={COLORS.primaryContainer} />
+        <Eyebrow text={t.galleryEyebrow} color={COLORS.primaryContainer} />
         <h2
           className="text-3xl"
           style={{ fontFamily: HEADLINE, fontWeight: 400, color: "#191c1a" }}
         >
-          Суреттер топтамасы
+          {t.galleryTitle}
         </h2>
         <div
           className="w-12 h-px mx-auto mt-3"
@@ -302,6 +503,7 @@ function VenueMapCard({
   latitude?: number | null;
   longitude?: number | null;
 }) {
+  const { t } = useLang();
   if (!venueName && !venueAddress) return null;
 
   const hasCoords =
@@ -383,7 +585,7 @@ function VenueMapCard({
           }}
         >
           <Icon name="near_me" size={16} color="#fff" />
-          КАРТАДАН КӨРУ
+          {t.viewOnMap}
         </a>
       </div>
 
@@ -455,21 +657,22 @@ function HeaderBar({
 }
 
 /* ─── Persistent bottom nav bar with scroll-spy ─── */
-const BOTTOM_NAV_ITEMS = [
-  { id: "section-hero", icon: "home", label: "Басты бет" },
-  { id: "section-story", icon: "auto_stories", label: "Тарихымыз" },
-  { id: "section-details", icon: "location_on", label: "Орын" },
-  { id: "section-gallery", icon: "photo_library", label: "Фотолар" },
-  { id: "section-rsvp", icon: "how_to_reg", label: "RSVP" },
-];
-
 function BottomNavBar() {
+  const { t } = useLang();
   const [active, setActive] = useState("section-hero");
 
+  const navItems = [
+    { id: "section-hero", icon: "home", label: t.nav.home },
+    { id: "section-story", icon: "auto_stories", label: t.nav.story },
+    { id: "section-details", icon: "location_on", label: t.nav.venue },
+    { id: "section-gallery", icon: "photo_library", label: t.nav.gallery },
+    { id: "section-rsvp", icon: "how_to_reg", label: t.nav.rsvp },
+  ];
+
   useEffect(() => {
-    const sections = BOTTOM_NAV_ITEMS.map((item) =>
-      document.getElementById(item.id),
-    ).filter(Boolean) as HTMLElement[];
+    const sections = navItems
+      .map((item) => document.getElementById(item.id))
+      .filter(Boolean) as HTMLElement[];
 
     if (!sections.length) return;
 
@@ -487,7 +690,8 @@ function BottomNavBar() {
 
     sections.forEach((s) => observer.observe(s));
     return () => observer.disconnect();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [t]);
 
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
@@ -514,7 +718,7 @@ function BottomNavBar() {
         boxShadow: "0 -4px 20px rgba(61,107,69,0.08)",
       }}
     >
-      {BOTTOM_NAV_ITEMS.map(({ id, icon, label }) => {
+      {navItems.map(({ id, icon, label }) => {
         const isActive = active === id;
         return (
           <button
@@ -559,6 +763,7 @@ function BottomNavBar() {
 }
 
 function PaymentLockOverlay() {
+  const { t } = useLang();
   return (
     <div
       className="fixed inset-0 h-full w-full flex items-center justify-center"
@@ -582,35 +787,41 @@ function PaymentLockOverlay() {
             color: "#ffffff",
           }}
         >
-          Төлем төленбеген
+          {t.paymentLocked}
         </p>
       </div>
     </div>
   );
 }
 
-export default function Template5({ wedding }: { wedding: Wedding }) {
-  const date = formatDate(wedding.wedding_date);
+function Template5Inner({ wedding }: { wedding: Wedding }) {
+  const { t, lang } = useLang();
+
+  const date = formatWeddingDate(wedding.wedding_date, lang);
   const time = wedding.wedding_date?.includes("T")
     ? wedding.wedding_date.split("T")[1].slice(0, 5)
     : null;
 
   const weddingDateObj = getWeddingDateObj(wedding.wedding_date);
 
+  // Some fields may store both languages inline ("kk: ... mn: ...");
+  // pick out the part matching the active language (falls back to
+  // whatever is available, or the raw text if it isn't tagged at all).
+  const organizerText = pickLang(wedding.organizer, lang) || null;
+  const description2Text = pickLang(wedding.description2, lang) || null;
+  const venueNameText = pickLang(wedding.venue_name, lang) || null;
+  const venueAddressText = pickLang(wedding.venue_address, lang) || null;
+
   const extras = [
-    wedding.extra1,
-    wedding.extra2,
-    wedding.extra3,
-    wedding.extra4,
-    wedding.extra5,
+    pickLang(wedding.extra1, lang),
+    pickLang(wedding.extra2, lang),
+    pickLang(wedding.extra3, lang),
+    pickLang(wedding.extra4, lang),
+    wedding.extra5 || "", // song title is not translated (proper noun)
   ].filter(Boolean);
 
-  const quoteText =
-    wedding.description1 ||
-    "Махаббат дегеніміз — бір-біріңе қарау емес, бірге бір бағытқа қарау.";
-
-  const invitationText =
-    "Құрметті қонақтар! Балаларымыздың жаңа шаңырақ көтеруіне арналған салтанатты тойымыздың куәсі болып, ақ дастарханымыздан дәм татуға шақырамыз!";
+  const quoteText = pickLang(wedding.description1, lang) || t.quoteFallback;
+  const invitationText = t.invitationFallback;
 
   const isPaymentLocked = String((wedding as any).payment) === "2";
 
@@ -632,6 +843,8 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
         femaleName={wedding.female_name}
         extra5={wedding.extra5}
       />
+
+      <LanguageToggle />
 
       <div style={{ height: 60 }} />
 
@@ -678,7 +891,7 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
 
       {/* Names */}
       <div className="text-center px-6 -mt-12 relative z-10">
-        <Eyebrow text="Той шақыруы" color={COLORS.primaryContainer} />
+        <Eyebrow text={t.heroEyebrow} color={COLORS.primaryContainer} />
         <h1
           className="text-5xl font-light italic leading-tight"
           style={{ fontFamily: HEADLINE, color: COLORS.primary }}
@@ -712,9 +925,12 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
       <QuoteSection text={invitationText} />
 
       <section id="section-story">
-        {wedding.organizer && (
+        {organizerText && (
           <div className="mx-5 mt-7 text-center">
-            <Eyebrow text="Той иелері" color={COLORS.primaryContainer} />
+            <Eyebrow
+              text={t.organizerEyebrow}
+              color={COLORS.primaryContainer}
+            />
             <div
               className="rounded-2xl px-6 py-6"
               style={{
@@ -729,13 +945,13 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
                 className="text-base leading-relaxed mt-2"
                 style={{ fontFamily: BODY, color: COLORS.onSurfaceVariant }}
               >
-                {wedding.organizer}
+                {organizerText}
               </p>
             </div>
           </div>
         )}
 
-        {wedding.description2 && (
+        {description2Text && (
           <div className="mx-5 mt-7">
             <div
               className="rounded-2xl p-5"
@@ -748,7 +964,7 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
                 className="text-sm leading-relaxed"
                 style={{ fontFamily: BODY, color: COLORS.onSurfaceVariant }}
               >
-                {wedding.description2}
+                {description2Text}
               </p>
             </div>
           </div>
@@ -834,13 +1050,13 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
             color: COLORS.primary,
           }}
         >
-          Бізбен бірге болыңыз
+          {t.joinUsTitle}
         </h3>
         <p
           className="text-sm mb-6 px-4"
           style={{ fontFamily: BODY, color: COLORS.onSurfaceVariant }}
         >
-          Өміріміздің ең қымбат сәтіне куә болуға шақырамыз.
+          {t.joinUsSubtitle}
         </p>
 
         <div
@@ -864,13 +1080,13 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
                         fontWeight: 600,
                       }}
                     >
-                      Ай
+                      {t.monthLabel}
                     </span>
                     <span
                       className="block text-xl"
                       style={{ fontFamily: HEADLINE, color: COLORS.primary }}
                     >
-                      {getWeddingMonthName(weddingDateObj)}
+                      {getWeddingMonthName(weddingDateObj, lang)}
                     </span>
                   </div>
                   <div
@@ -886,7 +1102,7 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
                         fontWeight: 600,
                       }}
                     >
-                      Күн
+                      {t.dayLabel}
                     </span>
                     <span
                       className="block text-2xl"
@@ -912,7 +1128,7 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
                         fontWeight: 600,
                       }}
                     >
-                      Уақыт
+                      {t.timeLabel}
                     </span>
                     <span
                       className="block text-xl"
@@ -971,9 +1187,9 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
 
         {/* ── Venue map card (Google Maps embed) ── */}
         <VenueMapCard
-          address={wedding.venue_address}
-          venueName={wedding.venue_name}
-          venueAddress={wedding.venue_address}
+          address={venueAddressText}
+          venueName={venueNameText}
+          venueAddress={venueAddressText}
           latitude={(wedding as any).latitude}
           longitude={(wedding as any).longitude}
         />
@@ -984,7 +1200,7 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
 
       {/* RSVP */}
       <section id="section-rsvp" className="mx-5 mt-10">
-        <Eyebrow text="Қатысуыңызды растаңыз" color={COLORS.primaryContainer} />
+        <Eyebrow text={t.rsvpEyebrow} color={COLORS.primaryContainer} />
         <div
           className="rounded-3xl p-6 mt-4"
           style={{
@@ -997,6 +1213,7 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
             weddingId={wedding.id}
             accentColor={COLORS.primary}
             lightColor={COLORS.surfaceLow}
+            lang={lang}
           />
         </div>
       </section>
@@ -1008,6 +1225,7 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
           accentColor={COLORS.primary}
           lightColor={COLORS.surfaceLow}
           borderColor="border-green-100"
+          lang={lang}
         />
       </section>
 
@@ -1053,5 +1271,23 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
 
       <BottomNavBar />
     </div>
+  );
+}
+
+export default function Template5({
+  wedding,
+  defaultLang = "kk",
+}: {
+  wedding: Wedding;
+  defaultLang?: Lang;
+}) {
+  const [lang, setLang] = useState<Lang>(defaultLang);
+  const t = T5_TRANSLATIONS[lang];
+  const toggleLang = () => setLang((prev) => (prev === "kk" ? "mn" : "kk"));
+
+  return (
+    <LangContext.Provider value={{ lang, t, toggleLang }}>
+      <Template5Inner wedding={wedding} />
+    </LangContext.Provider>
   );
 }

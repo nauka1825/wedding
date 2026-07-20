@@ -75,6 +75,10 @@ const TEMPLATES: {
 const INPUT =
   "w-full bg-white/50 border border-sky-accent/15 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-sky-accent focus:ring-2 focus:ring-sky-accent/15 backdrop-blur-sm transition-all placeholder:text-slate-300 text-on-surface";
 
+/* Slightly tighter input style used inside the two-column bilingual fields */
+const BI_INPUT =
+  "w-full bg-white/50 border border-sky-accent/15 rounded-xl px-3 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-sky-accent focus:ring-2 focus:ring-sky-accent/15 backdrop-blur-sm transition-all placeholder:text-slate-300 text-on-surface";
+
 const LABEL =
   "text-[11px] uppercase tracking-widest text-slate-400 font-semibold ml-1 mb-1.5 block";
 
@@ -117,6 +121,25 @@ const EMPTY_WEDDING: WeddingWithCoords = {
   extra5: null,
   payment: null,
 };
+
+/* ---------------------------------------------------------------------- */
+/*  Bilingual (Kazakh / Mongolian) text support                           */
+/* ---------------------------------------------------------------------- */
+type Lang = "kk" | "mn";
+type Bilingual = { kk: string; mn: string };
+
+const EMPTY_BI: Bilingual = { kk: "", mn: "" };
+
+/** Combines the two language variants into a single string that gets
+ *  saved into one database column, e.g.:
+ *  "kk:Құрметті қонақтар!\nmn:Эрхэм зочид оо!"
+ *  Returns null when both sides are empty so the column stays empty. */
+function combineBilingual(values: Bilingual): string | null {
+  const kk = values.kk.trim();
+  const mn = values.mn.trim();
+  if (!kk && !mn) return null;
+  return `kk:${kk}\nmn:${mn}`;
+}
 
 function GlobalFonts() {
   return (
@@ -204,6 +227,81 @@ function CollapsibleSection({
   );
 }
 
+/* ---------------------------------------------------------------------- */
+/*  Bilingual field — two columns: Kazakh (ҚАЗ) / Mongolian (МОН)         */
+/* ---------------------------------------------------------------------- */
+function BilingualField({
+  label,
+  values,
+  onChange,
+  placeholderKk,
+  placeholderMn,
+  multiline = false,
+  rows = 3,
+}: {
+  label: string;
+  values: Bilingual;
+  onChange: (lang: Lang, value: string) => void;
+  placeholderKk?: string;
+  placeholderMn?: string;
+  multiline?: boolean;
+  rows?: number;
+}) {
+  const commonClass = multiline
+    ? `${BI_INPUT} min-h-[96px] resize-none`
+    : BI_INPUT;
+
+  return (
+    <div>
+      <label className={LABEL}>{label}</label>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-accent/10 text-sky-accent">
+            🇰🇿 ҚАЗ
+          </span>
+          {multiline ? (
+            <textarea
+              value={values.kk}
+              onChange={(e) => onChange("kk", e.target.value)}
+              placeholder={placeholderKk}
+              className={commonClass}
+              rows={rows}
+            />
+          ) : (
+            <input
+              value={values.kk}
+              onChange={(e) => onChange("kk", e.target.value)}
+              placeholder={placeholderKk}
+              className={commonClass}
+            />
+          )}
+        </div>
+        <div className="space-y-1.5">
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600">
+            🇲🇳 МОН
+          </span>
+          {multiline ? (
+            <textarea
+              value={values.mn}
+              onChange={(e) => onChange("mn", e.target.value)}
+              placeholder={placeholderMn}
+              className={commonClass}
+              rows={rows}
+            />
+          ) : (
+            <input
+              value={values.mn}
+              onChange={(e) => onChange("mn", e.target.value)}
+              placeholder={placeholderMn}
+              className={commonClass}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SuccessModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-6 font-josefin">
@@ -275,28 +373,59 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
     femaleName: "",
     date: "",
     time: "",
-    venueName: "",
-    venueAddress: "",
+    venueName: EMPTY_BI as Bilingual,
+    venueAddress: EMPTY_BI as Bilingual,
     latitude: "",
     longitude: "",
-    organizer: "",
+    organizer: EMPTY_BI as Bilingual,
     phone: "",
-    desc1: "",
-    desc2: "",
+    desc1: EMPTY_BI as Bilingual,
+    desc2: EMPTY_BI as Bilingual,
     link1: "",
     link2: "",
-    extra1: "",
-    extra2: "",
-    extra3: "",
-    extra4: "",
+    extra1: EMPTY_BI as Bilingual,
+    extra2: EMPTY_BI as Bilingual,
+    extra3: EMPTY_BI as Bilingual,
+    extra4: EMPTY_BI as Bilingual,
     extra5: "",
     payment: "",
   });
 
+  /* Simple (single-language) text/number inputs */
   const upd =
-    (k: keyof typeof f) =>
+    (
+      k:
+        | "maleName"
+        | "femaleName"
+        | "date"
+        | "time"
+        | "latitude"
+        | "longitude"
+        | "phone"
+        | "link1"
+        | "link2"
+        | "extra5"
+        | "payment",
+    ) =>
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setF((prev) => ({ ...prev, [k]: e.target.value }));
+
+  /* Bilingual (kk / mn) fields */
+  const updBi =
+    (
+      k:
+        | "venueName"
+        | "venueAddress"
+        | "organizer"
+        | "desc1"
+        | "desc2"
+        | "extra1"
+        | "extra2"
+        | "extra3"
+        | "extra4",
+    ) =>
+    (lang: Lang, value: string) =>
+      setF((prev) => ({ ...prev, [k]: { ...prev[k], [lang]: value } }));
 
   const [mainFile, setMainFile] = useState<File | null>(null);
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
@@ -310,16 +439,30 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
   const [p4Preview, setP4Preview] = useState<string | null>(null);
   const [p5Preview, setP5Preview] = useState<string | null>(null);
 
+  /* Combined kk/mn strings, ready to be saved into a single db column each */
+  const venueNameCombined = combineBilingual(f.venueName);
+  const venueAddressCombined = combineBilingual(f.venueAddress);
+  const organizerCombined = combineBilingual(f.organizer);
+  const desc1Combined = combineBilingual(f.desc1);
+  const desc2Combined = combineBilingual(f.desc2);
+  const extra1Combined = combineBilingual(f.extra1);
+  const extra2Combined = combineBilingual(f.extra2);
+  const extra3Combined = combineBilingual(f.extra3);
+  const extra4Combined = combineBilingual(f.extra4);
+
+  /* Plain address text (no kk:/mn: prefixes) used only to query the live map preview */
+  const mapAddress = f.venueAddress.kk || f.venueAddress.mn || undefined;
+
   const previewWedding: WeddingWithCoords = {
     ...EMPTY_WEDDING,
     male_name: f.maleName || "Жасұлан",
     female_name: f.femaleName || "Альбина",
     wedding_date: f.date ? (f.time ? `${f.date}T${f.time}` : f.date) : null,
-    venue_name: f.venueName || null,
-    venue_address: f.venueAddress || null,
+    venue_name: venueNameCombined,
+    venue_address: venueAddressCombined,
     latitude: f.latitude ? parseFloat(f.latitude) : null,
     longitude: f.longitude ? parseFloat(f.longitude) : null,
-    organizer: f.organizer || null,
+    organizer: organizerCombined,
     phone: f.phone || null,
     template,
     main_photo_url: mainPreview,
@@ -327,14 +470,14 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
     photo3_url: p3Preview,
     photo4_url: p4Preview,
     photo5_url: p5Preview,
-    description1: f.desc1 || null,
-    description2: f.desc2 || null,
+    description1: desc1Combined,
+    description2: desc2Combined,
     link1: f.link1 || null,
     link2: f.link2 || null,
-    extra1: f.extra1 || null,
-    extra2: f.extra2 || null,
-    extra3: f.extra3 || null,
-    extra4: f.extra4 || null,
+    extra1: extra1Combined,
+    extra2: extra2Combined,
+    extra3: extra3Combined,
+    extra4: extra4Combined,
     extra5: f.extra5 || null,
     payment: f.payment || null,
   };
@@ -385,11 +528,11 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
         male_name: f.maleName.trim(),
         female_name: f.femaleName.trim(),
         wedding_date: weddingDate,
-        venue_name: f.venueName || null,
-        venue_address: f.venueAddress || null,
+        venue_name: venueNameCombined,
+        venue_address: venueAddressCombined,
         latitude: f.latitude ? parseFloat(f.latitude) : null,
         longitude: f.longitude ? parseFloat(f.longitude) : null,
-        organizer: f.organizer || null,
+        organizer: organizerCombined,
         phone: f.phone || null,
         template,
         main_photo_url: mainUrl,
@@ -397,14 +540,14 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
         photo3_url: p3Url,
         photo4_url: p4Url,
         photo5_url: p5Url,
-        description1: f.desc1 || null,
-        description2: f.desc2 || null,
+        description1: desc1Combined,
+        description2: desc2Combined,
         link1: f.link1 || null,
         link2: f.link2 || null,
-        extra1: f.extra1 || null,
-        extra2: f.extra2 || null,
-        extra3: f.extra3 || null,
-        extra4: f.extra4 || null,
+        extra1: extra1Combined,
+        extra2: extra2Combined,
+        extra3: extra3Combined,
+        extra4: extra4Combined,
         extra5: f.extra5 || null,
         payment: f.payment || null,
       });
@@ -525,6 +668,16 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
             <p className="text-slate-500 font-light">
               Тойдың барлық мәліметтерін төменде толтырыңыз
             </p>
+            <p className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5 pt-1">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-accent/10 text-sky-accent font-semibold">
+                🇰🇿 ҚАЗ
+              </span>
+              <span>+</span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 font-semibold">
+                🇲🇳 МОН
+              </span>
+              <span>екі тілде толтырыңыз</span>
+            </p>
           </section>
 
           {/* Template selection */}
@@ -635,41 +788,38 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
 
           {/* Той иелері */}
           <CollapsibleSection icon="groups" title="Той иелері">
-            <div>
-              <label className={LABEL}>Толық ақпаратты жазыңыз</label>
-              <textarea
-                value={f.organizer}
-                onChange={upd("organizer")}
-                placeholder="Руслан &amp; Ләйлә"
-                className={`${INPUT} min-h-[96px] resize-none`}
-                rows={3}
-              />
-            </div>
+            <BilingualField
+              label="Толық ақпаратты жазыңыз"
+              values={f.organizer}
+              onChange={updBi("organizer")}
+              multiline
+              rows={3}
+              placeholderKk="Руслан &amp; Ләйлә"
+              placeholderMn="Руслан ба Ләйлә"
+            />
           </CollapsibleSection>
 
           {/* Шақыру мәтіні — description1 (шақыру сөзі) / description2 (өлең) */}
           <CollapsibleSection icon="menu_book" title="Шақыру мәтіні">
-            <div className="space-y-4">
-              <div>
-                <label className={LABEL}>Шақыру сөзі</label>
-                <textarea
-                  value={f.desc1}
-                  onChange={upd("desc1")}
-                  placeholder="Құрметті қонақтар! Балаларымыздың жаңа шаңырақ көтеруіне арналған салтанатты тойымыздың куәсі болып, ақ дастарханымыздан дәм татуға шақырамыз!"
-                  className={`${INPUT} min-h-[120px] resize-none`}
-                  rows={5}
-                />
-              </div>
-              <div>
-                <label className={LABEL}>Өлең / шумақ</label>
-                <textarea
-                  value={f.desc2}
-                  onChange={upd("desc2")}
-                  placeholder="Осы жерге тойға арналған өлеңіңізді жазыңыз..."
-                  className={`${INPUT} min-h-[140px] resize-none`}
-                  rows={6}
-                />
-              </div>
+            <div className="space-y-5">
+              <BilingualField
+                label="Шақыру сөзі"
+                values={f.desc1}
+                onChange={updBi("desc1")}
+                multiline
+                rows={5}
+                placeholderKk="Құрметті қонақтар! Балаларымыздың жаңа шаңырақ көтеруіне арналған салтанатты тойымыздың куәсі болып, ақ дастарханымыздан дәм татуға шақырамыз!"
+                placeholderMn="Эрхэм зочид оо! Хүүхдүүдийнхээ шинэ гэр бүл болох баярт ёслолд гэрч болж, цагаан дэрвэлгэрээс ам хүртэхийг урьж байна!"
+              />
+              <BilingualField
+                label="Өлең / шумақ"
+                values={f.desc2}
+                onChange={updBi("desc2")}
+                multiline
+                rows={6}
+                placeholderKk="Осы жерге тойға арналған өлеңіңізді жазыңыз..."
+                placeholderMn="Энд баярт зориулсан шүлгээ бичнэ үү..."
+              />
             </div>
           </CollapsibleSection>
 
@@ -806,30 +956,21 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
           {/* Той мекенжайы */}
           <CollapsibleSection icon="location_on" title="Той мекенжайы">
             <div className="space-y-4">
-              <div>
-                <label className={LABEL}>Той залының атауы</label>
-                <input
-                  value={f.venueName}
-                  onChange={upd("venueName")}
-                  placeholder="Sky Palace"
-                  className={INPUT}
-                />
-              </div>
-              <div>
-                <label className={LABEL}>Мекенжай</label>
-                <div className="relative">
-                  <input
-                    value={f.venueAddress}
-                    onChange={upd("venueAddress")}
-                    placeholder="Баян-Өлгий, Улаанбаатар"
-                    className={`${INPUT} pr-10`}
-                  />
-                  <Icon
-                    name="map"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-sky-accent text-[20px]"
-                  />
-                </div>
-              </div>
+              <BilingualField
+                label="Той залының атауы"
+                values={f.venueName}
+                onChange={updBi("venueName")}
+                placeholderKk="Sky Palace"
+                placeholderMn="Sky Palace"
+              />
+
+              <BilingualField
+                label="Мекенжай"
+                values={f.venueAddress}
+                onChange={updBi("venueAddress")}
+                placeholderKk="Баян-Өлгий, Sky Palace"
+                placeholderMn="Баян-Өлгий, Sky Palace"
+              />
 
               {/* Coordinates (optional, gives an exact map pin) */}
               <div className="space-y-2">
@@ -868,9 +1009,9 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                   координатты (мыс. 43.238949, 76.889709) осында қойыңыз —
                   шақыруда картаға дәл сол нүкте белгіленеді.
                 </p>
-                {(f.latitude || f.longitude || f.venueAddress) && (
+                {(f.latitude || f.longitude || mapAddress) && (
                   <GoogleMapEmbed
-                    address={f.venueAddress || undefined}
+                    address={mapAddress}
                     latitude={f.latitude ? parseFloat(f.latitude) : undefined}
                     longitude={
                       f.longitude ? parseFloat(f.longitude) : undefined
@@ -920,7 +1061,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 <input
                   value={f.phone}
                   onChange={upd("phone")}
-                  placeholder="+976 99119911"
+                  placeholder="+976 ********"
                   className={INPUT}
                 />
               </div>
@@ -929,32 +1070,31 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
 
           {/* Қосымша ақпарат */}
           <CollapsibleSection icon="info" title="Қосымша ақпарат">
-            <div className="space-y-4">
-              {(["extra1", "extra2", "extra3", "extra4"] as const).map(
-                (k, i) => (
-                  <div key={k}>
-                    <label className={LABEL}>
-                      {i === 0
-                        ? "Дресс-код"
-                        : i === 1
-                          ? "Қонақтарға ескерту"
-                          : `Қосымша ${i + 1}`}
-                    </label>
-                    <input
-                      value={f[k]}
-                      onChange={upd(k)}
-                      className={INPUT}
-                      placeholder={
-                        i === 0
-                          ? "Мысалы: Классикалық стиль, ақ және көк түстер..."
-                          : i === 1
-                            ? "Тойға кешікпей келулеріңізді сұраймыз"
-                            : ""
-                      }
-                    />
-                  </div>
-                ),
-              )}
+            <div className="space-y-5">
+              <BilingualField
+                label="Дресс-код"
+                values={f.extra1}
+                onChange={updBi("extra1")}
+                placeholderKk="Мысалы: Классикалық стиль, ақ және көк түстер..."
+                placeholderMn="Жишээ нь: Классик стиль, цагаан ба хөх өнгө..."
+              />
+              <BilingualField
+                label="Қонақтарға ескерту"
+                values={f.extra2}
+                onChange={updBi("extra2")}
+                placeholderKk="Тойға кешікпей келулеріңізді сұраймыз"
+                placeholderMn="Баярт цагтаа ирэхийг хүсье"
+              />
+              <BilingualField
+                label="Қосымша 3"
+                values={f.extra3}
+                onChange={updBi("extra3")}
+              />
+              <BilingualField
+                label="Қосымша 4"
+                values={f.extra4}
+                onChange={updBi("extra4")}
+              />
               <div>
                 <label className={LABEL}>Әннің атауы</label>
                 <input
