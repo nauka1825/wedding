@@ -22,14 +22,6 @@ const COLORS = {
   onSurfaceVariant: "#424842",
 };
 
-/* ─── Timezone-safe date helpers ───
-   Storing/parsing an ISO date like "2026-07-07" with `new Date(...)`
-   creates a UTC-midnight instant. Formatting it with the browser's
-   *local* timezone (e.g. via toLocaleDateString / getDate) can shift
-   the displayed day backward or forward depending on the visitor's
-   timezone offset. We avoid that by always reading/formatting the
-   date components in UTC, since the date was written as a plain
-   calendar date with no real "time of day" meaning attached to it. */
 function getWeddingDateObj(dateStr: string | null | undefined) {
   if (!dateStr) return null;
   const d = new Date(dateStr);
@@ -297,10 +289,6 @@ function GallerySection({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   VENUE MAP CARD — Google Maps iframe embed with an overlapping
-   glass card (label + venue name + "Get Directions" button).
-   ───────────────────────────────────────────────────────────── */
 function VenueMapCard({
   address,
   venueName,
@@ -570,6 +558,37 @@ function BottomNavBar() {
   );
 }
 
+function PaymentLockOverlay() {
+  return (
+    <div
+      className="fixed inset-0 h-full w-full flex items-center justify-center"
+      style={{
+        background: "#000000",
+        zIndex: 9999,
+      }}
+    >
+      <div className="text-center px-6">
+        <Icon
+          name="lock"
+          size={40}
+          color="#ffffff"
+          style={{ opacity: 0.7, marginBottom: 16 }}
+        />
+        <p
+          style={{
+            fontFamily: HEADLINE,
+            fontWeight: 600,
+            fontSize: 22,
+            color: "#ffffff",
+          }}
+        >
+          Төлем төленбеген
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function Template5({ wedding }: { wedding: Wedding }) {
   const date = formatDate(wedding.wedding_date);
   const time = wedding.wedding_date?.includes("T")
@@ -593,6 +612,8 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
   const invitationText =
     "Құрметті қонақтар! Балаларымыздың жаңа шаңырақ көтеруіне арналған салтанатты тойымыздың куәсі болып, ақ дастарханымыздан дәм татуға шақырамыз!";
 
+  const isPaymentLocked = String((wedding as any).payment) === "2";
+
   return (
     <div
       className="min-h-screen"
@@ -602,6 +623,8 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
         color: "#191c1a",
       }}
     >
+      {isPaymentLocked && <PaymentLockOverlay />}
+
       <GlobalFonts />
 
       <HeaderBar
@@ -1028,7 +1051,6 @@ export default function Template5({ wedding }: { wedding: Wedding }) {
         }}
       />
 
-      {/* Persistent bottom navigation */}
       <BottomNavBar />
     </div>
   );
