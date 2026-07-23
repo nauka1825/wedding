@@ -2,7 +2,7 @@
 import { useState, ChangeEvent } from "react";
 import { supabase, uploadImage, Template, Wedding } from "@/lib/supabase";
 import GoogleMapEmbed from "./GoogleMapEmbed";
-import Template1 from "./templates/Template1";
+import Template1, { Lang } from "./templates/Template1";
 import Template2 from "./templates/Template2";
 import Template3 from "./templates/Template3";
 import Template4 from "./templates/Template4";
@@ -11,9 +11,6 @@ import Template6 from "./templates/Template6";
 import Template7 from "./templates/Template7";
 import Template8 from "./templates/Template8";
 
-/* ---------------------------------------------------------------------- */
-/*  Material Symbols icon helper — matches the reference HTML exactly     */
-/* ---------------------------------------------------------------------- */
 function Icon({
   name,
   className = "",
@@ -125,7 +122,7 @@ const EMPTY_WEDDING: WeddingWithCoords = {
 /* ---------------------------------------------------------------------- */
 /*  Bilingual (Kazakh / Mongolian) text support                           */
 /* ---------------------------------------------------------------------- */
-type Lang = "kk" | "mn";
+type BiLang = "kk" | "mn";
 type Bilingual = { kk: string; mn: string };
 
 const EMPTY_BI: Bilingual = { kk: "", mn: "" };
@@ -241,7 +238,7 @@ function BilingualField({
 }: {
   label: string;
   values: Bilingual;
-  onChange: (lang: Lang, value: string) => void;
+  onChange: (lang: BiLang, value: string) => void;
   placeholderKk?: string;
   placeholderMn?: string;
   multiline?: boolean;
@@ -359,6 +356,167 @@ function SuccessModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+function PreviewLanguagePicker({
+  maleName,
+  femaleName,
+  mainPhoto,
+  onSelect,
+}: {
+  maleName: string;
+  femaleName: string;
+  mainPhoto: string | null;
+  onSelect: (lang: Lang) => void;
+}) {
+  const G = { gold: "#C9A15A", goldLight: "#E8D5A8" };
+
+  return (
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Montserrat:wght@400;500;600&display=swap');
+        @keyframes pl-drop-fall {
+          0%   { transform: translateY(-30px); opacity: 0; }
+          35%  { opacity: 1; }
+          62%  { transform: translateY(38px) scale(1); opacity: 1; }
+          66%  { transform: translateY(42px) scaleX(1.6) scaleY(0.4); opacity: 0.8; }
+          70%  { opacity: 0; }
+          100% { opacity: 0; }
+        }
+        @keyframes pl-ripple {
+          0%   { transform: translate(-50%,-50%) scale(0.2); opacity: 0.55; }
+          100% { transform: translate(-50%,-50%) scale(2.8); opacity: 0; }
+        }
+        .pl-drop { animation: pl-drop-fall 2.6s cubic-bezier(0.55,0,0.2,1) infinite; }
+        .pl-ripple { animation: pl-ripple 2.6s ease-out infinite; }
+      `}</style>
+
+      <div className="absolute inset-0 z-0">
+        {mainPhoto ? (
+          <div
+            className="w-full h-full bg-cover bg-center scale-105"
+            style={{
+              backgroundImage: `url('${mainPhoto}')`,
+              filter: "blur(2px)",
+            }}
+          />
+        ) : (
+          <div
+            className="w-full h-full"
+            style={{
+              background: "linear-gradient(160deg, #FFFBF3 0%, #f3ead9 100%)",
+            }}
+          />
+        )}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(20,16,12,0.55) 0%, rgba(20,16,12,0.72) 55%, rgba(20,16,12,0.85) 100%)",
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 w-full max-w-sm px-6 text-center">
+        <div className="relative w-16 h-24 mx-auto mb-6" aria-hidden="true">
+          <svg
+            className="pl-drop absolute left-1/2 -translate-x-1/2 top-0"
+            width="18"
+            height="24"
+            viewBox="0 0 18 24"
+          >
+            <path
+              d="M9 0C9 0 0 12 0 17a9 9 0 0 0 18 0C18 12 9 0 9 0Z"
+              fill={G.gold}
+              opacity="0.9"
+            />
+          </svg>
+          {[0, 0.55, 1.1].map((delay, i) => (
+            <span
+              key={i}
+              className="pl-ripple absolute left-1/2 top-[72px] rounded-full border"
+              style={{
+                width: 44,
+                height: 12,
+                borderColor: G.gold,
+                animationDelay: `${delay}s`,
+              }}
+            />
+          ))}
+        </div>
+
+        <p
+          style={{
+            fontFamily: "'Montserrat', sans-serif",
+            fontSize: 11,
+            letterSpacing: "0.35em",
+            color: G.goldLight,
+            textTransform: "uppercase",
+          }}
+        >
+          Алдын ала қарау
+        </p>
+
+        <h1
+          className="mt-3 mb-10"
+          style={{
+            fontFamily: "'Playfair Display', serif",
+            fontWeight: 600,
+            fontSize: "clamp(1.8rem, 8vw, 2.4rem)",
+            color: "#fff",
+          }}
+        >
+          {(maleName || "...") + " & " + (femaleName || "...")}
+        </h1>
+
+        <p
+          className="mb-6"
+          style={{
+            fontFamily: "'Montserrat', sans-serif",
+            fontSize: 13,
+            color: "rgba(255,255,255,0.85)",
+          }}
+        >
+          Тілді таңдаңыз / Хэлээ сонгоно уу
+        </p>
+
+        <div className="flex flex-col gap-4">
+          <button
+            onClick={() => onSelect("kk")}
+            className="w-full py-4 rounded-full transition-transform active:scale-95"
+            style={{
+              background: `linear-gradient(90deg, ${G.gold}, ${G.goldLight})`,
+              color: "#2b2420",
+              fontFamily: "'Montserrat', sans-serif",
+              fontWeight: 600,
+              fontSize: 14,
+              letterSpacing: "0.06em",
+              boxShadow: "0 12px 30px -8px rgba(201,161,90,0.55)",
+            }}
+          >
+            Қазақша шақыру ашу
+          </button>
+
+          <button
+            onClick={() => onSelect("mn")}
+            className="w-full py-4 rounded-full border transition-transform active:scale-95"
+            style={{
+              background: "rgba(255,255,255,0.08)",
+              borderColor: "rgba(255,255,255,0.35)",
+              color: "#fff",
+              fontFamily: "'Montserrat', sans-serif",
+              fontWeight: 600,
+              fontSize: 14,
+              letterSpacing: "0.06em",
+              backdropFilter: "blur(8px)",
+            }}
+          >
+            Монгол хэлээр урилга нээх
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
   const [template, setTemplate] = useState<Template>("romantic");
   const [loading, setLoading] = useState(false);
@@ -366,6 +524,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
     null,
   );
   const [showPreview, setShowPreview] = useState(false);
+  const [previewLang, setPreviewLang] = useState<Lang | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const [f, setF] = useState({
@@ -424,7 +583,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
         | "extra3"
         | "extra4",
     ) =>
-    (lang: Lang, value: string) =>
+    (lang: BiLang, value: string) =>
       setF((prev) => ({ ...prev, [k]: { ...prev[k], [lang]: value } }));
 
   const [mainFile, setMainFile] = useState<File | null>(null);
@@ -569,16 +728,23 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
     window.location.href = "/";
   };
 
-  const renderPreview = () => {
+  const renderPreview = (lang: Lang) => {
     const w = previewWedding as Wedding;
-    if (template === "luxury") return <Template2 wedding={w} />;
-    if (template === "bohemian") return <Template3 wedding={w} />;
-    if (template === "azure") return <Template4 wedding={w} />;
-    if (template === "sage") return <Template5 wedding={w} />;
-    if (template === "blush") return <Template6 wedding={w} />;
-    if (template === "midnight") return <Template7 wedding={w} />;
-    if (template === "terracotta") return <Template8 wedding={w} />;
-    return <Template1 wedding={w} hideBottomNav />;
+    if (template === "luxury")
+      return <Template2 wedding={w} defaultLang={lang} />;
+    if (template === "bohemian")
+      return <Template3 wedding={w} defaultLang={lang} />;
+    if (template === "azure")
+      return <Template4 wedding={w} defaultLang={lang} />;
+    if (template === "sage")
+      return <Template5 wedding={w} defaultLang={lang} />;
+    if (template === "blush")
+      return <Template6 wedding={w} defaultLang={lang} />;
+    if (template === "midnight")
+      return <Template7 wedding={w} defaultLang={lang} />;
+    if (template === "terracotta")
+      return <Template8 wedding={w} defaultLang={lang} />;
+    return <Template1 wedding={w} hideBottomNav defaultLang={lang} />;
   };
 
   return (
@@ -614,7 +780,10 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
           Толтыру
         </button>
         <button
-          onClick={() => setShowPreview(true)}
+          onClick={() => {
+            setShowPreview(true);
+            setPreviewLang(null);
+          }}
           className={`flex-1 flex items-center justify-center gap-2 text-sm font-medium transition-all ${
             showPreview
               ? "text-sky-accent border-b-2 border-sky-accent"
@@ -627,37 +796,46 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
       </div>
 
       {showPreview ? (
-        <div>
-          {renderPreview()}
-          <div className="h-28" />
-          <div className="fixed bottom-0 left-0 right-0 z-[100] p-4 pb-8 bg-white/90 backdrop-blur-md border-t border-sky-accent/10 space-y-3 max-w-lg mx-auto">
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="w-full py-4 bg-sky-accent hover:opacity-90 text-white font-bold rounded-2xl shadow-xl shadow-sky-accent/20 transition-all transform active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              {loading ? (
-                "Сақталуда..."
-              ) : (
-                <>
-                  Дайын! Шақыруды сақтау
-                  <Icon name="send" />
-                </>
-              )}
-            </button>
-            {status && (
-              <div
-                className={`rounded-2xl px-4 py-3 text-sm text-center ${
-                  status.ok
-                    ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                    : "bg-red-50 text-red-600 border border-red-100"
-                }`}
+        previewLang === null ? (
+          <PreviewLanguagePicker
+            maleName={f.maleName}
+            femaleName={f.femaleName}
+            mainPhoto={mainPreview}
+            onSelect={setPreviewLang}
+          />
+        ) : (
+          <div>
+            {renderPreview(previewLang)}
+            <div className="h-28" />
+            <div className="fixed bottom-0 left-0 right-0 z-[100] p-4 pb-8 bg-white/90 backdrop-blur-md border-t border-sky-accent/10 space-y-3 max-w-lg mx-auto">
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="w-full py-4 bg-sky-accent hover:opacity-90 text-white font-bold rounded-2xl shadow-xl shadow-sky-accent/20 transition-all transform active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {status.msg}
-              </div>
-            )}
+                {loading ? (
+                  "Сақталуда..."
+                ) : (
+                  <>
+                    Дайын! Шақыруды сақтау
+                    <Icon name="send" />
+                  </>
+                )}
+              </button>
+              {status && (
+                <div
+                  className={`rounded-2xl px-4 py-3 text-sm text-center ${
+                    status.ok
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                      : "bg-red-50 text-red-600 border border-red-100"
+                  }`}
+                >
+                  {status.msg}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )
       ) : (
         <main className="px-5 py-8 space-y-8 max-w-lg mx-auto">
           {/* Header introduction */}
@@ -1157,7 +1335,10 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
           {/* Action button */}
           <div className="pt-2">
             <button
-              onClick={() => setShowPreview(true)}
+              onClick={() => {
+                setShowPreview(true);
+                setPreviewLang(null);
+              }}
               className="w-full bg-sky-accent hover:opacity-90 text-white font-bold py-4 rounded-2xl shadow-xl shadow-sky-accent/20 transition-all transform active:scale-95 flex items-center justify-center gap-2"
             >
               <Icon name="check_circle" filled />

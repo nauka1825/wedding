@@ -1,8 +1,15 @@
 "use client";
 import { formatDate, Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
+export type Lang = "kk" | "mn";
 
-export default function Template8({ wedding }: { wedding: Wedding }) {
+export default function Template8({
+  wedding,
+  defaultLang = "kk",
+}: {
+  wedding: Wedding;
+  defaultLang?: Lang;
+}) {
   const date = formatDate(wedding.wedding_date);
   const time = wedding.wedding_date?.includes("T")
     ? wedding.wedding_date.split("T")[1].slice(0, 5)

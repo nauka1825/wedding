@@ -182,45 +182,6 @@ function useLang() {
   return useContext(LangContext);
 }
 
-/* Small fixed-position pill for switching between Kazakh / Mongolian */
-function LanguageToggle() {
-  const { lang, toggleLang } = useLang();
-  return (
-    <button
-      onClick={toggleLang}
-      className="fixed top-4 right-4 z-[60] flex items-center gap-1 rounded-full px-3 py-1.5 transition-transform active:scale-95"
-      style={{
-        background: "rgba(255,248,242,0.85)",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        border: `1px solid ${C.outlineVariant}`,
-        boxShadow: "0 6px 16px rgba(96,40,70,0.15)",
-        fontFamily: BODY,
-        fontSize: 11,
-        fontWeight: 700,
-        letterSpacing: "0.1em",
-        color: C.primary,
-      }}
-      aria-label="Switch language / Хэл сэлгэх"
-    >
-      <span style={{ opacity: lang === "kk" ? 1 : 0.4 }}>ҚАЗ</span>
-      <span style={{ opacity: 0.35 }}>/</span>
-      <span style={{ opacity: lang === "mn" ? 1 : 0.4 }}>МОН</span>
-    </button>
-  );
-}
-
-/* ------------------------------------------------------------------------
-   pickLang — some wedding fields come from the DB with BOTH languages
-   packed into a single string, e.g.:
-     "kk: Баян-Өлгий қаласы Өлгий сұмыны  mn: Баян-Өлгий аймаг Өлгий сум"
-   This pulls out just the part matching the active language. If only one
-   of "kk:" / "mn:" is present, that one is used regardless of active
-   language. If neither label is present, the original text is returned
-   as-is (so plain, non-tagged fields keep working exactly like before).
-   Uses a plain regex.exec loop (no matchAll/spread) so it compiles under
-   any TypeScript target/lib setting.
-   ------------------------------------------------------------------------ */
 function pickLang(raw: string | null | undefined, lang: Lang): string {
   if (!raw) return "";
   const labelRe = /\b(kk|mn)\s*:\s*/gi;
@@ -248,9 +209,6 @@ function pickLang(raw: string | null | undefined, lang: Lang): string {
   return parts[lang] ?? parts.kk ?? parts.mn ?? raw.trim();
 }
 
-/* ======================================================================
-   Shared hooks / small helpers
-   ====================================================================== */
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -376,13 +334,6 @@ function formatTime(iso: string) {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-/* ------------------------------------------------------------------------
-   HTML-entity decode + multiline text renderer.
-   Form fields (organizer / description1 / description2) are stored with
-   raw entities like "&amp;" and with "\n" line breaks from a <textarea>.
-   These helpers decode the entities and reproduce the line breaks exactly
-   as they were typed.
-   ------------------------------------------------------------------------ */
 function decodeHtmlEntities(str: string | null | undefined): string {
   if (!str) return "";
   return str
@@ -567,9 +518,6 @@ function AnalogClock({ time }: { time: string }) {
   );
 }
 
-/* ======================================================================
-   Section 1 — HERO
-   ====================================================================== */
 function Hero({
   mainPhoto,
   maleName,
@@ -673,10 +621,6 @@ function Hero({
   );
 }
 
-/* ======================================================================
-   Section 2 — INVITATION TEXT
-   Only rendered when description1 (the "invitation speech") is present.
-   ====================================================================== */
 function InvitationText({ body }: { body: string | null }) {
   if (!body) return null;
 
@@ -705,9 +649,6 @@ function InvitationText({ body }: { body: string | null }) {
   );
 }
 
-/* ======================================================================
-   Section 3 — PARENTS + EVENT BENTO
-   ====================================================================== */
 function CalendarDayCard({
   monthCaps,
   day,
@@ -892,9 +833,6 @@ function ParentsAndEventBento({
   );
 }
 
-/* ======================================================================
-   Section 4 — VENUE (+ Google Map)
-   ====================================================================== */
 function VenueSection({
   venueName,
   venueAddress,
@@ -1076,11 +1014,6 @@ function VenueSection({
   );
 }
 
-/* ======================================================================
-   Section 5 — GALLERY BENTO
-   All images except the last one scroll horizontally as a swiper; the
-   last image is shown large, full-width, below the swiper.
-   ====================================================================== */
 function GalleryBento({ images }: { images: string[] }) {
   const { t } = useLang();
   const last = images.length > 0 ? images[images.length - 1] : null;
@@ -1155,12 +1088,6 @@ function GalleryBento({ images }: { images: string[] }) {
   );
 }
 
-/* ======================================================================
-   Section 5b — POEM + COUPLE PHOTOS
-   Shown only when description2 (the poem/verse) is present. Below the
-   poem, photo3_url / photo4_url appear in a grid (when present), and
-   below that, link1 / link2 appear as Instagram-style buttons.
-   ====================================================================== */
 function PoemAndCoupleSection({
   poem,
   photo3,
@@ -1281,9 +1208,6 @@ function PoemAndCoupleSection({
   );
 }
 
-/* ======================================================================
-   Section 6 — RSVP  (wraps the existing <RSVPSection/> — untouched)
-   ====================================================================== */
 function RsvpWrapper({ weddingId }: { weddingId: string }) {
   const { t, lang } = useLang();
   return (
@@ -1335,9 +1259,6 @@ function RsvpWrapper({ weddingId }: { weddingId: string }) {
   );
 }
 
-/* ======================================================================
-   Section 7 — WISHES / COMMENTS (wraps <MessageSection/> — untouched)
-   ====================================================================== */
 function WishesWrapper({ weddingId }: { weddingId: string }) {
   const { t, lang } = useLang();
   return (
@@ -1392,9 +1313,6 @@ function WishesWrapper({ weddingId }: { weddingId: string }) {
   );
 }
 
-/* ======================================================================
-   Footer helpers — GoldDivider, FloralDots
-   ====================================================================== */
 function GoldDivider({ className = "" }: { className?: string }) {
   return (
     <div className={`flex items-center justify-center gap-3 ${className}`}>
@@ -1438,9 +1356,6 @@ function FloralDots() {
   );
 }
 
-/* ======================================================================
-   Section 8 — FOOTER (poem + floating hearts)
-   ====================================================================== */
 function Footer({
   maleName,
   femaleName,
@@ -1584,9 +1499,6 @@ function PaymentLockOverlay() {
   );
 }
 
-/* ======================================================================
-   Bottom navigation — matches the reference HTML's pill-tab nav
-   ====================================================================== */
 function BottomNav() {
   const { t } = useLang();
   const [active, setActive] = useState("love");
@@ -1663,10 +1575,6 @@ function BottomNav() {
   );
 }
 
-/* ======================================================================
-   Global fonts (Playfair Display + Montserrat + Material Symbols) —
-   loaded exactly like the reference HTML's <link> tags.
-   ====================================================================== */
 function GlobalFonts() {
   return (
     <style jsx global>{`
@@ -1684,9 +1592,6 @@ function GlobalFonts() {
   );
 }
 
-/* ======================================================================
-   MAIN
-   ====================================================================== */
 export default function Template1({
   wedding,
   hideBottomNav = false,
@@ -1708,9 +1613,6 @@ export default function Template1({
   const maleName = wedding.male_name || DEFAULTS.maleName;
   const femaleName = wedding.female_name || DEFAULTS.femaleName;
 
-  // Some fields may store both languages inline ("kk: ... mn: ...");
-  // pick out the part matching the active language (falls back to
-  // whatever is available, or the raw text if it isn't tagged at all).
   const organizerRaw = wedding.organizer
     ? wedding.organizer
     : `${DEFAULTS.maleParents}\n${DEFAULTS.femaleParents}`;
@@ -1733,8 +1635,6 @@ export default function Template1({
     pickLang(wedding.extra4, lang),
   ].filter(Boolean) as string[];
 
-  // photo3_url / photo4_url are shown in their own PoemAndCoupleSection now,
-  // so they're excluded from the main gallery to avoid duplication.
   const galleryImages = [...(wedding.gallery_urls || [])].filter(
     Boolean,
   ) as string[];
@@ -1755,8 +1655,6 @@ export default function Template1({
         {isPaymentLocked && <PaymentLockOverlay />}
         <GlobalFonts />
         <Template2Music extra5={wedding.extra5} />
-
-        <LanguageToggle />
 
         <Hero
           mainPhoto={wedding.main_photo_url}

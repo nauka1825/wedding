@@ -4,7 +4,7 @@ import { formatDate, Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
 import MusicPlayer from "../MusicPlayer";
 import RSVPSection from "../RSVPSection";
-
+export type Lang = "kk" | "mn";
 // ─── DEFAULT WEDDING ───
 const DEFAULT_WEDDING: Wedding = {
   id: "preview",
@@ -1304,7 +1304,13 @@ function PaymentLockOverlay() {
 }
 
 // ─── MAIN ───
-export default function Template4({ wedding: raw }: { wedding: Wedding }) {
+export default function Template4({
+  wedding: raw,
+  defaultLang = "kk",
+}: {
+  wedding: Wedding;
+  defaultLang?: Lang;
+}) {
   const wedding: Wedding = {
     ...DEFAULT_WEDDING,
     ...Object.fromEntries(

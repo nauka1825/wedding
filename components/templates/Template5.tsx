@@ -794,7 +794,13 @@ function PaymentLockOverlay() {
   );
 }
 
-function Template5Inner({ wedding }: { wedding: Wedding }) {
+function Template5Inner({
+  wedding,
+  defaultLang = "kk",
+}: {
+  wedding: Wedding;
+  defaultLang?: Lang;
+}) {
   const { t, lang } = useLang();
 
   const date = formatWeddingDate(wedding.wedding_date, lang);

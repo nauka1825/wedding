@@ -14,16 +14,13 @@ import {
 import RSVPSection from "../RSVPSection";
 import Template6Music from "../template6Music";
 
-/* ======================================================================
-   BILINGUAL SUPPORT (Kazakh / Mongolian)
-   ====================================================================== */
 export type Lang = "kk" | "mn";
 
 interface T6Translations {
   langButtonLabel: string;
-  calendarMonths: string[]; // Title case, used for calendar header + date text
-  calendarDays: string[]; // Mon..Sun abbreviations
-  photoWord: string; // "сурет" / "зураг"
+  calendarMonths: string[];
+  calendarDays: string[];
+  photoWord: string;
   mainPhotoAlt: string;
   groomPhotoAlt: string;
   extraPhotoAlt: string;
@@ -169,33 +166,6 @@ function useLang() {
   return useContext(LangContext);
 }
 
-function LanguageToggle() {
-  const { lang, toggleLang } = useLang();
-  return (
-    <button
-      onClick={toggleLang}
-      className="fixed top-4 right-4 z-[110] flex items-center gap-1 rounded-full px-3 py-1.5 transition-transform active:scale-95"
-      style={{
-        background: "rgba(255,255,255,0.88)",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        border: "0.5px solid rgba(0,65,106,0.25)",
-        boxShadow: "0 6px 16px rgba(0,65,106,0.15)",
-        fontFamily: "'Optima',sans-serif",
-        fontSize: 11,
-        fontWeight: 600,
-        letterSpacing: "0.1em",
-        color: "#00416A",
-      }}
-      aria-label="Switch language / Хэл сэлгэх"
-    >
-      <span style={{ opacity: lang === "kk" ? 1 : 0.4 }}>ҚАЗ</span>
-      <span style={{ opacity: 0.35 }}>/</span>
-      <span style={{ opacity: lang === "mn" ? 1 : 0.4 }}>МОН</span>
-    </button>
-  );
-}
-
 function formatEventDate(
   iso: string | null | undefined,
   months: string[],
@@ -206,15 +176,6 @@ function formatEventDate(
   return `${d.getDate()} ${months[d.getMonth()]}, ${d.getFullYear()}`;
 }
 
-/* ------------------------------------------------------------------------
-   pickLang — some wedding fields come from the DB with BOTH languages
-   packed into a single string, e.g.:
-     "kk: Баян-Өлгий қаласы Өлгий сұмыны  mn: Баян-Өлгий аймаг Өлгий сум"
-   This pulls out just the part matching the active language. If only one
-   of "kk:" / "mn:" is present, that one is used regardless of active
-   language. If neither label is present, the original text is returned
-   as-is (so plain, non-tagged fields keep working exactly like before).
-   ------------------------------------------------------------------------ */
 function pickLang(raw: string | null | undefined, lang: Lang): string {
   if (!raw) return "";
   const labelRe = /\b(kk|mn)\s*:\s*/gi;
@@ -227,7 +188,6 @@ function pickLang(raw: string | null | undefined, lang: Lang): string {
       index: m.index,
       length: m[0].length,
     });
-    // avoid infinite loops on zero-length matches
     if (m[0].length === 0) labelRe.lastIndex++;
   }
   if (matches.length === 0) return raw.trim();
@@ -243,7 +203,6 @@ function pickLang(raw: string | null | undefined, lang: Lang): string {
   return parts[lang] ?? parts.kk ?? parts.mn ?? raw.trim();
 }
 
-// ─── useInView hook ───
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -265,7 +224,6 @@ function useInView(threshold = 0.15) {
   return { ref, visible };
 }
 
-// ─── AnimatedClock ───
 function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
   const [h, m] = time.split(":").map(Number);
   const hourDeg = ((h % 12) / 12) * 360 + (m / 60) * 30;
@@ -366,7 +324,6 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
   );
 }
 
-// ─── AnimatedCalendar ───
 function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
   const { t } = useLang();
   if (!dateStr) return null;
@@ -612,7 +569,6 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
   );
 }
 
-// ─── GallerySwiper ───
 function GallerySwiper({ urls }: { urls: string[] }) {
   const { t } = useLang();
   const [active, setActive] = useState(0);
@@ -739,7 +695,6 @@ function GallerySwiper({ urls }: { urls: string[] }) {
   );
 }
 
-// ─── GoldDivider ───
 function GoldDivider({ className = "" }: { className?: string }) {
   return (
     <div className={`flex items-center justify-center gap-3 ${className}`}>
@@ -783,7 +738,6 @@ function GoldDivider({ className = "" }: { className?: string }) {
   );
 }
 
-// ─── FloralDots ───
 function FloralDots() {
   return (
     <div
@@ -810,7 +764,6 @@ function FloralDots() {
   );
 }
 
-// ─── Label ───
 function Label({ children }: { children: React.ReactNode }) {
   return (
     <p
@@ -829,7 +782,6 @@ function Label({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── SectionHeader ───
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
     <div
@@ -874,7 +826,6 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── DateTimeBlock ───
 function DateTimeBlock({
   date,
   time,
@@ -1082,7 +1033,6 @@ function DateTimeBlock({
   );
 }
 
-// ─── ScrollRevealSection ───
 function ScrollRevealSection({
   children,
   direction = "left",
@@ -1118,7 +1068,6 @@ function ScrollRevealSection({
   );
 }
 
-// ─── InvitationHero ───
 function InvitationHero({
   maleName,
   femaleName,
@@ -1283,7 +1232,6 @@ function InvitationHero({
   );
 }
 
-// ─── OrganizerBlock ───
 function OrganizerBlock({
   organizer,
   maleParents,
@@ -1659,7 +1607,6 @@ function OrganizerBlock({
   );
 }
 
-// ─── RotatingOrnament ───
 function RotatingOrnament({
   position,
   size = 200,
@@ -1700,7 +1647,6 @@ function RotatingOrnament({
   );
 }
 
-// ─── SECTION NAV ───
 function SectionNavBar() {
   const { t } = useLang();
   const [active, setActive] = useState("section-hero");
@@ -1735,7 +1681,6 @@ function SectionNavBar() {
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -1826,7 +1771,6 @@ function SectionNavBar() {
   );
 }
 
-// ─── MAIN ───
 export default function Template6({
   wedding,
   defaultLang = "kk",
@@ -1843,9 +1787,6 @@ export default function Template6({
     ? wedding.wedding_date.split("T")[1].slice(0, 5)
     : null;
 
-  // Some fields may store both languages inline ("kk: ... mn: ...");
-  // pick out the part matching the active language (falls back to
-  // whatever is available, or the raw text if it isn't tagged at all).
   const venueName = pickLang(wedding.venue_name, lang);
   const venueAddress = pickLang(wedding.venue_address, lang);
   const organizer = pickLang(wedding.organizer, lang);
@@ -1858,15 +1799,15 @@ export default function Template6({
     pickLang(wedding.extra2, lang),
     pickLang(wedding.extra3, lang),
     pickLang(wedding.extra4, lang),
+    pickLang(wedding.extra5, lang),
   ].filter(Boolean);
 
-  const extra5 = wedding.extra5 ? wedding.extra5 : null;
+  const isPaymentLocked = String((wedding as any).payment) === "2";
 
   return (
     <LangContext.Provider value={{ lang, t, toggleLang }}>
-      {extra5 ? (
+      {isPaymentLocked ? (
         <div className="fixed inset-0 flex items-center justify-center">
-          <LanguageToggle />
           <p
             style={{
               fontFamily: "'Optima',sans-serif",
@@ -1909,8 +1850,6 @@ export default function Template6({
             style={{ background: "#ffffff" }}
           />
 
-          <LanguageToggle />
-
           <div
             className="relative z-10 min-h-screen overflow-y-auto"
             style={{
@@ -1926,9 +1865,6 @@ export default function Template6({
               opacity={0.07}
             />
 
-            {/* ═══════════════════════════════════════════════════
-                SECTION 1: ЕСІМДЕР — Hero + Invitation + Organizer
-            ═══════════════════════════════════════════════════ */}
             <section id="section-hero">
               <div className="relative w-full h-[62vh] overflow-hidden">
                 {wedding.main_photo_url ? (
@@ -2011,9 +1947,6 @@ export default function Template6({
               )}
             </section>
 
-            {/* ═══════════════════════════════════════════════════
-                SECTION 2: ФОТОЛАР — Photo3 + Gallery
-            ═══════════════════════════════════════════════════ */}
             <section id="section-photos">
               {wedding.photo3_url && (
                 <ScrollRevealSection
@@ -2066,9 +1999,6 @@ export default function Template6({
               )}
             </section>
 
-            {/* ═══════════════════════════════════════════════════
-                SECTION 3: МӘЛІМЕТТЕР — Дата/Уақыт/Мекен/Extras
-            ═══════════════════════════════════════════════════ */}
             <section id="section-details">
               {wedding.wedding_date && (
                 <ScrollRevealSection
@@ -2188,7 +2118,7 @@ export default function Template6({
                   )}
                 </div>
               </div>
-              {/* DESCRIPTION 1 */}
+
               {description1 && (
                 <ScrollRevealSection
                   direction="up"
@@ -2301,9 +2231,6 @@ export default function Template6({
               )}
             </section>
 
-            {/* ═══════════════════════════════════════════════════
-                SECTION 4: ТІЛЕКТЕР — RSVP + Messages
-            ═══════════════════════════════════════════════════ */}
             <section
               id="section-messages"
               style={{ marginTop: 48, padding: "0 20px" }}
@@ -2346,7 +2273,6 @@ export default function Template6({
               </ScrollRevealSection>
             </section>
 
-            {/* ═══ FOOTER ═══ */}
             <div
               className="text-center py-12 mt-4"
               style={{ position: "relative", overflow: "hidden" }}
@@ -2419,7 +2345,6 @@ export default function Template6({
             />
             <Template6Music />
 
-            {/* ═══ BOTTOM NAV ═══ */}
             <SectionNavBar />
           </div>
         </>

@@ -1,16 +1,8 @@
 import { supabase } from "@/lib/supabase";
-import Template1 from "@/components/templates/Template1";
-import Template2 from "@/components/templates/Template2";
-import Template3 from "@/components/templates/Template3";
-import Template4 from "@/components/templates/Template4";
-import Template5 from "@/components/templates/Template5";
-import Template6 from "@/components/templates/Template6";
-import Template7 from "@/components/templates/Template7";
-import Template8 from "@/components/templates/Template8";
+import WeddingLanguageGate from "@/components/WeddingLanguageGate";
 import type { Metadata } from "next";
 import { unstable_noStore as noStore } from "next/cache";
 
-// Route-ийн бүрэн кэшийг унтраана — Full Route Cache болон Data Cache хоёуланд нөлөөлнө
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
@@ -20,7 +12,7 @@ export async function generateMetadata({
 }: {
   params: { id: string };
 }): Promise<Metadata> {
-  noStore(); // энэ функцийн хүрээнд кэш ашиглахгүй гэдгийг тодорхой зааж байна
+  noStore();
 
   const { data: wedding } = await supabase
     .from("weddings")
@@ -41,21 +33,11 @@ export async function generateMetadata({
   return {
     title: `${wedding.male_name} & ${wedding.female_name}`,
     description: "Хуримын урилга",
-
     openGraph: {
       title: `${wedding.male_name} & ${wedding.female_name}`,
       description: "Хуримын урилга",
-      images: image
-        ? [
-            {
-              url: image,
-              width: 1200,
-              height: 630,
-            },
-          ]
-        : [],
+      images: image ? [{ url: image, width: 1200, height: 630 }] : [],
     },
-
     twitter: {
       card: "summary_large_image",
       images: image ? [image] : [],
@@ -68,7 +50,7 @@ export default async function WeddingDetailPage({
 }: {
   params: { id: string };
 }) {
-  noStore(); // энд ч мөн адил зааж кэшийг унтраана
+  noStore();
 
   const { data: wedding, error } = await supabase
     .from("weddings")
@@ -173,18 +155,5 @@ export default async function WeddingDetailPage({
     );
   }
 
-  return (
-    <div className="relative">
-      {wedding.template === "luxury" && <Template2 wedding={wedding} />}
-      {wedding.template === "bohemian" && <Template3 wedding={wedding} />}
-      {wedding.template === "azure" && <Template4 wedding={wedding} />}
-      {wedding.template === "sage" && <Template5 wedding={wedding} />}
-      {wedding.template === "blush" && <Template6 wedding={wedding} />}
-      {wedding.template === "midnight" && <Template7 wedding={wedding} />}
-      {wedding.template === "terracotta" && <Template8 wedding={wedding} />}
-      {(wedding.template === "romantic" || !wedding.template) && (
-        <Template1 wedding={wedding} />
-      )}
-    </div>
-  );
+  return <WeddingLanguageGate wedding={wedding} />;
 }

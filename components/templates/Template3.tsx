@@ -13,7 +13,7 @@ import {
   FaCalendarAlt,
 } from "react-icons/fa";
 import { BsQuote } from "react-icons/bs";
-
+export type Lang = "kk" | "mn";
 // ─── GALLERY SWIPER ───
 function GallerySwiper({ urls }: { urls: string[] }) {
   const [active, setActive] = useState(0);
@@ -199,7 +199,16 @@ function Label({ children }: { children: React.ReactNode }) {
 }
 
 // ─── MAIN ───
-export default function Template3({ wedding }: { wedding: Wedding }) {
+
+export default function Template3({
+  wedding,
+  defaultLang = "kk",
+}: {
+  wedding: Wedding;
+  defaultLang?: Lang;
+}) {
+  const [navOpen, setNavOpen] = useState(false);
+  const [lang, setLang] = useState<Lang>(defaultLang);
   const date = formatDate(wedding.wedding_date);
   const time = wedding.wedding_date?.includes("T")
     ? wedding.wedding_date.split("T")[1].slice(0, 5)

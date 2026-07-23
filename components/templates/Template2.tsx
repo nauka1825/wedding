@@ -230,55 +230,6 @@ function useLang() {
   return useContext(LangContext);
 }
 
-/* Small fixed-position pill for switching between Kazakh / Mongolian.
-   Sits just under the fixed header so it never overlaps the menu/music
-   buttons. */
-function LanguageToggle() {
-  const { lang, toggleLang } = useLang();
-  return (
-    <button
-      onClick={toggleLang}
-      style={{
-        position: "fixed",
-        top: 74,
-        right: 16,
-        zIndex: 100,
-        display: "flex",
-        alignItems: "center",
-        gap: 4,
-        borderRadius: 999,
-        padding: "6px 12px",
-        background: "rgba(255,248,245,0.9)",
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
-        border: `1px solid ${C.gold}4d`,
-        boxShadow: "0 6px 16px rgba(0,43,20,0.15)",
-        fontFamily: "'Montserrat', sans-serif",
-        fontSize: 11,
-        fontWeight: 700,
-        letterSpacing: "0.1em",
-        color: C.primary,
-        cursor: "pointer",
-      }}
-      aria-label="Switch language / Хэл сэлгэх"
-    >
-      <span style={{ opacity: lang === "kk" ? 1 : 0.4 }}>ҚАЗ</span>
-      <span style={{ opacity: 0.35 }}>/</span>
-      <span style={{ opacity: lang === "mn" ? 1 : 0.4 }}>МОН</span>
-    </button>
-  );
-}
-
-/* ------------------------------------------------------------------------
-   pickLang — some wedding fields come from the DB with BOTH languages
-   packed into a single string, e.g.:
-     "kk: Баян-Өлгій қаласы  mn: Баян-Өлгий аймаг Өлгий сум"
-   This pulls out just the part matching the active language. If only one
-   of "kk:" / "mn:" is present, that one is used regardless of active
-   language. If neither label is present, the original text is returned
-   as-is (so plain, non-tagged fields keep working exactly like before).
-   Ported 1:1 from Template1.
-   ------------------------------------------------------------------------ */
 function pickLang(raw: string | null | undefined, lang: Lang): string {
   if (!raw) return "";
   const labelRe = /\b(kk|mn)\s*:\s*/gi;
@@ -306,7 +257,6 @@ function pickLang(raw: string | null | undefined, lang: Lang): string {
   return parts[lang] ?? parts.kk ?? parts.mn ?? raw.trim();
 }
 
-/* ─── useInView (scroll-reveal, same behavior as HTML's IntersectionObserver .reveal) ─── */
 function useInView(threshold = 0.12) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -328,7 +278,6 @@ function useInView(threshold = 0.12) {
   return { ref, visible };
 }
 
-/* ─── Reveal wrapper — mirrors HTML's .reveal / .reveal.active classes exactly ─── */
 function Reveal({
   children,
   className = "",
@@ -355,12 +304,6 @@ function Reveal({
   );
 }
 
-/* ------------------------------------------------------------------------
-   HTML-entity decode + multiline text renderer (ported from Template1).
-   organizer / description1 / description2 are stored with raw entities
-   like "&amp;" and with "\n" line breaks from a <textarea>. These helpers
-   decode the entities and reproduce the line breaks exactly as typed.
-   ------------------------------------------------------------------------ */
 function decodeHtmlEntities(str: string | null | undefined): string {
   if (!str) return "";
   return str
@@ -403,7 +346,6 @@ function MultilineText({
   );
 }
 
-/* ─── OrnamentDivider — exact match of HTML's .ornament-line + heart icon divider ─── */
 function OrnamentDivider() {
   return (
     <div
@@ -434,7 +376,6 @@ function OrnamentDivider() {
   );
 }
 
-/* ─── GlassCard — exact match of HTML's .glass-card class ─── */
 function GlassCard({
   children,
   className = "",
@@ -488,10 +429,6 @@ function ShimmerGold({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   HEADER — exact match of HTML's fixed top app bar:
-   menu (left) | couple names (center, italic Playfair) | music (right)
-   ───────────────────────────────────────────────────────────── */
 function HeaderBar({
   maleName,
   femaleName,
@@ -572,12 +509,6 @@ function HeaderBar({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   NAV DRAWER — replaces the always-visible footer nav.
-   Hidden by default; slides up from the bottom when the header
-   menu button is tapped. Tapping a link scrolls + closes it.
-   Labels now come from the active-language translation set.
-   ───────────────────────────────────────────────────────────── */
 function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useLang();
 
@@ -684,14 +615,6 @@ function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   SECTION 1 — Hero (photo + names + invitation text)
-   Matches HTML's Hero section + Names & Invitation section.
-   Renders wedding.description1 (the actual typed invitation
-   speech, run through pickLang) when present, falling back to
-   the generic translated sentence only when it's blank.
-   ───────────────────────────────────────────────────────────── */
-// Hero background — the rings photo used in the original HTML reference design
 const HERO_STOCK_IMAGE =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuBn5oZgkek4iAV6h71GC-QhCepDCkhbQ93URmx38u8uY-Adz4ZhbQGYtmfV2PCvW0zgPtJATdCd7kQclvZNuBygcNXNJyATmH5522hwEh5aBuJy633v4qsZrupS6JFpkjqTuM8DKjdj9SPygqBIlgqsny3lL3Q6DYDNlkfmVopO8TBH9RIWjXi-Bcbds5HLC1btsg0Qu7ixUTtgA113YLN6PeIfabXS0_b3YTBAY5wUJtGJbCa4bvE";
 
@@ -799,10 +722,6 @@ function HeroSection({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   SECTION — Organizer / Той иелері
-   Matches HTML's "Parents Section" — plain glass-card pill
-   ───────────────────────────────────────────────────────────── */
 function OrganizerSection({
   organizer,
   maleParents,
@@ -899,13 +818,6 @@ function OrganizerSection({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   SECTION 2 — Photos / gallery
-   Matches HTML's horizontal snap-scroll gallery w/ prev-next arrows.
-   Uses gallery_urls (the actual photo album) and falls back to
-   photo3_url only if no gallery was uploaded, so photo3/photo4
-   stay reserved for the couple-portrait poem section below.
-   ───────────────────────────────────────────────────────────── */
 function PhotosSection({
   galleryUrls,
 }: {
@@ -1020,12 +932,6 @@ function PhotosSection({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   SECTION 3 — Details (date / time / venue / extras / map)
-   Matches HTML's Details Section grid + venue block, now with the
-   real Google Map embed and a working "view on map" link, driven
-   by latitude/longitude — same data Template1 already uses.
-   ───────────────────────────────────────────────────────────── */
 function DetailsSection({
   date,
   time,
@@ -1268,11 +1174,6 @@ function DetailsSection({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   SECTION — Poem & couple portraits (description2 + photo3/photo4 + links)
-   Ported from Template1's PoemAndCoupleSection so the typed verse, the
-   two portrait photos, and the Instagram links show up in Template2 too.
-   ───────────────────────────────────────────────────────────── */
 function PoemAndCoupleSection({
   poem,
   photo3,
@@ -1427,10 +1328,6 @@ function PoemAndCoupleSection({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   SECTION 4 — RSVP + Wishes
-   Matches HTML's glass-card RSVP form container
-   ───────────────────────────────────────────────────────────── */
 function MessagesSection({ weddingId }: { weddingId: string }) {
   const { t, lang } = useLang();
   return (
@@ -1488,9 +1385,6 @@ function MessagesSection({ weddingId }: { weddingId: string }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   FOOTER — exact match of HTML footer: poem + shimmer name
-   ───────────────────────────────────────────────────────────── */
 function FooterSection({
   maleName,
   femaleName,
@@ -1596,12 +1490,6 @@ function GlobalStyles() {
   );
 }
 
-/* ─── PaymentLockOverlay ───
-   Brought over from Template1: a full-screen black overlay shown
-   ON TOP of the invitation (z-index 9999) when payment is unpaid,
-   instead of replacing the whole component tree. This matches
-   Template1's pattern exactly — the page still mounts underneath,
-   only a fixed overlay blocks it visually. Text is now translated. */
 function PaymentLockOverlay() {
   const { t } = useLang();
   return (
@@ -1658,9 +1546,6 @@ export default function Template2({
     ? wedding.wedding_date.split("T")[1].slice(0, 5)
     : null;
 
-  // Some fields may store both languages inline ("kk: ... mn: ...");
-  // pick out the part matching the active language (falls back to
-  // whatever is available, or the raw text if it isn't tagged at all).
   const organizerText = pickLang(wedding.organizer, lang) || null;
   const venueNameText = pickLang(wedding.venue_name, lang) || null;
   const venueAddressText = pickLang(wedding.venue_address, lang) || null;
@@ -1693,8 +1578,6 @@ export default function Template2({
         onMenuClick={() => setNavOpen((v) => !v)}
         navOpen={navOpen}
       />
-
-      <LanguageToggle />
 
       <NavDrawer open={navOpen} onClose={() => setNavOpen(false)} />
 
