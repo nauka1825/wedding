@@ -1,5 +1,5 @@
 "use client";
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useRef, useEffect } from "react";
 import { supabase, uploadImage, Template, Wedding } from "@/lib/supabase";
 import GoogleMapEmbed from "./GoogleMapEmbed";
 import Template1, { Lang } from "./templates/Template1";
@@ -368,155 +368,287 @@ function PreviewLanguagePicker({
   onSelect: (lang: Lang) => void;
 }) {
   const G = { gold: "#C9A15A", goldLight: "#E8D5A8" };
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const heartPath = (size: number) => {
+      ctx.beginPath();
+      ctx.moveTo(0, size * 0.35);
+      ctx.bezierCurveTo(
+        size * 0.5,
+        -size * 0.35,
+        size * 1.15,
+        size * 0.25,
+        0,
+        size * 1.05,
+      );
+      ctx.bezierCurveTo(
+        -size * 1.15,
+        size * 0.25,
+        -size * 0.5,
+        -size * 0.35,
+        0,
+        size * 0.35,
+      );
+      ctx.closePath();
+    };
+
+    // Hearts rise from the very bottom of the screen and fade out by the
+    // time they reach the "Шақыру · Урилға" label, roughly 30% down from
+    // the top — then they respawn at the bottom.
+    const fadeZoneTop = () => canvas.height * 0.3;
+
+    const hearts: {
+      x: number;
+      y: number;
+      size: number;
+      speed: number;
+      baseOpacity: number;
+      drift: number;
+    }[] = [];
+    for (let i = 0; i < 22; i++) {
+      hearts.push({
+        x: Math.random() * canvas.width,
+        y: canvas.height + Math.random() * canvas.height * 0.5,
+        size: Math.random() * 5 + 3,
+        speed: Math.random() * 0.5 + 0.25,
+        baseOpacity: Math.random() * 0.35 + 0.35,
+        drift: (Math.random() - 0.5) * 0.35,
+      });
+    }
+
+    let raf: number;
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const zoneTop = fadeZoneTop();
+      for (const h of hearts) {
+        // Fully visible below the fade zone, fades to 0 as it crosses it.
+        let opacity = h.baseOpacity;
+        if (h.y < zoneTop) {
+          const fade = Math.max(0, h.y / zoneTop);
+          opacity = h.baseOpacity * fade;
+        }
+
+        ctx.save();
+        ctx.translate(h.x, h.y);
+        ctx.fillStyle = `rgba(80,200,120,${opacity})`;
+        heartPath(h.size);
+        ctx.fill();
+        ctx.restore();
+
+        h.y -= h.speed;
+        h.x += h.drift;
+
+        // Once it's faded out above the zone, respawn at the bottom.
+        if (h.y < zoneTop * 0.15) {
+          h.y = canvas.height + Math.random() * 40;
+          h.x = Math.random() * canvas.width;
+        }
+      }
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen w-full overflow-hidden">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Montserrat:wght@400;500;600&display=swap');
-        @keyframes pl-drop-fall {
-          0%   { transform: translateY(-30px); opacity: 0; }
-          35%  { opacity: 1; }
-          62%  { transform: translateY(38px) scale(1); opacity: 1; }
-          66%  { transform: translateY(42px) scaleX(1.6) scaleY(0.4); opacity: 0.8; }
-          70%  { opacity: 0; }
-          100% { opacity: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=Montserrat:wght@400;500;600;700&display=swap');
+
+        @keyframes plp-fade-up {
+          from { opacity: 0; transform: translateY(14px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
-        @keyframes pl-ripple {
-          0%   { transform: translate(-50%,-50%) scale(0.2); opacity: 0.55; }
-          100% { transform: translate(-50%,-50%) scale(2.8); opacity: 0; }
+        .plp-fade-1 { animation: plp-fade-up 0.6s cubic-bezier(0.22,1,0.36,1) 0.05s both; }
+        .plp-fade-2 { animation: plp-fade-up 0.6s cubic-bezier(0.22,1,0.36,1) 0.15s both; }
+        .plp-fade-3 { animation: plp-fade-up 0.6s cubic-bezier(0.22,1,0.36,1) 0.25s both; }
+        .plp-fade-4 { animation: plp-fade-up 0.6s cubic-bezier(0.22,1,0.36,1) 0.35s both; }
+        .plp-fade-5 { animation: plp-fade-up 0.6s cubic-bezier(0.22,1,0.36,1) 0.45s both; }
+
+        .plp-btn-primary {
+          position: relative;
+          overflow: hidden;
         }
-        .pl-drop { animation: pl-drop-fall 2.6s cubic-bezier(0.55,0,0.2,1) infinite; }
-        .pl-ripple { animation: pl-ripple 2.6s ease-out infinite; }
+        .plp-btn-primary::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%);
+          transform: translateX(-100%);
+          transition: transform 0.6s ease;
+        }
+        .plp-btn-primary:hover::after { transform: translateX(100%); }
       `}</style>
 
+      {/* Full-bleed couple photo */}
       <div className="absolute inset-0 z-0">
         {mainPhoto ? (
-          <div
-            className="w-full h-full bg-cover bg-center scale-105"
-            style={{
-              backgroundImage: `url('${mainPhoto}')`,
-              filter: "blur(2px)",
-            }}
-          />
+          <img src={mainPhoto} alt="" className="w-full h-full object-cover" />
         ) : (
           <div
             className="w-full h-full"
             style={{
-              background: "linear-gradient(160deg, #FFFBF3 0%, #f3ead9 100%)",
+              background: "linear-gradient(160deg, #3a2f22 0%, #14100c 100%)",
             }}
           />
         )}
+        {/* Gradient for text legibility — darkest at the bottom */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(20,16,12,0.55) 0%, rgba(20,16,12,0.72) 55%, rgba(20,16,12,0.85) 100%)",
+              "linear-gradient(180deg, rgba(10,8,6,0.05) 0%, rgba(10,8,6,0.15) 38%, rgba(10,8,6,0.55) 62%, rgba(8,6,4,0.88) 82%, rgba(6,4,3,0.96) 100%)",
           }}
         />
       </div>
 
-      <div className="relative z-10 w-full max-w-sm px-6 text-center">
-        <div className="relative w-16 h-24 mx-auto mb-6" aria-hidden="true">
-          <svg
-            className="pl-drop absolute left-1/2 -translate-x-1/2 top-0"
-            width="18"
-            height="24"
-            viewBox="0 0 18 24"
-          >
-            <path
-              d="M9 0C9 0 0 12 0 17a9 9 0 0 0 18 0C18 12 9 0 9 0Z"
-              fill={G.gold}
-              opacity="0.9"
-            />
-          </svg>
-          {[0, 0.55, 1.1].map((delay, i) => (
-            <span
-              key={i}
-              className="pl-ripple absolute left-1/2 top-[72px] rounded-full border"
-              style={{
-                width: 44,
-                height: 12,
-                borderColor: G.gold,
-                animationDelay: `${delay}s`,
-              }}
-            />
-          ))}
-        </div>
+      {/* Rising green hearts, fading out near the label */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full pointer-events-none z-[5]"
+      />
 
+      {/* Content, bottom-anchored over the photo */}
+      <div className="relative z-10 min-h-screen flex flex-col justify-end items-center text-center px-8 pb-9 pt-24">
+        {/* 1. Шақыру · Урилға */}
         <p
+          className="plp-fade-1"
           style={{
             fontFamily: "'Montserrat', sans-serif",
             fontSize: 11,
-            letterSpacing: "0.35em",
+            fontWeight: 600,
+            letterSpacing: "0.22em",
             color: G.goldLight,
             textTransform: "uppercase",
           }}
         >
-          Алдын ала қарау
+          Шақыру &nbsp;·&nbsp; Урилға
         </p>
 
+        {/* 2-4. Names with & between, italic script */}
         <h1
-          className="mt-3 mb-10"
+          className="plp-fade-2 mt-3 leading-[1.05]"
           style={{
             fontFamily: "'Playfair Display', serif",
-            fontWeight: 600,
-            fontSize: "clamp(1.8rem, 8vw, 2.4rem)",
+            fontStyle: "italic",
+            fontWeight: 500,
+            fontSize: "clamp(2.4rem, 12vw, 3.1rem)",
             color: "#fff",
           }}
         >
-          {(maleName || "...") + " & " + (femaleName || "...")}
+          {maleName || "..."}
         </h1>
-
-        <p
-          className="mb-6"
+        <span
+          className="plp-fade-3 block leading-none my-1"
           style={{
-            fontFamily: "'Montserrat', sans-serif",
-            fontSize: 13,
-            color: "rgba(255,255,255,0.85)",
+            fontFamily: "'Playfair Display', serif",
+            fontStyle: "italic",
+            fontWeight: 500,
+            fontSize: "clamp(1.5rem, 7vw, 1.9rem)",
+            color: G.goldLight,
           }}
         >
-          Тілді таңдаңыз / Хэлээ сонгоно уу
+          &amp;
+        </span>
+        <h1
+          className="plp-fade-4 leading-[1.05] mb-4"
+          style={{
+            fontFamily: "'Playfair Display', serif",
+            fontStyle: "italic",
+            fontWeight: 500,
+            fontSize: "clamp(2.4rem, 12vw, 3.1rem)",
+            color: "#fff",
+          }}
+        >
+          {femaleName || "..."}
+        </h1>
+
+        {/* 5. Үйлену тойы · Хурим */}
+        <p
+          className="plp-fade-5"
+          style={{
+            fontFamily: "'Montserrat', sans-serif",
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.2em",
+            color: "rgba(255,255,255,0.85)",
+            textTransform: "uppercase",
+          }}
+        >
+          Үйлену тойы &nbsp;·&nbsp; Хурим
         </p>
 
-        <div className="flex flex-col gap-4">
+        {/* 6. Тілді таңдаңыз · Хэлээ сонгоно уу */}
+        <p
+          className="plp-fade-5 mt-1.5 mb-7"
+          style={{
+            fontFamily: "'Montserrat', sans-serif",
+            fontSize: 10.5,
+            fontWeight: 500,
+            letterSpacing: "0.14em",
+            color: "rgba(255,255,255,0.55)",
+            textTransform: "uppercase",
+          }}
+        >
+          Тілді таңдаңыз &nbsp;·&nbsp; Хэлээ сонгоно уу
+        </p>
+
+        {/* 7. Language buttons */}
+        <div className="plp-fade-5 flex w-full max-w-xs gap-3">
           <button
             onClick={() => onSelect("kk")}
-            className="w-full py-4 rounded-full transition-transform active:scale-95"
+            className="plp-btn-primary flex-1 py-4 rounded-2xl transition-transform active:scale-[0.96]"
             style={{
-              background: `linear-gradient(90deg, ${G.gold}, ${G.goldLight})`,
+              background: G.goldLight,
               color: "#2b2420",
               fontFamily: "'Montserrat', sans-serif",
-              fontWeight: 600,
-              fontSize: 14,
-              letterSpacing: "0.06em",
-              boxShadow: "0 12px 30px -8px rgba(201,161,90,0.55)",
+              fontWeight: 700,
+              fontSize: 14.5,
+              letterSpacing: "0.02em",
+              boxShadow: "0 12px 26px -10px rgba(232,213,168,0.55)",
             }}
           >
-            Қазақша шақыру ашу
+            Қазақша
           </button>
 
           <button
             onClick={() => onSelect("mn")}
-            className="w-full py-4 rounded-full border transition-transform active:scale-95"
+            className="flex-1 py-4 rounded-2xl border-2 transition-all active:scale-[0.96] hover:bg-white/10"
             style={{
-              background: "rgba(255,255,255,0.08)",
-              borderColor: "rgba(255,255,255,0.35)",
+              background: "rgba(20,16,12,0.35)",
+              borderColor: "rgba(255,255,255,0.75)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
               color: "#fff",
               fontFamily: "'Montserrat', sans-serif",
-              fontWeight: 600,
-              fontSize: 14,
-              letterSpacing: "0.06em",
-              backdropFilter: "blur(8px)",
+              fontWeight: 700,
+              fontSize: 14.5,
+              letterSpacing: "0.02em",
             }}
           >
-            Монгол хэлээр урилга нээх
+            Монгол
           </button>
         </div>
       </div>
     </div>
   );
 }
-
 export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
   const [template, setTemplate] = useState<Template>("romantic");
   const [loading, setLoading] = useState(false);

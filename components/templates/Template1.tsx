@@ -314,14 +314,33 @@ function GlassCard({
   );
 }
 
-function SectionEyebrow({ label }: { label: string }) {
+function IconDivider({ className = "" }: { className?: string }) {
   return (
-    <div className="flex justify-center items-center gap-4 mb-8">
-      <div className="h-px w-12" style={{ background: C.outlineVariant }} />
-      <Icon name="all_inclusive" style={{ color: C.secondary, opacity: 0.5 }} />
-      <div className="h-px w-12" style={{ background: C.outlineVariant }} />
+    <div className={`flex items-center justify-center gap-3 ${className}`}>
+      <div
+        className="h-px flex-1 max-w-[60px]"
+        style={{
+          background: `linear-gradient(to right, transparent, ${C.primary}66)`,
+        }}
+      />
+      <Icon
+        name="favorite"
+        filled
+        size={18}
+        style={{ color: C.primary, opacity: 0.6 }}
+      />
+      <div
+        className="h-px flex-1 max-w-[60px]"
+        style={{
+          background: `linear-gradient(to left, transparent, ${C.primary}66)`,
+        }}
+      />
     </div>
   );
+}
+
+function SectionEyebrow({ label }: { label: string }) {
+  return <IconDivider className="mb-8" />;
 }
 
 function formatKazDate(iso: string, t: TranslationSet) {
@@ -376,66 +395,112 @@ function MultilineText({
   );
 }
 
-function FloatingPetals() {
-  const [petals, setPetals] = useState<
-    {
-      id: number;
-      left: number;
-      size: number;
-      duration: number;
-      opacity: number;
-      symbol: string;
-    }[]
-  >([]);
-  const idRef = useRef(0);
-  const symbols = ["🌸", "✨", "🍃", "❤️"];
+/* ------------------------------------------------------------------------
+   RisingHearts — faint hearts drifting from the bottom of the hero to the
+   top, very low opacity, replaces the old falling-petal emoji animation.
+   ------------------------------------------------------------------------ */
+function RisingHearts() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      idRef.current += 1;
-      const id = idRef.current;
-      const petal = {
-        id,
-        left: Math.random() * 100,
-        size: Math.random() * 10 + 10,
-        duration: Math.random() * 3 + 5,
-        opacity: Math.random(),
-        symbol: symbols[Math.floor(Math.random() * symbols.length)],
-      };
-      setPetals((prev) => [...prev.slice(-24), petal]);
-      setTimeout(() => {
-        setPetals((prev) => prev.filter((p) => p.id !== id));
-      }, 8000);
-    }, 600);
-    return () => clearInterval(interval);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const heartPath = (size: number) => {
+      ctx.beginPath();
+      ctx.moveTo(0, size * 0.35);
+      ctx.bezierCurveTo(
+        size * 0.5,
+        -size * 0.35,
+        size * 1.15,
+        size * 0.25,
+        0,
+        size * 1.05,
+      );
+      ctx.bezierCurveTo(
+        -size * 1.15,
+        size * 0.25,
+        -size * 0.5,
+        -size * 0.35,
+        0,
+        size * 0.35,
+      );
+      ctx.closePath();
+    };
+
+    const hearts: {
+      x: number;
+      y: number;
+      size: number;
+      speed: number;
+      baseOpacity: number;
+      drift: number;
+      phase: number;
+      pulseSpeed: number;
+    }[] = [];
+    for (let i = 0; i < 20; i++) {
+      hearts.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 7 + 4,
+        speed: Math.random() * 0.25 + 0.08,
+        // Very faint — barely visible, just a soft hint of motion.
+        baseOpacity: Math.random() * 0.07 + 0.03,
+        drift: (Math.random() - 0.5) * 0.25,
+        phase: Math.random() * Math.PI * 2,
+        pulseSpeed: Math.random() * 0.015 + 0.01,
+      });
+    }
+
+    let raf: number;
+    let t = 0;
+    const draw = () => {
+      t += 1;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const h of hearts) {
+        const pulse = 0.6 + 0.4 * Math.sin(t * h.pulseSpeed + h.phase);
+        const opacity = h.baseOpacity * pulse;
+
+        ctx.save();
+        ctx.translate(h.x, h.y);
+        ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+        heartPath(h.size);
+        ctx.fill();
+        ctx.restore();
+
+        h.y -= h.speed;
+        h.x += h.drift;
+
+        if (h.y < -20) {
+          h.y = canvas.height + 20;
+          h.x = Math.random() * canvas.width;
+        }
+        if (h.x < -20) h.x = canvas.width + 20;
+        if (h.x > canvas.width + 20) h.x = -20;
+      }
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+    };
   }, []);
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
-      <style>{`
-        @keyframes petal-fall-t1 {
-          0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
-          10% { opacity: var(--op, 0.8); }
-          90% { opacity: var(--op, 0.8); }
-          100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-        }
-      `}</style>
-      {petals.map((p) => (
-        <div
-          key={p.id}
-          style={{
-            position: "absolute",
-            left: `${p.left}vw`,
-            fontSize: p.size,
-            top: 0,
-            ["--op" as any]: p.opacity,
-            animation: `petal-fall-t1 ${p.duration}s linear forwards`,
-          }}
-        >
-          {p.symbol}
-        </div>
-      ))}
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full pointer-events-none z-10"
+    />
   );
 }
 
@@ -564,19 +629,34 @@ function Hero({
         />
       </div>
 
-      <FloatingPetals />
+      <RisingHearts />
 
-      <div className="relative z-20 text-center px-6">
-        <div
-          className="mb-4 inline-block"
-          style={{ animation: "rotate-slow-t1 20s linear infinite" }}
+      <div
+        className="absolute left-0 right-0 z-20 text-center px-6"
+        style={{ bottom: 20 }}
+      >
+        <h1
+          className="leading-tight"
+          style={{
+            fontFamily: HEADLINE,
+            fontWeight: 700,
+            fontSize: "clamp(2.4rem, 10vw, 3.4rem)",
+            background: `linear-gradient(90deg, ${C.primary} 0%, #C4A0B0 50%, ${C.primary} 100%)`,
+            backgroundSize: "200% auto",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            animation: "shimmer-t1 4s linear infinite",
+          }}
         >
-          <Icon
-            name="filter_vintage"
-            size={44}
-            style={{ color: C.secondary, opacity: 0.4 }}
-          />
-        </div>
+          {maleName}
+        </h1>
+        <Icon
+          name="favorite"
+          filled
+          size={26}
+          style={{ color: C.primary, margin: "4px 0" }}
+        />
         <h1
           className="leading-tight mb-2"
           style={{
@@ -591,7 +671,7 @@ function Hero({
             animation: "shimmer-t1 4s linear infinite",
           }}
         >
-          {maleName} &amp; {femaleName}
+          {femaleName}
         </h1>
         <p
           className="italic mb-8"
@@ -615,7 +695,6 @@ function Hero({
       </div>
       <style>{`
         @keyframes shimmer-t1 { to { background-position: 200% center; } }
-        @keyframes rotate-slow-t1 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
     </header>
   );
@@ -630,7 +709,6 @@ function InvitationText({ body }: { body: string | null }) {
       style={{ background: C.surfaceContainerLow }}
     >
       <Reveal className="max-w-lg mx-auto">
-        <Icon name="favorite" filled style={{ color: C.primary }} />
         <div className="mb-10">
           <MultilineText
             text={body}
@@ -754,48 +832,56 @@ function ParentsAndEventBento({
   const monthCaps = t.monthsCaps[d.getMonth()];
   const dayCaps = t.daysFull[d.getDay()];
 
+  const organizerLine = decodeHtmlEntities(organizerText)
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join("  ·  ");
+
   return (
     <section
       id="event"
       className="py-16 px-6 relative"
-      style={{ background: C.background }}
+      style={{
+        backgroundImage: `url('images/gul.gif')`,
+        backgroundPosition: "left",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+      }}
     >
-      <div className="max-w-lg mx-auto space-y-6">
-        {/* Parents / organizer card — shows exactly what was typed */}
+      <div className="max-w-lg mx-auto space-y-10">
+        {/* Parents / organizer block — no card, floral corners, ring wreath */}
         <Reveal>
-          <GlassCard style={{ padding: 32 }}>
-            <div className="flex flex-col items-center">
-              <Icon
-                name="family_history"
-                size={30}
-                style={{ color: C.primary, marginBottom: 12 }}
-              />
+          <div className="relative overflow-hidden py-10 px-4">
+            <div className="relative z-10 flex flex-col items-center text-center">
               <h3
-                className="mb-4"
+                className="mb-1"
                 style={{
                   fontFamily: BODY,
                   fontSize: 12,
-                  letterSpacing: "0.15em",
-                  fontWeight: 600,
+                  letterSpacing: "0.25em",
+                  fontWeight: 700,
                   color: C.secondary,
+                  textTransform: "uppercase",
                 }}
               >
                 {t.organizerLabel}
               </h3>
-              <div className="text-center">
-                <MultilineText
-                  text={organizerText}
-                  style={{
-                    fontFamily: HEADLINE,
-                    fontWeight: 600,
-                    fontSize: 15,
-                    color: C.onSurface,
-                    whiteSpace: "pre-wrap",
-                  }}
-                />
-              </div>
+
+              <p
+                className="mb-2"
+                style={{
+                  fontFamily: HEADLINE,
+                  fontStyle: "italic",
+                  fontWeight: 600,
+                  fontSize: 22,
+                  color: C.primary,
+                }}
+              >
+                {organizerLine}
+              </p>
             </div>
-          </GlassCard>
+          </div>
         </Reveal>
 
         {/* Calendar + clock */}
@@ -829,6 +915,9 @@ function ParentsAndEventBento({
           </Reveal>
         </div>
       </div>
+      <style>{`
+        @keyframes wreath-spin-t1 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      `}</style>
     </section>
   );
 }
@@ -1313,30 +1402,6 @@ function WishesWrapper({ weddingId }: { weddingId: string }) {
   );
 }
 
-function GoldDivider({ className = "" }: { className?: string }) {
-  return (
-    <div className={`flex items-center justify-center gap-3 ${className}`}>
-      <div
-        className="h-px flex-1 max-w-[60px]"
-        style={{
-          background: `linear-gradient(to right, transparent, ${C.primary}66)`,
-        }}
-      />
-      <Icon
-        name="filter_vintage"
-        size={18}
-        style={{ color: C.primary, opacity: 0.6 }}
-      />
-      <div
-        className="h-px flex-1 max-w-[60px]"
-        style={{
-          background: `linear-gradient(to left, transparent, ${C.primary}66)`,
-        }}
-      />
-    </div>
-  );
-}
-
 function FloralDots() {
   return (
     <div className="flex items-center justify-center gap-2 my-2">
@@ -1396,7 +1461,7 @@ function Footer({
       `}</style>
 
       <Reveal>
-        <GoldDivider className="mb-5 mx-8" />
+        <IconDivider className="mb-5 mx-8" />
 
         {poem.map((line, i) => (
           <p
