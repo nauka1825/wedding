@@ -1056,31 +1056,44 @@ function VenueCard({
           border: `1px solid ${C.secondary}4d`,
         }}
       >
-        <div className="w-full h-48 relative">
-          {photo ? (
-            <img
-              src={photo}
-              alt={venueName || "venue"}
-              className="w-full h-full object-cover "
-              style={{
-                display: "block",
-                border: "none",
-                backgroundPosition: "top",
-              }}
-            />
-          ) : (
-            <div
-              className="w-full h-full flex items-center justify-center"
-              style={{
-                background: `linear-gradient(135deg, ${C.secondaryContainer}55, ${C.surfaceContainer})`,
-              }}
-            >
-              <FaMapMarkerAlt
-                size={36}
-                style={{ color: C.primary, opacity: 0.35 }}
+        <div
+          className="w-full relative"
+          style={{ padding: "20px 20px 0", background: C.surfaceContainerLow }}
+        >
+          <div
+            className="w-full h-56 relative overflow-hidden"
+            style={{
+              borderRadius: 16,
+              border: `1px solid ${C.gold}4d`,
+              boxShadow: `0 10px 30px -12px ${C.primary}40`,
+            }}
+          >
+            {photo ? (
+              <img
+                src={photo}
+                alt={venueName || "venue"}
+                className="w-full h-full"
+                style={{
+                  display: "block",
+                  border: "none",
+                  objectFit: "cover",
+                  objectPosition: "top center",
+                }}
               />
-            </div>
-          )}
+            ) : (
+              <div
+                className="w-full h-full flex items-center justify-center"
+                style={{
+                  background: `linear-gradient(135deg, ${C.secondaryContainer}55, ${C.surfaceContainer})`,
+                }}
+              >
+                <FaMapMarkerAlt
+                  size={36}
+                  style={{ color: C.primary, opacity: 0.35 }}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         <div style={{ padding: 32 }}>
@@ -1544,8 +1557,7 @@ function FooterSection({
         }}
       >
         © {new Date().getFullYear()} {maleName.toUpperCase()} &amp;{" "}
-        {femaleName.toUpperCase()}. <br></br>
-        {t.builtWithLove}
+        {femaleName.toUpperCase()}. {t.builtWithLove}
       </p>
     </footer>
   );
@@ -1641,7 +1653,7 @@ export default function Template2({
   const galleryImages = (wedding.gallery_urls || []).filter(
     Boolean,
   ) as string[];
-  const venuePhoto = wedding.photo5_url || galleryImages[0] || null;
+  const venuePhoto = wedding.photo5_url || galleryImages[2] || null;
 
   return (
     <LangContext.Provider value={{ lang, t, toggleLang }}>
