@@ -16,6 +16,7 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaCameraRetro,
+  FaInfoCircle,
 } from "react-icons/fa";
 import { MdOutlineCalendarMonth, MdOutlineSchedule } from "react-icons/md";
 import { BsStars } from "react-icons/bs";
@@ -148,6 +149,7 @@ interface T2Translations {
   atTime: (time: string) => string;
   venueLabel: string;
   viewOnMap: string;
+  extraInfoTitle: string;
   rsvpTitle: string;
   rsvpSubtitle: string;
   footerPoem: string;
@@ -178,6 +180,7 @@ const T2_TRANSLATIONS: Record<Lang, T2Translations> = {
     atTime: (time) => `Сағат ${time}-де`,
     venueLabel: "Мекен-жайы / Venue",
     viewOnMap: "КАРТАДАН КӨРУ",
+    extraInfoTitle: "ҚОСЫМША АҚПАРАТ",
     rsvpTitle: "RSVP",
     rsvpSubtitle: "Сіздің келуіңіз біз үшін үлкен мәртебе!",
     footerPoem:
@@ -207,6 +210,7 @@ const T2_TRANSLATIONS: Record<Lang, T2Translations> = {
     atTime: (time) => `${time} цагт`,
     venueLabel: "Байршил / Venue",
     viewOnMap: "ГАЗРЫН ЗУРГААС ХАРАХ",
+    extraInfoTitle: "НЭМЭЛТ МЭДЭЭЛЭЛ",
     rsvpTitle: "RSVP",
     rsvpSubtitle: "Таны ирэх нь бидний хувьд том хүндэтгэл!",
     footerPoem:
@@ -932,6 +936,278 @@ function PhotosSection({
   );
 }
 
+/* ------------------------------------------------------------------------
+   Date / time summary cards — unchanged from before, still using T2 tokens
+   ------------------------------------------------------------------------ */
+function DateTimeCards({
+  date,
+  time,
+}: {
+  date: string | null;
+  time: string | null;
+}) {
+  const { t } = useLang();
+  if (!date && !time) return null;
+
+  return (
+    <div className="flex flex-col gap-6">
+      {date && (
+        <Reveal>
+          <GlassCard
+            className="p-6 text-center flex flex-col items-center"
+            style={{ border: `1px solid ${C.secondary}4d` }}
+          >
+            <MdOutlineCalendarMonth
+              size={38}
+              style={{ color: C.secondary, marginBottom: 12 }}
+            />
+            <h5 style={{ ...F_LABEL_CAPS, color: C.primary, marginBottom: 10 }}>
+              {t.dateLabel}
+            </h5>
+            <p
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: 19,
+                lineHeight: 1.4,
+                fontWeight: 500,
+                color: C.primary,
+                margin: 0,
+              }}
+            >
+              {date}
+            </p>
+          </GlassCard>
+        </Reveal>
+      )}
+      {time && (
+        <Reveal>
+          <GlassCard
+            className="p-6 text-center flex flex-col items-center"
+            style={{ border: `1px solid ${C.secondary}4d` }}
+          >
+            <MdOutlineSchedule
+              size={38}
+              style={{ color: C.secondary, marginBottom: 12 }}
+            />
+            <h5 style={{ ...F_LABEL_CAPS, color: C.primary, marginBottom: 10 }}>
+              {t.timeLabel}
+            </h5>
+            <p
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: 19,
+                lineHeight: 1.4,
+                fontWeight: 500,
+                color: C.primary,
+                margin: 0,
+              }}
+            >
+              {t.atTime(time)}
+            </p>
+          </GlassCard>
+        </Reveal>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------------
+   VenueCard — restyled to match Template1's VenueSection layout:
+   a single glass card with a photo banner on top, then the venue name,
+   address, embedded map and a "view on map" pill button inside the same
+   card — instead of the previous plain icon + text block.
+   ------------------------------------------------------------------------ */
+function VenueCard({
+  venueName,
+  venueAddress,
+  photo,
+  latitude,
+  longitude,
+}: {
+  venueName: string | null;
+  venueAddress: string | null;
+  photo: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+}) {
+  const { t } = useLang();
+
+  if (!venueName && !venueAddress) return null;
+
+  const hasCoords =
+    typeof latitude === "number" &&
+    typeof longitude === "number" &&
+    !Number.isNaN(latitude) &&
+    !Number.isNaN(longitude);
+
+  const mapsHref = hasCoords
+    ? `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
+    : venueAddress
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+          venueAddress,
+        )}`
+      : null;
+
+  return (
+    <Reveal style={{ marginTop: 32 }}>
+      <GlassCard
+        style={{
+          overflow: "hidden",
+          border: `1px solid ${C.secondary}4d`,
+        }}
+      >
+        <div className="w-full h-48 relative">
+          {photo ? (
+            <img
+              src={photo}
+              alt={venueName || "venue"}
+              className="w-full h-full object-cover "
+              style={{
+                display: "block",
+                border: "none",
+                backgroundPosition: "top",
+              }}
+            />
+          ) : (
+            <div
+              className="w-full h-full flex items-center justify-center"
+              style={{
+                background: `linear-gradient(135deg, ${C.secondaryContainer}55, ${C.surfaceContainer})`,
+              }}
+            >
+              <FaMapMarkerAlt
+                size={36}
+                style={{ color: C.primary, opacity: 0.35 }}
+              />
+            </div>
+          )}
+        </div>
+
+        <div style={{ padding: 32 }}>
+          <div className="flex items-center gap-2" style={{ marginBottom: 14 }}>
+            <FaStar size={14} style={{ color: C.gold }} />
+            <h5 style={{ ...F_LABEL_CAPS, color: C.primary, margin: 0 }}>
+              {t.venueLabel}
+            </h5>
+          </div>
+
+          {venueName && (
+            <p
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: 22,
+                fontStyle: "italic",
+                fontWeight: 500,
+                color: C.primary,
+                margin: "0 0 8px",
+              }}
+            >
+              {venueName}
+            </p>
+          )}
+          {venueAddress && (
+            <p
+              style={{
+                ...F_BODY_MD,
+                fontStyle: "italic",
+                color: C.onSurfaceVariant,
+                marginBottom: hasCoords || mapsHref ? 20 : 0,
+              }}
+            >
+              {venueAddress}
+            </p>
+          )}
+
+          {hasCoords && (
+            <div style={{ marginBottom: 20 }}>
+              <GoogleMapEmbed
+                address={venueAddress || undefined}
+                latitude={latitude}
+                longitude={longitude}
+                accentColor={C.primary}
+                height={200}
+              />
+            </div>
+          )}
+
+          {mapsHref && (
+            <a
+              href={mapsHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2"
+              style={{
+                padding: "12px 32px",
+                background: C.primary,
+                color: C.secondaryFixed,
+                border: `1px solid ${C.secondary}`,
+                ...F_LABEL_CAPS,
+                textDecoration: "none",
+                borderRadius: 999,
+                transition: "background-color 0.2s ease",
+                boxShadow: `0 10px 25px -8px ${C.primary}66`,
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = C.onPrimaryFixedVariant)
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = C.primary)
+              }
+            >
+              <FaMapMarkerAlt size={14} />
+              {t.viewOnMap}
+            </a>
+          )}
+        </div>
+      </GlassCard>
+    </Reveal>
+  );
+}
+
+/* ------------------------------------------------------------------------
+   ExtraInfoCard — the "extras" list, now boxed in its own glass card with
+   an icon + uppercase title header, matching Template1's info card.
+   ------------------------------------------------------------------------ */
+function ExtraInfoCard({ extras }: { extras: (string | null | undefined)[] }) {
+  const { t } = useLang();
+  const clean = extras.filter(Boolean) as string[];
+  if (clean.length === 0) return null;
+
+  return (
+    <Reveal style={{ marginTop: 24 }}>
+      <GlassCard style={{ padding: 28, border: `1px solid ${C.secondary}4d` }}>
+        <div className="flex items-center gap-2" style={{ marginBottom: 16 }}>
+          <FaInfoCircle size={15} style={{ color: C.gold }} />
+          <h5 style={{ ...F_LABEL_CAPS, color: C.primary, margin: 0 }}>
+            {t.extraInfoTitle}
+          </h5>
+        </div>
+        <div className="flex flex-col gap-3">
+          {clean.map((e, i) => (
+            <div key={i} className="flex items-start gap-3">
+              <FaStar
+                size={13}
+                style={{ color: C.gold, marginTop: 5, flexShrink: 0 }}
+              />
+              <p
+                style={{
+                  ...F_BODY_MD,
+                  fontSize: 15,
+                  color: C.onSurfaceVariant,
+                  margin: 0,
+                  lineHeight: 1.7,
+                }}
+              >
+                {e}
+              </p>
+            </div>
+          ))}
+        </div>
+      </GlassCard>
+    </Reveal>
+  );
+}
+
 function DetailsSection({
   date,
   time,
@@ -951,225 +1227,22 @@ function DetailsSection({
   latitude?: number | null;
   longitude?: number | null;
 }) {
-  const { t } = useLang();
-
-  const hasCoords =
-    typeof latitude === "number" &&
-    typeof longitude === "number" &&
-    !Number.isNaN(latitude) &&
-    !Number.isNaN(longitude);
-
-  const mapsHref = hasCoords
-    ? `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
-    : venueAddress
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-          venueAddress,
-        )}`
-      : null;
-
   return (
     <section
       id="section-details"
       style={{ background: C.background, padding: "3rem 5vw" }}
     >
-      <div className="flex flex-col gap-6">
-        {date && (
-          <Reveal>
-            <GlassCard
-              className="p-6 text-center flex flex-col items-center"
-              style={{ border: `1px solid ${C.secondary}4d` }}
-            >
-              <MdOutlineCalendarMonth
-                size={38}
-                style={{ color: C.secondary, marginBottom: 12 }}
-              />
-              <h5
-                style={{ ...F_LABEL_CAPS, color: C.primary, marginBottom: 10 }}
-              >
-                {t.dateLabel}
-              </h5>
-              <p
-                style={{
-                  fontFamily: "'Playfair Display', serif",
-                  fontSize: 19,
-                  lineHeight: 1.4,
-                  fontWeight: 500,
-                  color: C.primary,
-                  margin: 0,
-                }}
-              >
-                {date}
-              </p>
-            </GlassCard>
-          </Reveal>
-        )}
-        {time && (
-          <Reveal>
-            <GlassCard
-              className="p-6 text-center flex flex-col items-center"
-              style={{ border: `1px solid ${C.secondary}4d` }}
-            >
-              <MdOutlineSchedule
-                size={38}
-                style={{ color: C.secondary, marginBottom: 12 }}
-              />
-              <h5
-                style={{ ...F_LABEL_CAPS, color: C.primary, marginBottom: 10 }}
-              >
-                {t.timeLabel}
-              </h5>
-              <p
-                style={{
-                  fontFamily: "'Playfair Display', serif",
-                  fontSize: 19,
-                  lineHeight: 1.4,
-                  fontWeight: 500,
-                  color: C.primary,
-                  margin: 0,
-                }}
-              >
-                {t.atTime(time)}
-              </p>
-            </GlassCard>
-          </Reveal>
-        )}
-      </div>
+      <DateTimeCards date={date} time={time} />
 
-      {(venueName || venueAddress) && (
-        <Reveal className="text-center" style={{ marginTop: 32 }}>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <FaStar size={26} style={{ color: C.secondary }} />
-          </div>
-          <h5
-            style={{ ...F_LABEL_CAPS, color: C.primary, margin: "16px 0 8px" }}
-          >
-            {t.venueLabel}
-          </h5>
-          {venueName && (
-            <p
-              style={{
-                ...F_BODY_LG,
-                color: C.primary,
-                fontWeight: 500,
-                margin: 0,
-              }}
-            >
-              {venueName}
-            </p>
-          )}
-          {venueAddress && (
-            <p
-              style={{
-                ...F_BODY_MD,
-                fontStyle: "italic",
-                color: C.onSurfaceVariant,
-              }}
-            >
-              {venueAddress}
-            </p>
-          )}
+      <VenueCard
+        venueName={venueName}
+        venueAddress={venueAddress}
+        photo={photo5Url}
+        latitude={latitude}
+        longitude={longitude}
+      />
 
-          {hasCoords && (
-            <div
-              style={{
-                marginTop: 24,
-                maxWidth: 480,
-                marginLeft: "auto",
-                marginRight: "auto",
-              }}
-            >
-              <GoogleMapEmbed
-                address={venueAddress || undefined}
-                latitude={latitude}
-                longitude={longitude}
-                accentColor={C.primary}
-                height={200}
-              />
-            </div>
-          )}
-
-          {mapsHref ? (
-            <a
-              href={mapsHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: "inline-block",
-                marginTop: 24,
-                padding: "12px 32px",
-                background: C.primary,
-                color: C.secondaryFixed,
-                border: `1px solid ${C.secondary}`,
-                ...F_LABEL_CAPS,
-                cursor: "pointer",
-                textDecoration: "none",
-                transition: "background-color 0.2s ease",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = C.onPrimaryFixedVariant)
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = C.primary)
-              }
-            >
-              {t.viewOnMap}
-            </a>
-          ) : (
-            <button
-              disabled
-              style={{
-                marginTop: 24,
-                padding: "12px 32px",
-                background: C.primary,
-                color: C.secondaryFixed,
-                border: `1px solid ${C.secondary}`,
-                opacity: 0.6,
-                ...F_LABEL_CAPS,
-              }}
-            >
-              {t.viewOnMap}
-            </button>
-          )}
-        </Reveal>
-      )}
-
-      {extras.length > 0 && (
-        <Reveal
-          style={{
-            marginTop: 40,
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-          }}
-        >
-          {extras.map((e, i) => (
-            <div
-              key={i}
-              className="flex items-start gap-3"
-              style={{ maxWidth: 640, margin: "0 auto" }}
-            >
-              <FaStar
-                size={16}
-                style={{ color: C.gold, marginTop: 5, flexShrink: 0 }}
-              />
-              <p style={{ ...F_BODY_LG, color: C.onSurfaceVariant, margin: 0 }}>
-                {e}
-              </p>
-            </div>
-          ))}
-        </Reveal>
-      )}
-
-      {photo5Url && (
-        <Reveal style={{ marginTop: 40, overflow: "hidden" }}>
-          <img
-            src={photo5Url}
-            alt="Қосымша сурет"
-            className="w-full"
-            style={{ display: "block", border: "none", borderRadius: 4 }}
-          />
-        </Reveal>
-      )}
+      <ExtraInfoCard extras={extras} />
     </section>
   );
 }
@@ -1471,7 +1544,8 @@ function FooterSection({
         }}
       >
         © {new Date().getFullYear()} {maleName.toUpperCase()} &amp;{" "}
-        {femaleName.toUpperCase()}. {t.builtWithLove}
+        {femaleName.toUpperCase()}. <br></br>
+        {t.builtWithLove}
       </p>
     </footer>
   );
@@ -1564,6 +1638,11 @@ export default function Template2({
   const latitude = (wedding as any).latitude ?? null;
   const longitude = (wedding as any).longitude ?? null;
 
+  const galleryImages = (wedding.gallery_urls || []).filter(
+    Boolean,
+  ) as string[];
+  const venuePhoto = wedding.photo5_url || galleryImages[0] || null;
+
   return (
     <LangContext.Provider value={{ lang, t, toggleLang }}>
       <GlobalStyles />
@@ -1611,7 +1690,7 @@ export default function Template2({
           venueName={venueNameText}
           venueAddress={venueAddressText}
           extras={extras}
-          photo5Url={wedding.photo5_url}
+          photo5Url={venuePhoto}
           latitude={latitude}
           longitude={longitude}
         />
