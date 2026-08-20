@@ -7,6 +7,12 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
+// Used whenever a wedding has no uploaded photo yet, and as the last-resort
+// fallback so og:image is NEVER empty — Facebook/Telegram/WhatsApp will
+// simply omit the image preview entirely if this array is empty, so an
+// empty array is worse than a generic placeholder.
+const DEFAULT_SHARE_IMAGE = "https://your-actual-domain.com/default-share.jpg";
+
 export async function generateMetadata({
   params,
 }: {
@@ -24,23 +30,62 @@ export async function generateMetadata({
     return {
       title: "Онлайн урилга",
       description: "Хуримын урилга",
+      openGraph: {
+        title: "Онлайн урилга",
+        description: "Хуримын урилга",
+        images: [
+          {
+            url: DEFAULT_SHARE_IMAGE,
+            width: 1200,
+            height: 630,
+            alt: "Онлайн урилга",
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        images: [DEFAULT_SHARE_IMAGE],
+      },
     };
   }
 
+  const title = `${wedding.male_name} & ${wedding.female_name}`;
+  const description = "Хуримын урилга";
+
+  // Prefer the main cover photo, then any other uploaded photo, then the
+  // static fallback shipped in /public — this guarantees the images array
+  // below is never empty, which is required for crawlers to render a
+  // preview image at all.
   const image =
-    wedding.main_photo_url || wedding.photo3_url || wedding.photo5_url;
+    wedding.main_photo_url ||
+    wedding.photo3_url ||
+    wedding.photo5_url ||
+    DEFAULT_SHARE_IMAGE;
 
   return {
-    title: `${wedding.male_name} & ${wedding.female_name}`,
-    description: "Хуримын урилга",
+    title,
+    description,
     openGraph: {
-      title: `${wedding.male_name} & ${wedding.female_name}`,
-      description: "Хуримын урилга",
-      images: image ? [{ url: image, width: 1200, height: 630 }] : [],
+      title,
+      description,
+      url: `https://your-actual-domain.com/weddings/${wedding.id}`,
+      siteName: title,
+      type: "website",
+      locale: "mn_MN",
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
-      images: image ? [image] : [],
+      title,
+      description,
+      images: [image],
     },
   };
 }
