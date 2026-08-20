@@ -1669,7 +1669,7 @@ export default function Template2({
   const galleryImages = (wedding.gallery_urls || []).filter(
     Boolean,
   ) as string[];
-  const venuePhoto = wedding.photo5_url || galleryImages[0] || null;
+  const venuePhoto = wedding.photo5_url || galleryImages[3] || null;
 
   return (
     <LangContext.Provider value={{ lang, t, toggleLang }}>
