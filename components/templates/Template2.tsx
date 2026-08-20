@@ -913,20 +913,36 @@ function PhotosSection({
           {urls.map((url, i) => (
             <div
               key={i}
-              className="snap-center flex-shrink-0"
+              className="snap-center"
               style={{
+                // Explicit width + flex-shrink: 0 + flex-grow: 0 pins every
+                // slide to the exact same box regardless of the source
+                // image's natural (intrinsic) dimensions. Using only
+                // min-width (as before) leaves the flex-basis to default to
+                // "auto", which some browsers resolve from the image's own
+                // size — that's what made slides drift to different widths.
+                width: 280,
                 minWidth: 280,
+                maxWidth: 280,
                 height: 400,
+                flex: "0 0 280px",
                 borderRadius: 8,
                 overflow: "hidden",
                 border: `1px solid ${C.secondary}1a`,
+                boxSizing: "border-box",
               }}
             >
               <img
                 src={url}
                 alt={`сурет ${i + 1}`}
-                className="w-full h-full object-cover"
-                style={{ display: "block", border: "none" }}
+                style={{
+                  display: "block",
+                  border: "none",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  objectPosition: "center",
+                }}
               />
             </div>
           ))}
@@ -1653,7 +1669,7 @@ export default function Template2({
   const galleryImages = (wedding.gallery_urls || []).filter(
     Boolean,
   ) as string[];
-  const venuePhoto = wedding.photo5_url || galleryImages[2] || null;
+  const venuePhoto = wedding.photo5_url || galleryImages[0] || null;
 
   return (
     <LangContext.Provider value={{ lang, t, toggleLang }}>
