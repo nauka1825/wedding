@@ -337,6 +337,15 @@ function LanguagePicker({
 export default function WeddingLanguageGate({ wedding }: { wedding: Wedding }) {
   const [lang, setLang] = useState<Lang | null>(null);
 
+  // Template4 (azure) doesn't use the language picker — open it directly.
+  if (wedding.template === "azure") {
+    return (
+      <div className="relative">
+        <Template4 wedding={wedding} />
+      </div>
+    );
+  }
+
   if (!lang) {
     return <LanguagePicker wedding={wedding} onSelect={setLang} />;
   }
@@ -347,7 +356,6 @@ export default function WeddingLanguageGate({ wedding }: { wedding: Wedding }) {
         <Template2 wedding={wedding} defaultLang={lang} key={lang} />
       )}
       {wedding.template === "bohemian" && <Template3 wedding={wedding} />}
-      {wedding.template === "azure" && <Template4 wedding={wedding} />}
       {wedding.template === "sage" && (
         <Template5 wedding={wedding} defaultLang={lang} key={lang} />
       )}

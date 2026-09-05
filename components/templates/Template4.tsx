@@ -129,15 +129,15 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
     >
       <defs>
         <radialGradient id="t4-clock-bg" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#e6fff5" />
-          <stop offset="100%" stopColor="#efe0cd" />
+          <stop offset="0%" stopColor="#fff6f8" />
+          <stop offset="100%" stopColor="#ffe9ee" />
         </radialGradient>
         <filter id="t4-clock-shadow">
           <feDropShadow
             dx="0"
             dy="2"
             stdDeviation="3"
-            floodColor="rgba(212,175,55,0.18)"
+            floodColor="rgba(160,60,90,0.16)"
           />
         </filter>
       </defs>
@@ -147,7 +147,7 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
         r="36"
         fill="url(#t4-clock-bg)"
         filter="url(#t4-clock-shadow)"
-        stroke="rgba(212,175,55,0.55)"
+        stroke="rgba(160,60,90,0.4)"
         strokeWidth="0.8"
       />
       <circle
@@ -155,7 +155,7 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
         cy="40"
         r="33"
         fill="none"
-        stroke="rgba(212,175,55,0.18)"
+        stroke="rgba(160,60,90,0.16)"
         strokeWidth="0.4"
       />
       {Array.from({ length: 12 }, (_, i) => {
@@ -169,7 +169,9 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
             y1={40 + r1 * Math.sin(a)}
             x2={40 + r2 * Math.cos(a)}
             y2={40 + r2 * Math.sin(a)}
-            stroke={i % 3 === 0 ? "rgba(115,92,0,0.8)" : "rgba(212,175,55,0.4)"}
+            stroke={
+              i % 3 === 0 ? "rgba(120,45,68,0.75)" : "rgba(160,60,90,0.35)"
+            }
             strokeWidth={i % 3 === 0 ? 1.2 : 0.6}
           />
         );
@@ -179,7 +181,7 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
         y1="40"
         x2={40 + 15 * Math.cos(((hourDeg - 90) * Math.PI) / 180)}
         y2={40 + 15 * Math.sin(((hourDeg - 90) * Math.PI) / 180)}
-        stroke="#735c00"
+        stroke="#78324a"
         strokeWidth="2.2"
         strokeLinecap="round"
       />
@@ -188,7 +190,7 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
         y1="40"
         x2={40 + 21 * Math.cos(((minDeg - 90) * Math.PI) / 180)}
         y2={40 + 21 * Math.sin(((minDeg - 90) * Math.PI) / 180)}
-        stroke="#735c00"
+        stroke="#78324a"
         strokeWidth="1.5"
         strokeLinecap="round"
       />
@@ -197,11 +199,11 @@ function AnimatedClock({ time, visible }: { time: string; visible: boolean }) {
         y1="40"
         x2={40 + 23 * Math.cos(((secDeg - 90) * Math.PI) / 180)}
         y2={40 + 23 * Math.sin(((secDeg - 90) * Math.PI) / 180)}
-        stroke="rgba(212,175,55,0.9)"
+        stroke="rgba(160,60,90,0.85)"
         strokeWidth="0.8"
         strokeLinecap="round"
       />
-      <circle cx="40" cy="40" r="2.5" fill="#735c00" />
+      <circle cx="40" cy="40" r="2.5" fill="#78324a" />
       <circle cx="40" cy="40" r="1.2" fill="#fff" />
     </svg>
   );
@@ -255,16 +257,16 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
         style={{
           position: "relative",
           background: "rgba(255,255,255,0.85)",
-          border: "1px solid rgba(212,175,55,0.35)",
+          border: "1px solid rgba(160,60,90,0.3)",
           borderRadius: 14,
           overflow: "hidden",
-          boxShadow: "0 6px 24px rgba(115,92,0,0.1)",
+          boxShadow: "0 6px 24px rgba(120,45,68,0.1)",
         }}
       >
         {/* Header — month / year */}
         <div
           style={{
-            background: "#735c00",
+            background: "#78324a",
             padding: "12px 16px",
             textAlign: "center",
           }}
@@ -275,7 +277,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
               fontSize: 15,
               fontWeight: 600,
               letterSpacing: "0.18em",
-              color: "#ffe088",
+              color: "#ffdde5",
               textTransform: "uppercase",
               margin: 0,
             }}
@@ -289,8 +291,8 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(7,1fr)",
-            background: "#efe0cd",
-            borderBottom: "1px solid rgba(212,175,55,0.3)",
+            background: "#ffe9ee",
+            borderBottom: "1px solid rgba(160,60,90,0.25)",
           }}
         >
           {KAZ_DAYS.map((wd) => (
@@ -303,7 +305,7 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
                 fontSize: 11,
                 fontWeight: 600,
                 letterSpacing: "0.03em",
-                color: "#735c00",
+                color: "#78324a",
               }}
             >
               {wd}
@@ -332,8 +334,8 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
                   alignItems: "center",
                   justifyContent: "center",
                   borderRight:
-                    dow !== 6 ? "1px solid rgba(212,175,55,0.15)" : "none",
-                  borderTop: "1px solid rgba(212,175,55,0.15)",
+                    dow !== 6 ? "1px solid rgba(160,60,90,0.13)" : "none",
+                  borderTop: "1px solid rgba(160,60,90,0.13)",
                 }}
               >
                 {cell && (
@@ -349,14 +351,14 @@ function AnimatedCalendar({ dateStr }: { dateStr?: string | null }) {
                       alignItems: "center",
                       justifyContent: "center",
                       borderRadius: "50%",
-                      background: isTarget ? "#d4af37" : "transparent",
+                      background: isTarget ? "#b8496b" : "transparent",
                       color: isTarget
                         ? "#ffffff"
                         : isWeekend
-                          ? "rgba(115,92,0,0.55)"
-                          : "rgba(77,70,53,0.85)",
+                          ? "rgba(120,45,68,0.5)"
+                          : "rgba(90,50,60,0.85)",
                       boxShadow: isTarget
-                        ? "0 2px 8px rgba(212,175,55,0.4)"
+                        ? "0 2px 8px rgba(160,60,90,0.35)"
                         : "none",
                     }}
                   >
@@ -448,14 +450,14 @@ function GallerySwiper({ urls }: { urls: string[] }) {
               borderRadius: 12,
               border:
                 active === i
-                  ? "1.5px solid rgba(212,175,55,0.75)"
-                  : "1px solid rgba(255,224,136,0.35)",
+                  ? "1.5px solid rgba(160,60,90,0.65)"
+                  : "1px solid rgba(255,201,214,0.35)",
               transition:
                 "transform 0.35s ease,box-shadow 0.35s ease,border-color 0.35s ease",
               transform: active === i ? "scale(1)" : "scale(0.92)",
               boxShadow:
                 active === i
-                  ? "0 10px 40px rgba(212,175,55,0.18),0 2px 8px rgba(212,175,55,0.12)"
+                  ? "0 10px 40px rgba(160,60,90,0.15),0 2px 8px rgba(160,60,90,0.1)"
                   : "0 2px 12px rgba(0,0,0,0.06)",
             }}
           >
@@ -487,7 +489,7 @@ function GallerySwiper({ urls }: { urls: string[] }) {
               style={{
                 width: active === i ? 22 : 7,
                 height: 7,
-                background: "rgba(255,224,136,0.55)",
+                background: "rgba(255,201,214,0.55)",
                 opacity: active === i ? 1 : 0.4,
               }}
             >
@@ -495,7 +497,7 @@ function GallerySwiper({ urls }: { urls: string[] }) {
                 <span
                   className="absolute inset-0 rounded-full"
                   style={{
-                    background: "#d4af37",
+                    background: "#b8496b",
                     animation: "t4-progress 5s linear forwards",
                   }}
                 />
@@ -516,7 +518,7 @@ function GoldDivider({ className = "" }: { className?: string }) {
         className="h-px flex-1"
         style={{
           background:
-            "linear-gradient(to right,transparent,rgba(212,175,55,0.55))",
+            "linear-gradient(to right,transparent,rgba(160,60,90,0.5))",
         }}
       />
       <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -524,16 +526,16 @@ function GoldDivider({ className = "" }: { className?: string }) {
           style={{
             width: 4,
             height: 4,
-            background: "rgba(212,175,55,0.5)",
+            background: "rgba(160,60,90,0.45)",
             transform: "rotate(45deg)",
           }}
         />
-        <IconDiamond size={8} color="rgba(212,175,55,0.75)" />
+        <IconDiamond size={8} color="rgba(160,60,90,0.7)" />
         <div
           style={{
             width: 4,
             height: 4,
-            background: "rgba(212,175,55,0.5)",
+            background: "rgba(160,60,90,0.45)",
             transform: "rotate(45deg)",
           }}
         />
@@ -542,9 +544,111 @@ function GoldDivider({ className = "" }: { className?: string }) {
         className="h-px flex-1"
         style={{
           background:
-            "linear-gradient(to left,transparent,rgba(212,175,55,0.55))",
+            "linear-gradient(to left,transparent,rgba(160,60,90,0.5))",
         }}
       />
+    </div>
+  );
+}
+
+// ─── FlowerDivider (decorative vine + blossom, used between sections) ───
+function FlowerDivider({ className = "" }: { className?: string }) {
+  return (
+    <div
+      className={`flex items-center justify-center ${className}`}
+      style={{ padding: "6px 0" }}
+    >
+      <svg
+        width="230"
+        height="36"
+        viewBox="0 0 230 36"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ maxWidth: "80%" }}
+      >
+        <path
+          d="M2 18 C40 4, 75 32, 112 18"
+          stroke="#d98ba3"
+          strokeWidth="1.2"
+          fill="none"
+          opacity="0.5"
+        />
+        <path
+          d="M228 18 C190 4, 155 32, 118 18"
+          stroke="#d98ba3"
+          strokeWidth="1.2"
+          fill="none"
+          opacity="0.5"
+        />
+        <path
+          d="M24 13 C27 9,32 9,33 13 C32 17,27 17,24 13Z"
+          fill="#f0c1cf"
+          opacity="0.72"
+        />
+        <path
+          d="M60 22 C63 18,68 18,69 22 C68 26,63 26,60 22Z"
+          fill="#f0c1cf"
+          opacity="0.58"
+        />
+        <path
+          d="M196 13 C199 9,204 9,205 13 C204 17,199 17,196 13Z"
+          fill="#f0c1cf"
+          opacity="0.72"
+        />
+        <path
+          d="M160 22 C163 18,168 18,169 22 C168 26,163 26,160 22Z"
+          fill="#f0c1cf"
+          opacity="0.58"
+        />
+        <g transform="translate(115,18)">
+          <ellipse
+            cx="0"
+            cy="-7.5"
+            rx="4.6"
+            ry="6.8"
+            fill="#c05a7c"
+            opacity="0.88"
+          />
+          <ellipse
+            cx="6.8"
+            cy="-3"
+            rx="4.6"
+            ry="6.8"
+            fill="#c05a7c"
+            opacity="0.82"
+            transform="rotate(72 6.8 -3)"
+          />
+          <ellipse
+            cx="4.2"
+            cy="6.3"
+            rx="4.6"
+            ry="6.8"
+            fill="#c05a7c"
+            opacity="0.76"
+            transform="rotate(144 4.2 6.3)"
+          />
+          <ellipse
+            cx="-4.2"
+            cy="6.3"
+            rx="4.6"
+            ry="6.8"
+            fill="#c05a7c"
+            opacity="0.76"
+            transform="rotate(216 -4.2 6.3)"
+          />
+          <ellipse
+            cx="-6.8"
+            cy="-3"
+            rx="4.6"
+            ry="6.8"
+            fill="#c05a7c"
+            opacity="0.82"
+            transform="rotate(288 -6.8 -3)"
+          />
+          <circle cx="0" cy="0" r="3.4" fill="#fff6f8" />
+          <circle cx="0" cy="0" r="1.4" fill="#b8496b" />
+        </g>
+      </svg>
     </div>
   );
 }
@@ -568,7 +672,7 @@ function FloralDots() {
             width: i === 2 ? 5 : 3,
             height: i === 2 ? 5 : 3,
             borderRadius: "50%",
-            background: `rgba(212,175,55,${op})`,
+            background: `rgba(160,60,90,${op})`,
           }}
         />
       ))}
@@ -588,7 +692,7 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
         style={{
           width: 30,
           background:
-            "linear-gradient(to right,transparent,rgba(212,175,55,0.45))",
+            "linear-gradient(to right,transparent,rgba(160,60,90,0.4))",
         }}
       />
       <p
@@ -596,7 +700,7 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
           fontSize: 12,
           letterSpacing: "0.42em",
           fontFamily: "'Playfair Display',serif",
-          color: "rgba(115,92,0,0.9)",
+          color: "rgba(120,45,68,0.9)",
           textTransform: "uppercase",
           fontWeight: 400,
           margin: 0,
@@ -609,14 +713,14 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
         style={{
           width: 30,
           background:
-            "linear-gradient(to left,transparent,rgba(212,175,55,0.45))",
+            "linear-gradient(to left,transparent,rgba(160,60,90,0.4))",
         }}
       />
     </div>
   );
 }
 
-// ─── OrganizerBlock (from Template2, gold-themed) ───
+// ─── OrganizerBlock (from Template2, rose-themed) ───
 function OrganizerBlock({
   organizer,
   maleParents,
@@ -636,8 +740,6 @@ function OrganizerBlock({
         .t4-org-line  { animation:t4-org-line   0.6s cubic-bezier(0.22,1,0.36,1) both; }
       `}</style>
 
-      <GoldDivider className="mb-6" />
-
       <div style={{ textAlign: "center" }}>
         {/* Header */}
         <div
@@ -654,30 +756,30 @@ function OrganizerBlock({
               height: 1,
               width: 28,
               background:
-                "linear-gradient(to right,transparent,rgba(212,175,55,0.6))",
+                "linear-gradient(to right,transparent,rgba(160,60,90,0.55))",
             }}
           />
-          <IconDiamond size={14} color="rgba(212,175,55,0.7)" />
+          <IconDiamond size={14} color="rgba(160,60,90,0.65)" />
           <p
             style={{
               fontSize: 14,
               letterSpacing: "0.45em",
               fontFamily: "'Playfair Display',serif",
               fontWeight: 500,
-              color: "rgba(115,92,0,0.92)",
+              color: "rgba(120,45,68,0.92)",
               margin: 0,
               textTransform: "uppercase",
             }}
           >
             Той иелері
           </p>
-          <IconDiamond size={14} color="rgba(212,175,55,0.7)" />
+          <IconDiamond size={14} color="rgba(160,60,90,0.65)" />
           <div
             style={{
               height: 1,
               width: 28,
               background:
-                "linear-gradient(to left,transparent,rgba(212,175,55,0.6))",
+                "linear-gradient(to left,transparent,rgba(160,60,90,0.55))",
             }}
           />
         </div>
@@ -690,7 +792,7 @@ function OrganizerBlock({
             fontWeight: 500,
             letterSpacing: "0.2em",
             textTransform: "uppercase",
-            color: "#735c00",
+            color: "#78324a",
             lineHeight: 1.9,
             wordBreak: "break-word",
             margin: 0,
@@ -722,7 +824,7 @@ function OrganizerBlock({
                       fontWeight: 600,
                       letterSpacing: "0.2em",
                       textTransform: "uppercase",
-                      color: "#735c00",
+                      color: "#78324a",
                       lineHeight: 1.9,
                       wordBreak: "break-word",
                       margin: 0,
@@ -747,7 +849,7 @@ function OrganizerBlock({
                         height: 1,
                         width: 24,
                         background:
-                          "linear-gradient(to right,transparent,rgba(212,175,55,0.55))",
+                          "linear-gradient(to right,transparent,rgba(160,60,90,0.5))",
                       }}
                     />
                     <span
@@ -755,7 +857,7 @@ function OrganizerBlock({
                         fontFamily: "'Playfair Display',Georgia,serif",
                         fontSize: 30,
                         fontStyle: "italic",
-                        color: "rgba(212,175,55,0.8)",
+                        color: "rgba(160,60,90,0.75)",
                         lineHeight: 1,
                         fontWeight: 500,
                       }}
@@ -767,7 +869,7 @@ function OrganizerBlock({
                         height: 1,
                         width: 24,
                         background:
-                          "linear-gradient(to left,transparent,rgba(212,175,55,0.55))",
+                          "linear-gradient(to left,transparent,rgba(160,60,90,0.5))",
                       }}
                     />
                   </div>
@@ -779,7 +881,7 @@ function OrganizerBlock({
                       fontWeight: 600,
                       letterSpacing: "0.2em",
                       textTransform: "uppercase",
-                      color: "#735c00",
+                      color: "#78324a",
                       lineHeight: 1.9,
                       wordBreak: "break-word",
                       margin: 0,
@@ -801,7 +903,7 @@ function OrganizerBlock({
                   fontWeight: 600,
                   letterSpacing: "0.2em",
                   textTransform: "uppercase",
-                  color: "#735c00",
+                  color: "#78324a",
                   lineHeight: 1.9,
                   wordBreak: "break-word",
                   margin: 0,
@@ -822,7 +924,7 @@ function OrganizerBlock({
           <div
             style={{
               marginTop: 22,
-              borderTop: "0.5px solid rgba(212,175,55,0.25)",
+              borderTop: "0.5px solid rgba(160,60,90,0.22)",
               paddingTop: 18,
             }}
           >
@@ -840,7 +942,7 @@ function OrganizerBlock({
                   height: 1,
                   width: 22,
                   background:
-                    "linear-gradient(to right,transparent,rgba(212,175,55,0.5))",
+                    "linear-gradient(to right,transparent,rgba(160,60,90,0.45))",
                 }}
               />
               <p
@@ -849,7 +951,7 @@ function OrganizerBlock({
                   letterSpacing: "0.38em",
                   fontFamily: "'Playfair Display',serif",
                   fontWeight: 500,
-                  color: "rgba(115,92,0,0.85)",
+                  color: "rgba(120,45,68,0.85)",
                   margin: 0,
                   textTransform: "uppercase",
                 }}
@@ -861,7 +963,7 @@ function OrganizerBlock({
                   height: 1,
                   width: 22,
                   background:
-                    "linear-gradient(to left,transparent,rgba(212,175,55,0.5))",
+                    "linear-gradient(to left,transparent,rgba(160,60,90,0.45))",
                 }}
               />
             </div>
@@ -887,7 +989,7 @@ function OrganizerBlock({
                       fontSize: 10,
                       letterSpacing: "0.32em",
                       fontFamily: "'Playfair Display',serif",
-                      color: "rgba(212,175,55,0.75)",
+                      color: "rgba(160,60,90,0.7)",
                       textTransform: "uppercase",
                       margin: "0 0 4px",
                       fontWeight: 500,
@@ -902,7 +1004,7 @@ function OrganizerBlock({
                       fontWeight: 600,
                       letterSpacing: "0.15em",
                       textTransform: "uppercase",
-                      color: "#735c00",
+                      color: "#78324a",
                       lineHeight: 1.75,
                       wordBreak: "break-word",
                       margin: 0,
@@ -919,7 +1021,7 @@ function OrganizerBlock({
                       height: 1,
                       width: 20,
                       background:
-                        "linear-gradient(to right,transparent,rgba(212,175,55,0.5))",
+                        "linear-gradient(to right,transparent,rgba(160,60,90,0.45))",
                     }}
                   />
                   <span
@@ -927,7 +1029,7 @@ function OrganizerBlock({
                       fontFamily: "'Playfair Display',Georgia,serif",
                       fontSize: 22,
                       fontStyle: "italic",
-                      color: "rgba(212,175,55,0.75)",
+                      color: "rgba(160,60,90,0.7)",
                       lineHeight: 1,
                       fontWeight: 500,
                     }}
@@ -939,7 +1041,7 @@ function OrganizerBlock({
                       height: 1,
                       width: 20,
                       background:
-                        "linear-gradient(to left,transparent,rgba(212,175,55,0.5))",
+                        "linear-gradient(to left,transparent,rgba(160,60,90,0.45))",
                     }}
                   />
                 </div>
@@ -958,7 +1060,7 @@ function OrganizerBlock({
                       fontSize: 10,
                       letterSpacing: "0.32em",
                       fontFamily: "'Playfair Display',serif",
-                      color: "rgba(212,175,55,0.75)",
+                      color: "rgba(160,60,90,0.7)",
                       textTransform: "uppercase",
                       margin: "0 0 4px",
                       fontWeight: 500,
@@ -973,7 +1075,7 @@ function OrganizerBlock({
                       fontWeight: 600,
                       letterSpacing: "0.15em",
                       textTransform: "uppercase",
-                      color: "#735c00",
+                      color: "#78324a",
                       lineHeight: 1.75,
                       wordBreak: "break-word",
                       margin: 0,
@@ -991,7 +1093,7 @@ function OrganizerBlock({
   );
 }
 
-// ─── InvitationHero (Template2 style, gold-themed) ───
+// ─── InvitationHero (Template2 style, rose-themed) ───
 function InvitationHero({
   maleName,
   femaleName,
@@ -1012,14 +1114,14 @@ function InvitationHero({
         .t4-from-right { animation:t4-slide-right 0.8s cubic-bezier(0.22,1,0.36,1) both; }
         .t4-fade-up-h  { animation:t4-fade-up-h  0.7s cubic-bezier(0.22,1,0.36,1) both; }
         .t4-name-pop   { animation:t4-name-pop   0.9s cubic-bezier(0.34,1.4,0.64,1) both; }
-        @keyframes t4-shimmer-gold {
+        @keyframes t4-shimmer-rose {
           0%{background-position:-200% center} 100%{background-position:200% center}
         }
         .t4-shimmer-name {
-          background:linear-gradient(90deg,#4a3a00 15%,#d4af37 42%,#8a6d00 58%,#4a3a00 85%);
+          background:linear-gradient(90deg,#6e2740 15%,#c05a7c 42%,#8c3a58 58%,#6e2740 85%);
           background-size:200% auto;
           -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-          animation:t4-shimmer-gold 5s linear infinite;
+          animation:t4-shimmer-rose 5s linear infinite;
         }
       `}</style>
 
@@ -1029,7 +1131,7 @@ function InvitationHero({
           fontFamily: "'Playfair Display',Georgia,serif",
           fontSize: 15,
           letterSpacing: "0.2em",
-          color: "rgba(115,92,0,0.95)",
+          color: "rgba(120,45,68,0.95)",
           lineHeight: 2,
           textTransform: "uppercase",
           fontWeight: 700,
@@ -1061,7 +1163,7 @@ function InvitationHero({
           fontFamily: "'Playfair Display',Georgia,serif",
           fontSize: 15,
           letterSpacing: "0.13em",
-          color: "rgba(115,92,0,0.88)",
+          color: "rgba(120,45,68,0.88)",
           lineHeight: 1.95,
           textTransform: "uppercase",
           fontWeight: 700,
@@ -1081,9 +1183,7 @@ function InvitationHero({
           animationDelay: inView ? "0.8s" : "0s",
           animationPlayState: inView ? "running" : "paused",
         }}
-      >
-        <FloralDots />
-      </div>
+      ></div>
     </div>
   );
 }
@@ -1105,7 +1205,7 @@ function DateTimeBlock({
           letterSpacing: "0.38em",
           fontFamily: "'Playfair Display',serif",
           fontWeight: 600,
-          color: "rgba(115,92,0,0.95)",
+          color: "rgba(120,45,68,0.95)",
           margin: "0 0 10px 0",
           textTransform: "uppercase",
         }}
@@ -1131,19 +1231,19 @@ function DateTimeBlock({
               display: "inline-flex",
               alignItems: "center",
               gap: 8,
-              background: "rgba(239,224,205,0.45)",
-              border: "1px solid rgba(212,175,55,0.35)",
+              background: "rgba(255,233,238,0.6)",
+              border: "1px solid rgba(160,60,90,0.3)",
               borderRadius: 10,
               padding: "7px 18px",
             }}
           >
-            <IconClock size={11} color="#d4af37" />
+            <IconClock size={11} color="#b8496b" />
             <p
               style={{
                 fontFamily: "'Playfair Display',serif",
                 fontSize: 22,
                 letterSpacing: "0.32em",
-                color: "#735c00",
+                color: "#78324a",
                 fontWeight: 500,
                 margin: 0,
                 lineHeight: 1,
@@ -1160,7 +1260,7 @@ function DateTimeBlock({
             style={{
               fontFamily: "'Playfair Display',Georgia,serif",
               fontSize: 26,
-              color: "#735c00",
+              color: "#78324a",
               letterSpacing: "0.02em",
               lineHeight: 1.3,
               margin: 0,
@@ -1179,7 +1279,7 @@ function DateTimeBlock({
 // ─── Icon Components ───
 const IconDiamond = ({
   size = 14,
-  color = "#ffe088",
+  color = "#ffdde5",
 }: {
   size?: number;
   color?: string;
@@ -1190,7 +1290,7 @@ const IconDiamond = ({
 );
 const IconClock = ({
   size = 13,
-  color = "#d4af37",
+  color = "#b8496b",
 }: {
   size?: number;
   color?: string;
@@ -1211,7 +1311,7 @@ const IconClock = ({
 
 const IconMapPin = ({
   size = 15,
-  color = "#d4af37",
+  color = "#b8496b",
 }: {
   size?: number;
   color?: string;
@@ -1232,7 +1332,7 @@ const IconMapPin = ({
 
 const IconCheck = ({
   size = 10,
-  color = "#d4af37",
+  color = "#b8496b",
 }: {
   size?: number;
   color?: string;
@@ -1273,9 +1373,6 @@ const IconLock = ({
 );
 
 // ─── PaymentLockOverlay ───
-// Shown as a full-screen block when the wedding's payment status
-// indicates the invitation has not been paid for (payment === "2"),
-// mirroring the behaviour used in Template1.
 function PaymentLockOverlay() {
   return (
     <div
@@ -1341,7 +1438,7 @@ export default function Template4({
       className="min-h-screen relative overflow-x-hidden"
       style={{
         background:
-          "linear-gradient(160deg,#e6fff5 0%,#e6fff5 30%,#c9ffec 60%,#bbfbe6 100%)",
+          "linear-gradient(160deg,#fff6f8 0%,#fff6f8 30%,#ffedf1 60%,#ffe3ea 100%)",
         fontFamily: "'Playfair Display','Georgia',serif",
       }}
     >
@@ -1355,9 +1452,9 @@ export default function Template4({
         @keyframes t4-float-slow { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-14px) scale(1.03)} }
         @keyframes t4-drift      { 0%,100%{transform:translateX(0)} 50%{transform:translateX(8px)} }
         @keyframes t4-shimmer    { 0%{background-position:-200% center} 100%{background-position:200% center} }
-        @keyframes t4-pulse-ring { 0%{box-shadow:0 0 0 0 rgba(255,224,136,0.45)} 70%{box-shadow:0 0 0 10px rgba(255,224,136,0)} 100%{box-shadow:0 0 0 0 rgba(255,224,136,0)} }
+        @keyframes t4-pulse-ring { 0%{box-shadow:0 0 0 0 rgba(255,201,214,0.4)} 70%{box-shadow:0 0 0 10px rgba(255,201,214,0)} 100%{box-shadow:0 0 0 0 rgba(255,201,214,0)} }
         @keyframes t4-spin-slow  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        @keyframes t4-twinkle    { 0%,100%{opacity:0.12;transform:scale(0.8)} 50%{opacity:0.55;transform:scale(1.2)} }
+        @keyframes t4-twinkle    { 0%,100%{opacity:0.1;transform:scale(0.8)} 50%{opacity:0.45;transform:scale(1.2)} }
         @keyframes t4-hero-reveal{ from{clip-path:inset(100% 0 0 0);opacity:0} to{clip-path:inset(0% 0 0 0);opacity:1} }
         @keyframes t4-floatHeart { 0%{transform:translateY(0) rotate(0deg);opacity:0} 50%{transform:translateY(-100px) translateX(20px) rotate(180deg);opacity:.8} 100%{transform:translateY(-220px) translateX(-20px) rotate(360deg);opacity:0} }
 
@@ -1365,7 +1462,7 @@ export default function Template4({
         .t4-float-orb { animation:t4-float-slow 7s ease-in-out infinite; }
         .t4-drift-orb { animation:t4-drift 9s ease-in-out infinite; }
         .t4-shimmer-text {
-          background:linear-gradient(90deg,#4a3a00 30%,#f7e68e 50%,#4a3a00 70%);
+          background:linear-gradient(90deg,#6e2740 30%,#f0c1cf 50%,#6e2740 70%);
           background-size:200% auto;
           -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
           animation:t4-shimmer 4s linear infinite;
@@ -1374,7 +1471,7 @@ export default function Template4({
         .t4-twinkle:nth-child(2) { animation-delay:0.8s; }
         .t4-twinkle:nth-child(3) { animation-delay:1.6s; }
 
-        .t4-label  { font-family:'Plus Jakarta Sans',sans-serif;font-weight:400;letter-spacing:0.38em;text-transform:uppercase;font-size:10px;color:rgba(212,175,55,0.65); }
+        .t4-label  { font-family:'Plus Jakarta Sans',sans-serif;font-weight:400;letter-spacing:0.38em;text-transform:uppercase;font-size:10px;color:rgba(160,60,90,0.6); }
         .t4-body   { font-family:'Plus Jakarta Sans',sans-serif;font-weight:300; }
         .t4-display{ font-family:'Playfair Display',serif;font-weight:300; }
         .t4-heading{ font-family:'Playfair Display',serif; }
@@ -1382,8 +1479,8 @@ export default function Template4({
         .t4-glass {
           background:rgba(255,255,255,0.62);
           backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-          border:1px solid rgba(255,224,136,0.35);border-radius:20px;
-          box-shadow:0 8px 32px rgba(212,175,55,0.08),0 1px 0 rgba(255,255,255,0.9) inset;
+          border:1px solid rgba(255,201,214,0.35);border-radius:20px;
+          box-shadow:0 8px 32px rgba(160,60,90,0.07),0 1px 0 rgba(255,255,255,0.9) inset;
         }
       `}</style>
 
@@ -1392,7 +1489,7 @@ export default function Template4({
         className="h-[2px] w-full"
         style={{
           background:
-            "linear-gradient(to right,#efe0cd,#d4af37,#ffe088,#d4af37,#efe0cd)",
+            "linear-gradient(to right,#ffe9ee,#b8496b,#ffd6e0,#b8496b,#ffe9ee)",
         }}
       />
 
@@ -1401,7 +1498,7 @@ export default function Template4({
         className="t4-float-orb absolute top-24 right-4 w-36 h-36 rounded-full pointer-events-none"
         style={{
           background:
-            "radial-gradient(circle,rgba(255,224,136,0.18) 0%,transparent 70%)",
+            "radial-gradient(circle,rgba(255,201,214,0.15) 0%,transparent 70%)",
           zIndex: 0,
         }}
       />
@@ -1409,7 +1506,7 @@ export default function Template4({
         className="t4-drift-orb absolute top-60 left-2 w-24 h-24 rounded-full pointer-events-none"
         style={{
           background:
-            "radial-gradient(circle,rgba(212,175,55,0.12) 0%,transparent 70%)",
+            "radial-gradient(circle,rgba(160,60,90,0.1) 0%,transparent 70%)",
           zIndex: 0,
         }}
       />
@@ -1430,7 +1527,7 @@ export default function Template4({
           >
             <path
               d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"
-              fill="#ffe088"
+              fill="#ffd6e0"
             />
           </svg>
         ))}
@@ -1443,7 +1540,7 @@ export default function Template4({
             src={wedding.main_photo_url}
             alt="Гол зураг"
             className={`t4-hero-img w-full h-full object-cover transition-all duration-1000 ${heroLoaded ? "scale-100" : "scale-110"}`}
-            style={{ filter: "brightness(0.88) saturate(1.08)" }}
+            style={{ filter: "brightness(0.92) saturate(1.02)" }}
             onLoad={() => setHeroLoaded(true)}
           />
         ) : (
@@ -1451,14 +1548,14 @@ export default function Template4({
             src={"/images/duzka1.jpg"}
             alt="Гол зураг"
             className={`t4-hero-img w-full h-full object-cover transition-all duration-1000 ${heroLoaded ? "scale-100" : "scale-110"}`}
-            style={{ filter: "brightness(0.88) saturate(1.08)" }}
+            style={{ filter: "brightness(0.92) saturate(1.02)" }}
             onLoad={() => setHeroLoaded(true)}
           />
         )}
         <div
           className="absolute inset-0"
           style={{
-            background: "linear-gradient(to top,#e6fff5 0%,transparent 55%)",
+            background: "linear-gradient(to top,#fff6f8 0%,transparent 55%)",
           }}
         />
       </div>
@@ -1470,32 +1567,32 @@ export default function Template4({
           style={{
             background: "rgba(255,255,255,0.75)",
             backdropFilter: "blur(16px)",
-            border: "1px solid rgba(255,224,136,0.45)",
+            border: "1px solid rgba(255,201,214,0.4)",
             boxShadow:
-              "0 4px 20px rgba(212,175,55,0.12),inset 0 1px 0 rgba(255,255,255,0.85)",
+              "0 4px 20px rgba(160,60,90,0.1),inset 0 1px 0 rgba(255,255,255,0.85)",
           }}
         >
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "linear-gradient(105deg,transparent 30%,rgba(255,224,136,0.2) 50%,transparent 70%)",
+                "linear-gradient(105deg,transparent 30%,rgba(255,201,214,0.18) 50%,transparent 70%)",
               backgroundSize: "200% 100%",
               animation: "t4-shimmer 3s linear infinite",
             }}
           />
-          <IconDiamond size={11} color="#d4af37" />
+          <IconDiamond size={11} color="#b8496b" />
           <span
             className="t4-label relative"
             style={{
-              color: "#8a6d00",
+              color: "#8c3a58",
               letterSpacing: "0.42em",
               fontSize: "10px",
             }}
           >
             Қыз ұзату
           </span>
-          <IconDiamond size={11} color="#d4af37" />
+          <IconDiamond size={11} color="#b8496b" />
         </div>
       </FadeIn>
 
@@ -1518,8 +1615,8 @@ export default function Template4({
             style={{
               borderRadius: 16,
               overflow: "hidden",
-              border: "0.5px solid rgba(212,175,55,0.3)",
-              boxShadow: "0 4px 24px rgba(212,175,55,0.1)",
+              border: "0.5px solid rgba(160,60,90,0.28)",
+              boxShadow: "0 4px 24px rgba(160,60,90,0.09)",
             }}
           >
             <img
@@ -1548,9 +1645,14 @@ export default function Template4({
         </FadeIn>
       )}
 
+      {/* Flower vine before description */}
+      <div className="relative z-10">
+        <FlowerDivider />
+      </div>
+
       {/* ─── Description 1 ─── */}
       {wedding.description1 && (
-        <FadeIn delay={100} className="mx-5 mt-8 relative z-10">
+        <FadeIn delay={100} className="mx-5 mt-2 relative z-10">
           <div
             className="t4-glass relative px-7 py-7"
             style={{ borderRadius: "20px" }}
@@ -1558,7 +1660,7 @@ export default function Template4({
             <span
               className="absolute -top-4 left-5 text-5xl leading-none"
               style={{
-                color: "#ffe088",
+                color: "#ffd6e0",
                 fontFamily: "'Playfair Display',serif",
                 fontWeight: 400,
               }}
@@ -1567,14 +1669,14 @@ export default function Template4({
             </span>
             <p
               className="t4-display italic leading-relaxed text-center mt-1"
-              style={{ color: "#6d5a1f", fontSize: "17px" }}
+              style={{ color: "#8c3a55", fontSize: "17px" }}
             >
               {wedding.description1}
             </p>
             <span
               className="absolute -bottom-5 right-5 text-5xl leading-none rotate-180 block"
               style={{
-                color: "#ffe088",
+                color: "#ffd6e0",
                 fontFamily: "'Playfair Display',serif",
                 fontWeight: 400,
               }}
@@ -1596,7 +1698,7 @@ export default function Template4({
       {/* ─── INFO CARD ─── */}
       <div className="mx-5 mt-10 mb-2 relative z-10">
         <FadeIn>
-          <GoldDivider className="mb-6" />
+          <FlowerDivider className="mb-6" />
         </FadeIn>
 
         <FadeIn>
@@ -1622,30 +1724,30 @@ export default function Template4({
                 delay={100}
                 from="left"
                 style={{
-                  borderTop: "0.5px solid rgba(255,224,136,0.3)",
+                  borderTop: "0.5px solid rgba(255,201,214,0.3)",
                   paddingTop: 20,
                 }}
               >
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-2 mb-2.5">
-                    <IconMapPin size={14} color="#d4af37" />
+                    <IconMapPin size={14} color="#b8496b" />
                     <p className="t4-label">Той орны мекенжайы</p>
                   </div>
                   {wedding.venue_name && (
                     <p
                       className="t4-heading italic font-normal text-center"
-                      style={{ color: "#735c00", fontSize: "20px" }}
+                      style={{ color: "#78324a", fontSize: "20px" }}
                     >
                       {wedding.venue_name}
                     </p>
                   )}
                   {wedding.venue_address && (
                     <div className="flex items-center justify-center gap-1.5 mt-2">
-                      <IconMapPin size={12} color="#c9a86b" />
+                      <IconMapPin size={12} color="#c98297" />
                       <p
                         className="t4-body text-center"
                         style={{
-                          color: "#a68a4a",
+                          color: "#b06a83",
                           fontSize: "12px",
                           letterSpacing: "0.04em",
                         }}
@@ -1661,18 +1763,21 @@ export default function Template4({
         </FadeIn>
       </div>
 
+      {/* Flower vine before RSVP */}
+      <div className="relative z-10">
+        <FlowerDivider />
+      </div>
+
       {/* ─── RSVP ─── */}
-      <div className="mx-5 mt-14 relative z-10">
+      <div className="mx-5 mt-6 relative z-10">
         <FadeIn>
-          <GoldDivider className="mb-6" />
           <div className="text-center mb-6">
-            <IconCheck size={22} color="#735c00" />
             <h2
               className="t4-heading"
               style={{
                 fontSize: 22,
                 fontWeight: 600,
-                color: "#735c00",
+                color: "#78324a",
                 marginTop: 8,
                 letterSpacing: "0.02em",
               }}
@@ -1681,7 +1786,7 @@ export default function Template4({
             </h2>
             <p
               className="t4-body"
-              style={{ fontSize: 13, color: "#6d5a1f", marginTop: 6 }}
+              style={{ fontSize: 13, color: "#8c3a55", marginTop: 6 }}
             >
               Өтініш, жауабыңызды алдын ала беріңіз
             </p>
@@ -1691,34 +1796,29 @@ export default function Template4({
           <div className="t4-glass p-6">
             <RSVPSection
               weddingId={wedding.id}
-              accentColor="#735c00"
-              lightColor="#efe0cd"
+              accentColor="#78324a"
+              lightColor="#ffe9ee"
+              lang={defaultLang}
             />
           </div>
         </FadeIn>
       </div>
 
+      {/* Flower vine before wishes */}
+      <div className="relative z-10">
+        <FlowerDivider />
+      </div>
+
       {/* ─── WISHES / COMMENTS ─── */}
-      <div className="mx-5 mt-14 mb-4 relative z-10">
+      <div className="mx-5 mt-6 mb-4 relative z-10">
         <FadeIn>
           <div className="text-center mb-6">
-            <div className="flex justify-center mb-3">
-              <svg
-                width="34"
-                height="34"
-                viewBox="0 0 100 100"
-                fill="#d4af37"
-                style={{ opacity: 0.55 }}
-              >
-                <path d="M50 10 C60 30 90 40 90 50 C90 60 60 70 50 90 C40 70 10 60 10 50 C10 40 40 30 50 10" />
-              </svg>
-            </div>
             <h2
               className="t4-heading"
               style={{
                 fontSize: 22,
                 fontWeight: 600,
-                color: "#735c00",
+                color: "#78324a",
                 letterSpacing: "0.02em",
               }}
             >
@@ -1728,7 +1828,7 @@ export default function Template4({
               className="h-px w-24 mx-auto mt-4"
               style={{
                 background:
-                  "linear-gradient(to right,transparent,rgba(212,175,55,0.4),transparent)",
+                  "linear-gradient(to right,transparent,rgba(160,60,90,0.35),transparent)",
               }}
             />
           </div>
@@ -1737,9 +1837,10 @@ export default function Template4({
           <div className="t4-glass p-6">
             <MessageSection
               weddingId={wedding.id}
-              accentColor="#735c00"
-              lightColor="#efe0cd"
-              borderColor="border-amber-100"
+              accentColor="#78324a"
+              lightColor="#ffe9ee"
+              borderColor="border-rose-100"
+              lang={defaultLang}
             />
           </div>
         </FadeIn>
@@ -1747,6 +1848,7 @@ export default function Template4({
 
       {/* ─── FOOTER ─── */}
       <div className="text-center py-12 mt-4 relative z-10 overflow-hidden">
+        <FlowerDivider className="mb-6" />
         <p
           className="t4-shimmer-text uppercase mt-4"
           style={{
@@ -1764,7 +1866,7 @@ export default function Template4({
               fontSize: 18,
               fontFamily: "'Playfair Display',serif",
               letterSpacing: "0.24em",
-              color: "rgba(212,175,55,0.75)",
+              color: "rgba(160,60,90,0.7)",
             }}
           >
             {date}
@@ -1790,7 +1892,7 @@ export default function Template4({
               pointerEvents: "none",
             }}
           >
-            <g fill="rgba(247,230,142,0.35)">
+            <g fill="rgba(255,201,214,0.35)">
               <circle cx="20" cy="9" r="7" />
               <circle cx="31" cy="17" r="7" />
               <circle cx="27" cy="30" r="7" />
@@ -1798,7 +1900,7 @@ export default function Template4({
               <circle cx="9" cy="17" r="7" />
             </g>
 
-            <circle cx="20" cy="20" r="4" fill="rgba(255,240,180,0.6)" />
+            <circle cx="20" cy="20" r="4" fill="rgba(255,224,232,0.6)" />
           </svg>
         ))}
       </div>
@@ -1808,7 +1910,7 @@ export default function Template4({
         className="h-[2px] w-full"
         style={{
           background:
-            "linear-gradient(to right,#efe0cd,#d4af37,#ffe088,#d4af37,#efe0cd)",
+            "linear-gradient(to right,#ffe9ee,#b8496b,#ffd6e0,#b8496b,#ffe9ee)",
         }}
       />
       <MusicPlayer />
