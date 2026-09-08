@@ -907,7 +907,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
       return <Template7 wedding={w} defaultLang={lang} />;
     if (template === "terracotta")
       return <Template8 wedding={w} defaultLang={lang} />;
-    return <Template1 wedding={w} hideBottomNav defaultLang={lang} />;
+    return <Template1 wedding={w} defaultLang={lang} />;
   };
 
   return (

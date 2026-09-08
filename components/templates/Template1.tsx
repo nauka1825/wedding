@@ -1,180 +1,256 @@
 "use client";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { formatDate, Wedding } from "@/lib/supabase";
+import { Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
-import MusicMan from "../MusicMan";
+import {
+  FaHeart,
+  FaStar,
+  FaMapMarkerAlt,
+  FaCalendarAlt,
+  FaLock,
+  FaBars,
+  FaTimes,
+  FaImages,
+  FaEnvelopeOpenText,
+  FaChevronLeft,
+  FaChevronRight,
+  FaCameraRetro,
+  FaInfoCircle,
+} from "react-icons/fa";
+import { MdOutlineCalendarMonth, MdOutlineSchedule } from "react-icons/md";
+import { BsStars } from "react-icons/bs";
+import Song from "../song";
 import RSVPSection from "../RSVPSection";
 import GoogleMapEmbed from "../GoogleMapEmbed";
-import Template2Music from "../template2Music";
 
+/* ───────────────────────────────────────────────────────────
+   DESIGN TOKENS — Template1-ийн романтик (розово-lavender) палитр
+   ─────────────────────────────────────────────────────────── */
 const C = {
   primary: "#602846",
-  primaryContainer: "#7b3f5e",
   onPrimary: "#ffffff",
+  primaryContainer: "#7b3f5e",
   onPrimaryContainer: "#feb0d4",
+  onPrimaryFixedVariant: "#4a1f37",
+  primaryFixedDim: "#c98aab",
   secondary: "#745664",
+  onSecondary: "#ffffff",
   secondaryContainer: "#fdd5e6",
   onSecondaryContainer: "#785a68",
-  tertiary: "#443a35",
+  secondaryFixed: "#f6dbe8",
+  secondaryFixedDim: "#e3b6cd",
+  background: "#fff8f2",
+  onBackground: "#1e1b18",
   surface: "#fff8f2",
-  surfaceDim: "#dfd9d3",
-  surfaceBright: "#fff8f2",
-  surfaceContainerLowest: "#ffffff",
   surfaceContainerLow: "#f9f2ec",
   surfaceContainer: "#f3ede7",
   surfaceContainerHigh: "#eee7e1",
   surfaceContainerHighest: "#e8e1dc",
-  surfaceVariant: "#e8e1dc",
+  surfaceContainerLowest: "#ffffff",
   onSurface: "#1e1b18",
   onSurfaceVariant: "#514348",
   outline: "#837379",
   outlineVariant: "#d5c2c8",
-  background: "#fff8f2",
+  inverseSurface: "#332e30",
+  inverseOnSurface: "#f8eef3",
+  tertiary: "#443a35",
+  onTertiary: "#ffffff",
+  accent: "#c9a0b0", // Template2-ийн "gold" ornament-ийн орлуулга — розово-алтан өнгө
 };
 
-const HEADLINE = "'Playfair Display', Georgia, serif";
-const BODY = "'Montserrat', sans-serif";
+const HEADLINE_FONT = "'Playfair Display', Georgia, serif";
+const BODY_FONT = "'Montserrat', sans-serif";
 
-const DEFAULTS = {
-  maleName: "Арман",
-  femaleName: "Аружан",
-  isoDate: "2024-06-15T19:00",
-
-  maleParents: "Болат & Сәуле",
-  femaleParents: "Қайрат & Гүлнар",
-  venueName: `"Sky" palace`,
-  venueAddress: "Баян-Өлгий,",
+const F_DISPLAY_LG_MOBILE = {
+  fontFamily: HEADLINE_FONT,
+  fontSize: 40,
+  lineHeight: 1.2,
+  fontWeight: 700,
 };
+const F_HEADLINE_MD = {
+  fontFamily: HEADLINE_FONT,
+  fontSize: 32,
+  lineHeight: 1.3,
+  fontWeight: 400,
+};
+const F_LABEL_CAPS = {
+  fontFamily: BODY_FONT,
+  fontSize: 12,
+  lineHeight: 1.2,
+  letterSpacing: "0.2em",
+  fontWeight: 600,
+  textTransform: "uppercase" as const,
+};
+const F_BODY_LG = {
+  fontFamily: HEADLINE_FONT,
+  fontSize: 20,
+  lineHeight: 1.6,
+  fontStyle: "italic" as const,
+  fontWeight: 400,
+};
+const F_BODY_MD = {
+  fontFamily: BODY_FONT,
+  fontSize: 15,
+  lineHeight: 1.6,
+  fontWeight: 400,
+};
+
+const KAZ_MONTHS = [
+  "Қаңтар",
+  "Ақпан",
+  "Наурыз",
+  "Сәуір",
+  "Мамыр",
+  "Маусым",
+  "Шілде",
+  "Тамыз",
+  "Қыркүйек",
+  "Қазан",
+  "Қараша",
+  "Желтоқсан",
+];
+
+const MON_MONTHS = [
+  "1-р сар",
+  "2-р сар",
+  "3-р сар",
+  "4-р сар",
+  "5-р сар",
+  "6-р сар",
+  "7-р сар",
+  "8-р сар",
+  "9-р сар",
+  "10-р сар",
+  "11-р сар",
+  "12-р сар",
+];
+
+const KAZ_DAYS = [
+  "ЖЕКСЕНБІ",
+  "ДҮЙСЕНБІ",
+  "СЕЙСЕНБІ",
+  "СӘРСЕНБІ",
+  "БЕЙСЕНБІ",
+  "ЖҰМА",
+  "СЕНБІ",
+];
+const MON_DAYS = [
+  "НЯМ",
+  "ДАВАА",
+  "МЯГМАР",
+  "ЛХАГВА",
+  "ПҮРЭВ",
+  "БААСАН",
+  "БЯМБА",
+];
 
 /* ======================================================================
-   BILINGUAL SUPPORT (Kazakh / Mongolian)
+   BILINGUAL SUPPORT (Kazakh / Mongolian) — Template2-той ижил интерфейс
    ====================================================================== */
 export type Lang = "kk" | "mn";
 
-interface TranslationSet {
+interface T1Translations {
   langButtonLabel: string;
+  nav: {
+    hero: string;
+    photos: string;
+    details: string;
+    poem: string;
+    messages: string;
+  };
+  heroEyebrow: string;
   tagline: string;
-  monthsCaps: string[];
-  daysFull: string[];
-  organizerLabel: string;
-  eventDetailsTitle: string;
-  extraInfoTitle: string;
+  heroFallback: (maleName: string, femaleName: string) => string;
+  organizerTitle: string;
+  groomSide: string;
+  brideSide: string;
+  ourStoryLabel: string;
+  weddingMemories: string;
+  dateLabel: string;
+  timeLabel: string;
+  atTime: (time: string) => string;
+  venueLabel: string;
   viewOnMap: string;
-  ourStory: string;
+  extraInfoTitle: string;
   rsvpTitle: string;
   rsvpSubtitle: string;
-  wishesTitle: string;
-  footerPoem: string[];
+  footerPoem: string;
+  builtWithLove: string;
   paymentLocked: string;
-  nav: {
-    love: string;
-    gallery: string;
-    event: string;
-    venue: string;
-    rsvp: string;
-  };
 }
 
-const TRANSLATIONS: Record<Lang, TranslationSet> = {
+const T1_TRANSLATIONS: Record<Lang, T1Translations> = {
   kk: {
     langButtonLabel: "ҚАЗ",
+    nav: {
+      hero: "Ғашықтар",
+      photos: "Фотолар",
+      details: "Мереке",
+      poem: "Хикая",
+      messages: "Тілектер",
+    },
+    heroEyebrow: "Үйлену тойына шақыру",
     tagline: "Бірге болуға серт бердік",
-    monthsCaps: [
-      "ҚАҢТАР",
-      "АҚПАН",
-      "НАУРЫЗ",
-      "СӘУІР",
-      "МАМЫР",
-      "МАУСЫМ",
-      "ШІЛДЕ",
-      "ТАМЫЗ",
-      "ҚЫРКҮЙЕК",
-      "ҚАЗАН",
-      "ҚАРАША",
-      "ЖЕЛТОҚСАН",
-    ],
-    daysFull: [
-      "ЖЕКСЕНБІ",
-      "ДҮЙСЕНБІ",
-      "СЕЙСЕНБІ",
-      "СӘРСЕНБІ",
-      "БЕЙСЕНБІ",
-      "ЖҰМА",
-      "СЕНБІ",
-    ],
-    organizerLabel: "ТОЙ ИЕЛЕРІ:",
-    eventDetailsTitle: "Мерекелік мәліметтер",
-    extraInfoTitle: "ҚОСЫМША АҚПАРАТ",
+    heroFallback: (male, female) =>
+      `Ерекше сезімдер бізді біріктірді. ${male} мен ${female} өздерінің ерекше күнінде сіздерді куә болуға шақырады.`,
+    organizerTitle: "Той иелері",
+    groomSide: "Жігіт жағы",
+    brideSide: "Қыз жағы",
+    ourStoryLabel: "Біздің хикая",
+    weddingMemories: "Той естеліктері",
+    dateLabel: "Күні",
+    timeLabel: "Уақыты",
+    atTime: (time) => `Сағат ${time}-де`,
+    venueLabel: "Мекен-жайы / Venue",
     viewOnMap: "КАРТАДАН КӨРУ",
-    ourStory: "Біздің хикаямыз",
+    extraInfoTitle: "ҚОСЫМША АҚПАРАТ",
     rsvpTitle: "Тойға келетініңізді растаңыз",
     rsvpSubtitle: "Өтініш, жауабыңызды алдын ала беріңіз",
-    wishesTitle: "Тілектер мен лебіздер",
-    footerPoem: [
-      "Біз екеуміз тек екеуміз",
-      "Жүректермен бір екенбіз",
-      "Мен сен үшін сен мен үшін",
-      "Жаралған екенбіз",
-    ],
+    footerPoem:
+      "Біз екеуміз тек екеуміз\nЖүректермен бір екенбіз\nМен сен үшін сен мен үшін\nЖаралған екенбіз",
+    builtWithLove: "СҮЙІСПЕНШІЛІКПЕН ЖАСАЛДЫ.",
     paymentLocked: "Төлем төленбеген",
-    nav: {
-      love: "Love",
-      gallery: "Gallery",
-      event: "Event",
-      venue: "Venue",
-      rsvp: "RSVP",
-    },
   },
   mn: {
     langButtonLabel: "МОН",
+    nav: {
+      hero: "Хайр",
+      photos: "Зурагнууд",
+      details: "Ёслол",
+      poem: "Түүх",
+      messages: "Ерөөлүүд",
+    },
+    heroEyebrow: "Хуримын урилга",
     tagline: "Хамт байхаар амлалт өглөө",
-    monthsCaps: [
-      "НЭГДҮГЭЭР САР",
-      "ХОЁРДУГААР САР",
-      "ГУРАВДУГААР САР",
-      "ДӨРӨВДҮГЭЭР САР",
-      "ТАВДУГААР САР",
-      "ЗУРГАДУГААР САР",
-      "ДОЛДУГААР САР",
-      "НАЙМДУГААР САР",
-      "ЕСДҮГЭЭР САР",
-      "АРАВДУГААР САР",
-      "АРВАН НЭГДҮГЭЭР САР",
-      "АРВАН ХОЁРДУГААР САР",
-    ],
-    daysFull: ["НЯМ", "ДАВАА", "МЯГМАР", "ЛХАГВА", "ПҮРЭВ", "БААСАН", "БЯМБА"],
-    organizerLabel: "ХУРИМЫН ЭЗЭД:",
-    eventDetailsTitle: "Хурмын мэдээлэл",
-    extraInfoTitle: "НЭМЭЛТ МЭДЭЭЛЭЛ",
+    heroFallback: (male, female) =>
+      `Онцгой мэдрэмж биднийг холбов. ${male}, ${female} хоёр өөрсдийн онцгой өдөрт та бүхнийг гэрч байхыг урьж байна.`,
+    organizerTitle: "Хуримын эзэд",
+    groomSide: "Хүргэн тал",
+    brideSide: "Бэр тал",
+    ourStoryLabel: "Бидний түүх",
+    weddingMemories: "Хуримын дурсамжууд",
+    dateLabel: "Огноо",
+    timeLabel: "Цаг",
+    atTime: (time) => `${time} цагт`,
+    venueLabel: "Байршил / Venue",
     viewOnMap: "ГАЗРЫН ЗУРГААС ХАРАХ",
-    ourStory: "Бидний түүх",
+    extraInfoTitle: "НЭМЭЛТ МЭДЭЭЛЭЛ",
     rsvpTitle: "Хуримд ирэхээ баталгаажуулна уу",
     rsvpSubtitle: "Хариугаа урьдчилан мэдэгдэнэ үү",
-    wishesTitle: "Ерөөл хүсэлтүүд",
-    footerPoem: [
-      "Чамд дурла гэж заяа минь намайг хөтөлсөн",
-      "Чамайг хайрла гэж хорвоо надад тушаасан",
-      "Хамгаас илүү гэж бурхан надад шивнэсэн",
-      "Хайрлаж явья гэж харин би өөрөө шийдсэн",
-    ],
+    footerPoem:
+      "Чамд дурла гэж заяа минь намайг хөтөлсөн\nЧамайг хайрла гэж хорвоо надад тушаасан\nХамгаас илүү гэж бурхан надад шивнэсэн\nХайрлаж явья гэж харин би өөрөө шийдсэн",
+    builtWithLove: "ХАЙРААР БҮТЭЭВ.",
     paymentLocked: "Төлбөр төлөгдөөгүй",
-    nav: {
-      love: "Хайр",
-      gallery: "Цомог",
-      event: "Ёслол",
-      venue: "Байршил",
-      rsvp: "RSVP",
-    },
   },
 };
 
 const LangContext = createContext<{
   lang: Lang;
-  t: TranslationSet;
+  t: T1Translations;
   toggleLang: () => void;
 }>({
   lang: "kk",
-  t: TRANSLATIONS.kk,
+  t: T1_TRANSLATIONS.kk,
   toggleLang: () => {},
 });
 
@@ -209,7 +285,7 @@ function pickLang(raw: string | null | undefined, lang: Lang): string {
   return parts[lang] ?? parts.kk ?? parts.mn ?? raw.trim();
 }
 
-function useInView(threshold = 0.15) {
+function useInView(threshold = 0.12) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -234,123 +310,26 @@ function Reveal({
   children,
   className = "",
   style = {},
-  delay = 0,
 }: {
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
-  delay?: number;
 }) {
-  const { ref, visible } = useInView(0.12);
+  const { ref, visible } = useInView();
   return (
     <div
       ref={ref}
       className={className}
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(30px)",
-        transition: `all 0.8s cubic-bezier(0.22,1,0.36,1) ${delay}s`,
+        transform: visible ? "translateY(0)" : "translateY(20px)",
+        transition: "all 0.8s ease-out",
         ...style,
       }}
     >
       {children}
     </div>
   );
-}
-
-function Icon({
-  name,
-  size = 24,
-  filled = false,
-  className = "",
-  style = {},
-}: {
-  name: string;
-  size?: number;
-  filled?: boolean;
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <span
-      className={`material-symbols-outlined ${className}`}
-      style={{
-        fontSize: size,
-        lineHeight: 1,
-        fontVariationSettings: filled
-          ? "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24"
-          : "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24",
-        ...style,
-      }}
-    >
-      {name}
-    </span>
-  );
-}
-
-function GlassCard({
-  children,
-  className = "",
-  style = {},
-}: {
-  children: React.ReactNode;
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <div
-      className={className}
-      style={{
-        background: "rgba(255,248,242,0.6)",
-        backdropFilter: "blur(24px)",
-        WebkitBackdropFilter: "blur(24px)",
-        border: "1px solid rgba(196,160,176,0.2)",
-        borderRadius: 12,
-        ...style,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function IconDivider({ className = "" }: { className?: string }) {
-  return (
-    <div className={`flex items-center justify-center gap-3 ${className}`}>
-      <div
-        className="h-px flex-1 max-w-[60px]"
-        style={{
-          background: `linear-gradient(to right, transparent, ${C.primary}66)`,
-        }}
-      />
-      <Icon
-        name="favorite"
-        filled
-        size={18}
-        style={{ color: C.primary, opacity: 0.6 }}
-      />
-      <div
-        className="h-px flex-1 max-w-[60px]"
-        style={{
-          background: `linear-gradient(to left, transparent, ${C.primary}66)`,
-        }}
-      />
-    </div>
-  );
-}
-
-function SectionEyebrow({ label }: { label: string }) {
-  return <IconDivider className="mb-8" />;
-}
-
-function formatKazDate(iso: string, t: TranslationSet) {
-  const d = new Date(iso);
-  return `${t.monthsCaps[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-}
-
-function formatTime(iso: string) {
-  const d = new Date(iso);
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
 function decodeHtmlEntities(str: string | null | undefined): string {
@@ -395,9 +374,92 @@ function MultilineText({
   );
 }
 
+function OrnamentDivider() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 16,
+        color: C.secondary,
+      }}
+    >
+      <span
+        style={{
+          height: 1,
+          width: 40,
+          background: `linear-gradient(90deg, transparent, ${C.accent}, transparent)`,
+        }}
+      />
+      <FaHeart size={16} style={{ color: C.accent }} />
+      <span
+        style={{
+          height: 1,
+          width: 40,
+          background: `linear-gradient(90deg, transparent, ${C.accent}, transparent)`,
+        }}
+      />
+    </div>
+  );
+}
+
+function GlassCard({
+  children,
+  className = "",
+  style = {},
+}: {
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <div
+      className={className}
+      style={{
+        background: "rgba(255, 248, 242, 0.85)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        border: `0.5px solid ${C.accent}4d`,
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ─── ShimmerGold text — romantic rose-gold shimmer, same anim as T2 ─── */
+function ShimmerRose({
+  children,
+  style = {},
+}: {
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <>
+      <style>{`
+        @keyframes shimmer-anim-t1 { to { background-position: 200% center; } }
+        .shimmer-rose-text {
+          background: linear-gradient(90deg, ${C.accent} 0%, #fff0f5 50%, ${C.accent} 100%);
+          background-size: 200% auto;
+          color: transparent;
+          -webkit-background-clip: text;
+          background-clip: text;
+          animation: shimmer-anim-t1 3s linear infinite;
+        }
+      `}</style>
+      <span className="shimmer-rose-text" style={style}>
+        {children}
+      </span>
+    </>
+  );
+}
+
 /* ------------------------------------------------------------------------
-   RisingHearts — faint hearts drifting from the bottom of the hero to the
-   top, very low opacity, replaces the old falling-petal emoji animation.
+   RisingHearts — faint hearts drifting upward, romantic hero overlay
+   (decorative layer only, does not change layout/structure)
    ------------------------------------------------------------------------ */
 function RisingHearts() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -447,14 +509,13 @@ function RisingHearts() {
       phase: number;
       pulseSpeed: number;
     }[] = [];
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 18; i++) {
       hearts.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         size: Math.random() * 7 + 4,
         speed: Math.random() * 0.25 + 0.08,
-        // Very faint — barely visible, just a soft hint of motion.
-        baseOpacity: Math.random() * 0.07 + 0.03,
+        baseOpacity: Math.random() * 0.09 + 0.04,
         drift: (Math.random() - 0.5) * 0.25,
         phase: Math.random() * Math.PI * 2,
         pulseSpeed: Math.random() * 0.015 + 0.01,
@@ -469,17 +530,14 @@ function RisingHearts() {
       for (const h of hearts) {
         const pulse = 0.6 + 0.4 * Math.sin(t * h.pulseSpeed + h.phase);
         const opacity = h.baseOpacity * pulse;
-
         ctx.save();
         ctx.translate(h.x, h.y);
         ctx.fillStyle = `rgba(255,255,255,${opacity})`;
         heartPath(h.size);
         ctx.fill();
         ctx.restore();
-
         h.y -= h.speed;
         h.x += h.drift;
-
         if (h.y < -20) {
           h.y = canvas.height + 20;
           h.x = Math.random() * canvas.width;
@@ -499,7 +557,8 @@ function RisingHearts() {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none z-10"
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{ zIndex: 1 }}
     />
   );
 }
@@ -516,7 +575,7 @@ function AnalogClock({ time }: { time: string }) {
   const hourDeg = ((h % 12) / 12) * 360 + (m / 60) * 30;
   const minDeg = (m / 60) * 360;
   return (
-    <svg viewBox="0 0 120 120" width="112" height="112">
+    <svg viewBox="0 0 120 120" width="88" height="88">
       <circle
         cx="60"
         cy="60"
@@ -583,150 +642,6 @@ function AnalogClock({ time }: { time: string }) {
   );
 }
 
-function Hero({
-  mainPhoto,
-  maleName,
-  femaleName,
-  dateLabel,
-}: {
-  mainPhoto: string | null;
-  maleName: string;
-  femaleName: string;
-  dateLabel: string;
-}) {
-  const { t } = useLang();
-  return (
-    <header
-      id="love"
-      className="relative h-screen w-full flex items-center justify-center overflow-hidden"
-    >
-      <div className="absolute inset-0 z-0">
-        {mainPhoto ? (
-          <div
-            className="w-full h-full bg-cover bg-center scale-105"
-            style={{ backgroundImage: `url('${mainPhoto}')` }}
-          />
-        ) : (
-          <div
-            className="w-full h-full flex items-center justify-center"
-            style={{
-              background: `linear-gradient(135deg, ${C.secondaryContainer} 0%, ${C.surface} 55%, ${C.primaryContainer}22 100%)`,
-            }}
-          >
-            <Icon
-              name=""
-              size={72}
-              filled
-              style={{ color: C.primaryContainer, opacity: 0.25 }}
-            />
-          </div>
-        )}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(to bottom, ${C.primary}33 0%, transparent 45%, ${C.background} 100%)`,
-          }}
-        />
-      </div>
-
-      <RisingHearts />
-
-      <div
-        className="absolute left-0 right-0 z-20 text-center px-6"
-        style={{ bottom: 20 }}
-      >
-        <h1
-          className="leading-tight"
-          style={{
-            fontFamily: HEADLINE,
-            fontWeight: 700,
-            fontSize: "clamp(2.4rem, 10vw, 3.4rem)",
-            background: `linear-gradient(90deg, ${C.primary} 0%, #C4A0B0 50%, ${C.primary} 100%)`,
-            backgroundSize: "200% auto",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-            animation: "shimmer-t1 4s linear infinite",
-          }}
-        >
-          {maleName}
-        </h1>
-        <Icon
-          name="favorite"
-          filled
-          size={26}
-          style={{ color: C.primary, margin: "4px 0" }}
-        />
-        <h1
-          className="leading-tight mb-2"
-          style={{
-            fontFamily: HEADLINE,
-            fontWeight: 700,
-            fontSize: "clamp(2.4rem, 10vw, 3.4rem)",
-            background: `linear-gradient(90deg, ${C.primary} 0%, #C4A0B0 50%, ${C.primary} 100%)`,
-            backgroundSize: "200% auto",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-            animation: "shimmer-t1 4s linear infinite",
-          }}
-        >
-          {femaleName}
-        </h1>
-        <p
-          className="italic mb-8"
-          style={{ fontFamily: HEADLINE, fontSize: 20, color: C.primary }}
-        >
-          {t.tagline}
-        </p>
-        <div className="mt-8">
-          <span
-            style={{
-              fontFamily: BODY,
-              fontSize: 12,
-              letterSpacing: "0.3em",
-              fontWeight: 600,
-              color: C.secondary,
-            }}
-          >
-            {dateLabel}
-          </span>
-        </div>
-      </div>
-      <style>{`
-        @keyframes shimmer-t1 { to { background-position: 200% center; } }
-      `}</style>
-    </header>
-  );
-}
-
-function InvitationText({ body }: { body: string | null }) {
-  if (!body) return null;
-
-  return (
-    <section
-      className="py-16 px-6 text-center relative"
-      style={{ background: C.surfaceContainerLow }}
-    >
-      <Reveal className="max-w-lg mx-auto">
-        <div className="mb-10">
-          <MultilineText
-            text={body}
-            style={{
-              fontFamily: HEADLINE,
-              fontSize: 14,
-              color: C.onSurfaceVariant,
-              lineHeight: 1.7,
-              whiteSpace: "pre-wrap",
-            }}
-          />
-        </div>
-        <SectionEyebrow label="" />
-      </Reveal>
-    </section>
-  );
-}
-
 function CalendarDayCard({
   monthCaps,
   day,
@@ -737,15 +652,7 @@ function CalendarDayCard({
   dayCaps: string;
 }) {
   return (
-    <GlassCard
-      style={{
-        padding: 0,
-        height: "100%",
-        overflow: "hidden",
-        position: "relative",
-      }}
-    >
-      {/* spiral-binding holes, like a hanging tear-off calendar page */}
+    <div style={{ borderRadius: 16, overflow: "hidden", position: "relative" }}>
       <div
         className="flex justify-center gap-3"
         style={{ paddingTop: 8, background: C.primary }}
@@ -763,23 +670,18 @@ function CalendarDayCard({
           />
         ))}
       </div>
-      {/* month banner */}
       <div style={{ background: C.primary, paddingBottom: 10 }}>
         <p
           style={{
-            fontFamily: BODY,
-            fontSize: 12,
-            letterSpacing: "0.15em",
-            fontWeight: 700,
-            color: C.onPrimary,
+            ...F_LABEL_CAPS,
             textAlign: "center",
+            color: C.onPrimary,
             margin: 0,
           }}
         >
           {monthCaps}
         </p>
       </div>
-      {/* torn edge under the banner */}
       <div
         style={{
           height: 6,
@@ -788,13 +690,13 @@ function CalendarDayCard({
       />
       <div
         className="flex flex-col items-center justify-center"
-        style={{ padding: "18px 12px 20px" }}
+        style={{ padding: "16px 12px 18px" }}
       >
         <p
           style={{
-            fontFamily: HEADLINE,
+            fontFamily: HEADLINE_FONT,
             fontWeight: 700,
-            fontSize: 44,
+            fontSize: 40,
             lineHeight: 1,
             color: C.primary,
             margin: 0,
@@ -804,10 +706,8 @@ function CalendarDayCard({
         </p>
         <p
           style={{
-            fontFamily: BODY,
-            fontSize: 12,
-            letterSpacing: "0.15em",
-            fontWeight: 600,
+            ...F_LABEL_CAPS,
+            fontSize: 11,
             color: C.secondary,
             marginTop: 8,
           }}
@@ -815,127 +715,635 @@ function CalendarDayCard({
           {dayCaps}
         </p>
       </div>
-    </GlassCard>
+    </div>
   );
 }
 
-function ParentsAndEventBento({
-  organizerText,
-  isoDate,
+function HeaderBar({
+  maleName,
+  femaleName,
+  extra5,
+  onMenuClick,
+  navOpen,
 }: {
-  organizerText: string;
-  isoDate: string | null;
+  maleName: string;
+  femaleName: string;
+  extra5?: string | null;
+  onMenuClick: () => void;
+  navOpen: boolean;
 }) {
-  const { t } = useLang();
-  const d = isoDate ? new Date(isoDate) : new Date(DEFAULTS.isoDate);
-  const time = isoDate ? formatTime(isoDate) : formatTime(DEFAULTS.isoDate);
-  const monthCaps = t.monthsCaps[d.getMonth()];
-  const dayCaps = t.daysFull[d.getDay()];
-
-  const organizerLine = decodeHtmlEntities(organizerText)
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .join("  ·  ");
-
   return (
-    <section
-      id="event"
-      className="py-16 px-6 relative"
+    <header
       style={{
-        backgroundImage: `url('images/gul.gif')`,
-        backgroundPosition: "left",
-        backgroundRepeat: "no-repeat",
-        backgroundSize: "cover",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        zIndex: 110,
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "0 16px",
+        height: 64,
+        background: "rgba(255,248,242,0.8)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        borderBottom: `1px solid ${C.outlineVariant}4d`,
       }}
     >
-      <div className="max-w-lg mx-auto space-y-10">
-        {/* Parents / organizer block — no card, floral corners, ring wreath */}
-        <Reveal>
-          <div className="relative overflow-hidden py-10 px-4">
-            <div className="relative z-10 flex flex-col items-center text-center">
-              <h3
-                className="mb-1"
-                style={{
-                  fontFamily: BODY,
-                  fontSize: 12,
-                  letterSpacing: "0.25em",
-                  fontWeight: 700,
-                  color: C.secondary,
-                  textTransform: "uppercase",
-                }}
-              >
-                {t.organizerLabel}
-              </h3>
-
-              <p
-                className="mb-2"
-                style={{
-                  fontFamily: HEADLINE,
-                  fontStyle: "italic",
-                  fontWeight: 600,
-                  fontSize: 22,
-                  color: C.primary,
-                }}
-              >
-                {organizerLine}
-              </p>
-            </div>
-          </div>
-        </Reveal>
-
-        {/* Calendar + clock */}
-        <div className="grid grid-cols-2 gap-6">
-          <Reveal delay={0.05}>
-            <CalendarDayCard
-              monthCaps={monthCaps}
-              day={d.getDate()}
-              dayCaps={dayCaps}
-            />
-          </Reveal>
-          <Reveal delay={0.1}>
-            <GlassCard
-              className="flex flex-col items-center justify-center"
-              style={{ padding: 24, height: "100%" }}
-            >
-              <AnalogClock time={time} />
-              <p
-                style={{
-                  fontFamily: BODY,
-                  fontSize: 12,
-                  letterSpacing: "0.15em",
-                  fontWeight: 600,
-                  color: C.secondary,
-                  marginTop: 8,
-                }}
-              >
-                {time}
-              </p>
-            </GlassCard>
-          </Reveal>
-        </div>
+      <button
+        aria-label="menu"
+        onClick={onMenuClick}
+        style={{
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          color: C.primary,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 6,
+        }}
+      >
+        {navOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+      </button>
+      <h1
+        style={{
+          ...F_HEADLINE_MD,
+          fontSize: 22,
+          fontStyle: "italic",
+          color: C.primary,
+          margin: 0,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          maxWidth: "60%",
+        }}
+      >
+        {maleName} &amp; {femaleName}
+      </h1>
+      <div
+        style={{
+          color: C.primary,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 32,
+          height: 32,
+        }}
+      >
+        <Song extra5={extra5} />
       </div>
-      <style>{`
-        @keyframes wreath-spin-t1 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      `}</style>
+    </header>
+  );
+}
+
+function NavDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useLang();
+
+  const navItems = [
+    { id: "section-hero", icon: FaHeart, label: t.nav.hero },
+    { id: "section-photos", icon: FaImages, label: t.nav.photos },
+    { id: "section-details", icon: FaCalendarAlt, label: t.nav.details },
+    { id: "section-poem", icon: FaCameraRetro, label: t.nav.poem },
+    { id: "section-messages", icon: FaEnvelopeOpenText, label: t.nav.messages },
+  ];
+
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    onClose();
+  };
+
+  return (
+    <>
+      <div
+        onClick={onClose}
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 115,
+          background: "rgba(30,27,24,0.35)",
+          opacity: open ? 1 : 0,
+          pointerEvents: open ? "auto" : "none",
+          transition: "opacity 0.35s ease",
+        }}
+      />
+      <nav
+        style={{
+          position: "fixed",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 120,
+          background: C.background,
+          borderTop: `1px solid ${C.accent}4d`,
+          borderRadius: "24px 24px 0 0",
+          boxShadow: "0 -8px 32px rgba(96,40,70,0.15)",
+          padding: "28px 24px calc(28px + env(safe-area-inset-bottom, 0px))",
+          transform: open ? "translateY(0)" : "translateY(110%)",
+          transition: "transform 0.45s cubic-bezier(0.22,1,0.36,1)",
+        }}
+      >
+        <div
+          style={{
+            width: 40,
+            height: 4,
+            borderRadius: 2,
+            background: C.outlineVariant,
+            margin: "0 auto 20px",
+          }}
+        />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 8,
+            flexWrap: "wrap",
+          }}
+        >
+          {navItems.map(({ id, icon: Icon, label }) => (
+            <button
+              key={id}
+              onClick={() => scrollTo(id)}
+              style={{
+                flex: "1 1 30%",
+                minWidth: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 8,
+                padding: "16px 4px",
+                background: C.surfaceContainerLow,
+                border: `1px solid ${C.accent}33`,
+                borderRadius: 12,
+                cursor: "pointer",
+                color: C.primary,
+              }}
+            >
+              <Icon size={18} style={{ color: C.secondary }} />
+              <span
+                style={{
+                  ...F_LABEL_CAPS,
+                  fontSize: 9.5,
+                  color: C.primary,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </nav>
+    </>
+  );
+}
+
+function HeroSection({
+  mainPhotoUrl,
+  maleName,
+  femaleName,
+  description1,
+}: {
+  mainPhotoUrl?: string | null;
+  maleName: string;
+  femaleName: string;
+  description1?: string | null;
+}) {
+  const { t } = useLang();
+  return (
+    <section id="section-hero">
+      <div className="relative h-[75vh] w-full overflow-hidden flex items-end justify-center pb-12">
+        <div className="absolute inset-0 z-0">
+          {mainPhotoUrl ? (
+            <img
+              src={mainPhotoUrl}
+              alt="Негізгі сурет"
+              className="w-full h-full object-cover"
+              style={{
+                filter: "brightness(0.85)",
+                display: "block",
+                border: "none",
+              }}
+            />
+          ) : (
+            <div
+              className="w-full h-full"
+              style={{
+                background: `linear-gradient(135deg, ${C.secondaryContainer} 0%, ${C.surface} 55%, ${C.primaryContainer}33 100%)`,
+              }}
+            />
+          )}
+          <RisingHearts />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(to top, ${C.background}, transparent 65%)`,
+              opacity: 0.95,
+              zIndex: 2,
+            }}
+          />
+        </div>
+        <Reveal
+          className="relative text-center"
+          style={{ padding: "0 5vw", zIndex: 3 }}
+        >
+          <p style={{ ...F_LABEL_CAPS, color: C.secondary, marginBottom: 8 }}>
+            {t.heroEyebrow}
+          </p>
+          <h2
+            style={{
+              ...F_DISPLAY_LG_MOBILE,
+              fontStyle: "italic",
+              color: C.primary,
+              margin: "0 0 16px",
+            }}
+          >
+            {maleName} &amp; {femaleName}
+          </h2>
+          <p
+            style={{
+              fontFamily: HEADLINE_FONT,
+              fontStyle: "italic",
+              fontSize: 16,
+              color: C.secondary,
+              marginBottom: 16,
+            }}
+          >
+            {t.tagline}
+          </p>
+          <OrnamentDivider />
+        </Reveal>
+      </div>
+
+      <Reveal
+        className="text-center flex flex-col items-center"
+        style={{ padding: "4rem 5vw", gap: "2rem" }}
+      >
+        <div style={{ maxWidth: 640 }}>
+          <h3
+            style={{
+              fontFamily: HEADLINE_FONT,
+              fontSize: 19,
+              fontStyle: "italic",
+              fontWeight: 400,
+              color: C.primary,
+              marginBottom: 20,
+            }}
+          >
+            {maleName} &amp; {femaleName}
+          </h3>
+          {description1 ? (
+            <MultilineText
+              text={description1}
+              style={{
+                fontFamily: HEADLINE_FONT,
+                fontSize: 15,
+                lineHeight: 1.7,
+                fontStyle: "italic",
+                color: C.onSurfaceVariant,
+                whiteSpace: "pre-wrap",
+              }}
+            />
+          ) : (
+            <p
+              style={{
+                fontFamily: HEADLINE_FONT,
+                fontSize: 15,
+                lineHeight: 1.7,
+                fontStyle: "italic",
+                color: C.onSurfaceVariant,
+              }}
+            >
+              {t.heroFallback(maleName, femaleName)}
+            </p>
+          )}
+        </div>
+        <BsStars size={26} style={{ color: C.accent, marginTop: 8 }} />
+      </Reveal>
     </section>
   );
 }
 
-function VenueSection({
+function OrganizerSection({
+  organizer,
+  maleParents,
+  femaleParents,
+}: {
+  organizer: string;
+  maleParents?: string | null;
+  femaleParents?: string | null;
+}) {
+  const { t } = useLang();
+  const lines = organizer.split("\n").filter(Boolean);
+  return (
+    <Reveal
+      className="text-center"
+      style={{ background: C.surfaceContainerLow, padding: "4rem 5vw" }}
+    >
+      <h4 style={{ ...F_LABEL_CAPS, color: C.secondary, marginBottom: 16 }}>
+        {t.organizerTitle}
+      </h4>
+      <div className="flex flex-col items-center gap-4">
+        <GlassCard
+          className="rounded-full"
+          style={{ padding: "18px 32px", border: `1px solid ${C.secondary}33` }}
+        >
+          {(lines.length ? lines : [organizer]).map((line, i) => (
+            <p
+              key={i}
+              style={{
+                fontFamily: HEADLINE_FONT,
+                fontSize: 19,
+                fontStyle: "italic",
+                fontWeight: 400,
+                color: C.primary,
+                margin: 0,
+              }}
+            >
+              {line}
+            </p>
+          ))}
+        </GlassCard>
+
+        {(maleParents || femaleParents) && (
+          <div className="flex flex-col md:flex-row gap-6 mt-4">
+            {maleParents && (
+              <div>
+                <p
+                  style={{
+                    ...F_LABEL_CAPS,
+                    color: C.secondary,
+                    marginBottom: 4,
+                  }}
+                >
+                  {t.groomSide}
+                </p>
+                <p
+                  style={{
+                    ...F_HEADLINE_MD,
+                    fontStyle: "italic",
+                    color: C.primary,
+                    fontSize: 24,
+                  }}
+                >
+                  {maleParents}
+                </p>
+              </div>
+            )}
+            {femaleParents && (
+              <div>
+                <p
+                  style={{
+                    ...F_LABEL_CAPS,
+                    color: C.secondary,
+                    marginBottom: 4,
+                  }}
+                >
+                  {t.brideSide}
+                </p>
+                <p
+                  style={{
+                    ...F_HEADLINE_MD,
+                    fontStyle: "italic",
+                    color: C.primary,
+                    fontSize: 24,
+                  }}
+                >
+                  {femaleParents}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </Reveal>
+  );
+}
+
+function PhotosSection({
+  galleryUrls,
+}: {
+  galleryUrls: string[] | null | undefined;
+}) {
+  const { t } = useLang();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollBy = (dir: 1 | -1) => {
+    scrollRef.current?.scrollBy({ left: dir * 300, behavior: "smooth" });
+  };
+  const urls = galleryUrls?.length ? galleryUrls : [];
+  if (!urls.length) return <section id="section-photos" />;
+
+  return (
+    <section id="section-photos">
+      <Reveal
+        style={{ background: C.surfaceContainerLowest, padding: "4rem 0" }}
+      >
+        <div
+          className="flex justify-between items-end"
+          style={{ padding: "0 5vw", marginBottom: 32 }}
+        >
+          <div>
+            <h4
+              style={{
+                ...F_LABEL_CAPS,
+                fontSize: 11,
+                color: C.secondary,
+                marginBottom: 4,
+              }}
+            >
+              {t.ourStoryLabel}
+            </h4>
+            <h3
+              style={{
+                fontFamily: HEADLINE_FONT,
+                fontSize: 20,
+                fontStyle: "italic",
+                fontWeight: 400,
+                color: C.primary,
+                margin: 0,
+              }}
+            >
+              {t.weddingMemories}
+            </h3>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => scrollBy(-1)}
+              style={{
+                width: 32,
+                height: 32,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: `1px solid ${C.outlineVariant}`,
+                color: C.primary,
+                borderRadius: 999,
+                background: "none",
+                cursor: "pointer",
+              }}
+            >
+              <FaChevronLeft size={13} />
+            </button>
+            <button
+              onClick={() => scrollBy(1)}
+              style={{
+                width: 32,
+                height: 32,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: `1px solid ${C.outlineVariant}`,
+                color: C.primary,
+                borderRadius: 999,
+                background: "none",
+                cursor: "pointer",
+              }}
+            >
+              <FaChevronRight size={13} />
+            </button>
+          </div>
+        </div>
+        <div
+          ref={scrollRef}
+          className="flex overflow-x-auto snap-x pb-4"
+          style={{ gap: 16, padding: "0 5vw", scrollbarWidth: "none" }}
+        >
+          {urls.map((url, i) => (
+            <div
+              key={i}
+              className="snap-center"
+              style={{
+                width: 280,
+                minWidth: 280,
+                maxWidth: 280,
+                height: 400,
+                flex: "0 0 280px",
+                borderRadius: 16,
+                overflow: "hidden",
+                border: `1px solid ${C.secondary}1a`,
+                boxSizing: "border-box",
+              }}
+            >
+              <img
+                src={url}
+                alt={`сурет ${i + 1}`}
+                style={{
+                  display: "block",
+                  border: "none",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  objectPosition: "center",
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
+function DateTimeCards({
+  date,
+  time,
+}: {
+  date: string | null;
+  time: string | null;
+}) {
+  const { t, lang } = useLang();
+  if (!date && !time) return null;
+
+  const dObj = date ? new Date() : null; // placeholder, overwritten below in DetailsSection call
+  return null; // unused – replaced by DateTimeRomanticCards
+}
+
+function DateTimeRomanticCards({
+  isoDate,
+  lang,
+}: {
+  isoDate: string | null;
+  lang: Lang;
+}) {
+  const { t } = useLang();
+  if (!isoDate) return null;
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return null;
+
+  const months = lang === "mn" ? MON_MONTHS : KAZ_MONTHS;
+  const days = lang === "mn" ? MON_DAYS : KAZ_DAYS;
+  const time = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+
+  return (
+    <div className="grid grid-cols-2 gap-6">
+      <Reveal>
+        <GlassCard
+          className="p-0 text-center flex flex-col items-center overflow-hidden"
+          style={{ border: `1px solid ${C.secondary}4d` }}
+        >
+          <div
+            className="flex items-center gap-2"
+            style={{ padding: "14px 0 0" }}
+          >
+            <MdOutlineCalendarMonth size={16} style={{ color: C.secondary }} />
+            <span style={{ ...F_LABEL_CAPS, fontSize: 10, color: C.secondary }}>
+              {t.dateLabel}
+            </span>
+          </div>
+          <div style={{ padding: 14, width: "100%" }}>
+            <CalendarDayCard
+              monthCaps={months[d.getMonth()]}
+              day={d.getDate()}
+              dayCaps={days[d.getDay()]}
+            />
+          </div>
+        </GlassCard>
+      </Reveal>
+      <Reveal>
+        <GlassCard
+          className="p-4 text-center flex flex-col items-center justify-center h-full"
+          style={{ border: `1px solid ${C.secondary}4d` }}
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <MdOutlineSchedule size={16} style={{ color: C.secondary }} />
+            <span style={{ ...F_LABEL_CAPS, fontSize: 10, color: C.secondary }}>
+              {t.timeLabel}
+            </span>
+          </div>
+          <AnalogClock time={time} />
+          <p
+            style={{
+              fontFamily: HEADLINE_FONT,
+              fontSize: 15,
+              fontWeight: 500,
+              color: C.primary,
+              marginTop: 10,
+            }}
+          >
+            {t.atTime(time)}
+          </p>
+        </GlassCard>
+      </Reveal>
+    </div>
+  );
+}
+
+function VenueCard({
   venueName,
   venueAddress,
   photo,
-  extras,
   latitude,
   longitude,
 }: {
-  venueName: string;
-  venueAddress: string;
+  venueName: string | null;
+  venueAddress: string | null;
   photo: string | null;
-  extras: string[];
-  latitude?: number | null;
-  longitude?: number | null;
+  latitude?: any;
+  longitude?: any;
 }) {
   const { t } = useLang();
   const hasCoords =
@@ -943,236 +1351,212 @@ function VenueSection({
     typeof longitude === "number" &&
     !Number.isNaN(latitude) &&
     !Number.isNaN(longitude);
-
   const mapsHref = hasCoords
     ? `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
     : null;
 
   return (
-    <section
-      id="venue"
-      className="py-16 px-6 relative overflow-hidden"
-      style={{ background: C.surfaceContainerHigh }}
-    >
-      <div className="max-w-lg mx-auto">
-        <Reveal className="text-center mb-8">
-          <Icon
-            name="location_on"
-            size={30}
-            style={{ color: C.primary, marginBottom: 12 }}
-          />
-          <h2
+    <Reveal style={{ marginTop: 32 }}>
+      <GlassCard
+        style={{ overflow: "hidden", border: `1px solid ${C.secondary}4d` }}
+      >
+        <div
+          className="w-full relative"
+          style={{ padding: "20px 20px 0", background: C.surfaceContainerLow }}
+        >
+          <div
+            className="w-full h-56 relative overflow-hidden"
             style={{
-              fontFamily: HEADLINE,
-              fontWeight: 600,
-              fontSize: 26,
-              color: C.primary,
+              borderRadius: 16,
+              border: `1px solid ${C.accent}4d`,
+              boxShadow: `0 10px 30px -12px ${C.primary}40`,
             }}
           >
-            {t.eventDetailsTitle}
-          </h2>
-        </Reveal>
-
-        <Reveal delay={0.05}>
-          <GlassCard style={{ overflow: "hidden", marginBottom: 24 }}>
-            <div className="w-full h-48 bg-cover bg-center relative">
-              {photo ? (
-                <div
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url('${photo}')` }}
+            {photo ? (
+              <img
+                src={photo}
+                alt={venueName || "venue"}
+                className="w-full h-full"
+                style={{
+                  display: "block",
+                  border: "none",
+                  objectFit: "cover",
+                  objectPosition: "top center",
+                }}
+              />
+            ) : (
+              <div
+                className="w-full h-full flex items-center justify-center"
+                style={{
+                  background: `linear-gradient(135deg, ${C.secondaryContainer}55, ${C.surfaceContainer})`,
+                }}
+              >
+                <FaMapMarkerAlt
+                  size={36}
+                  style={{ color: C.primary, opacity: 0.35 }}
                 />
-              ) : (
-                <div
-                  className="absolute inset-0 flex items-center justify-center"
-                  style={{
-                    background: `linear-gradient(135deg, ${C.secondaryContainer}, ${C.surfaceContainer})`,
-                  }}
-                >
-                  <Icon
-                    name="celebration"
-                    size={40}
-                    style={{ color: C.primary, opacity: 0.4 }}
-                  />
-                </div>
-              )}
-            </div>
-            <div style={{ padding: 32 }}>
-              <h3
-                style={{
-                  fontFamily: HEADLINE,
-                  fontWeight: 600,
-                  fontSize: 22,
-                  marginBottom: 8,
-                  color: C.onSurface,
-                }}
-              >
-                {venueName}
-              </h3>
-              <p
-                style={{
-                  fontFamily: BODY,
-                  fontSize: 15,
-                  color: C.onSurfaceVariant,
-                  marginBottom: 20,
-                }}
-              >
-                {venueAddress}
-              </p>
-
-              {hasCoords && (
-                <>
-                  <GoogleMapEmbed
-                    address={venueAddress}
-                    latitude={latitude}
-                    longitude={longitude}
-                    accentColor={C.primary}
-                    height={200}
-                    className="mb-5"
-                  />
-
-                  <a
-                    href={mapsHref!}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full transition-colors"
-                    style={{
-                      background: C.primary,
-                      color: C.onPrimary,
-                      fontFamily: BODY,
-                      fontSize: 12,
-                      letterSpacing: "0.15em",
-                      fontWeight: 600,
-                      boxShadow: `0 10px 25px -5px ${C.primary}33`,
-                    }}
-                  >
-                    <Icon name="directions" size={16} />
-                    {t.viewOnMap}
-                  </a>
-                </>
-              )}
-            </div>
-          </GlassCard>
-        </Reveal>
-
-        {extras.length > 0 && (
-          <Reveal delay={0.1}>
-            <GlassCard style={{ padding: 28 }}>
-              <div className="flex items-center gap-2 mb-4">
-                <Icon name="info" style={{ color: C.primary }} />
-                <h3
-                  style={{
-                    fontFamily: BODY,
-                    fontSize: 12,
-                    letterSpacing: "0.15em",
-                    fontWeight: 600,
-                    color: C.secondary,
-                  }}
-                >
-                  {t.extraInfoTitle}
-                </h3>
               </div>
-              <div className="space-y-3">
-                {extras.map((e, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className="flex-shrink-0 mt-0.5">
-                      <Icon
-                        name="auto_awesome"
-                        size={16}
-                        filled
-                        style={{ color: C.primary }}
-                      />
-                    </div>
-                    <p
-                      style={{
-                        fontFamily: BODY,
-                        fontSize: 14,
-                        color: C.onSurfaceVariant,
-                        lineHeight: 1.7,
-                      }}
-                    >
-                      {e}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </GlassCard>
-          </Reveal>
-        )}
-      </div>
-    </section>
+            )}
+          </div>
+        </div>
+
+        <div style={{ padding: 32 }}>
+          <div className="flex items-center gap-2" style={{ marginBottom: 14 }}>
+            <FaStar size={14} style={{ color: C.accent }} />
+            <h5 style={{ ...F_LABEL_CAPS, color: C.primary, margin: 0 }}>
+              {t.venueLabel}
+            </h5>
+          </div>
+
+          {venueName && (
+            <p
+              style={{
+                fontFamily: HEADLINE_FONT,
+                fontSize: 22,
+                fontStyle: "italic",
+                fontWeight: 500,
+                color: C.primary,
+                margin: "0 0 8px",
+              }}
+            >
+              {venueName}
+            </p>
+          )}
+          {venueAddress && (
+            <p
+              style={{
+                ...F_BODY_MD,
+                fontStyle: "italic",
+                color: C.onSurfaceVariant,
+                marginBottom: 0,
+              }}
+            >
+              {venueAddress}
+            </p>
+          )}
+
+          {hasCoords && (
+            <div style={{ marginTop: 20, marginBottom: 20 }}>
+              <GoogleMapEmbed
+                address={venueAddress || undefined}
+                latitude={latitude}
+                longitude={longitude}
+                accentColor={C.primary}
+                height={200}
+              />
+            </div>
+          )}
+
+          {mapsHref && (
+            <a
+              href={mapsHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2"
+              style={{
+                marginTop: 20,
+                padding: "12px 32px",
+                background: C.primary,
+                color: C.secondaryFixed,
+                border: `1px solid ${C.secondary}`,
+                ...F_LABEL_CAPS,
+                textDecoration: "none",
+                borderRadius: 999,
+                transition: "background-color 0.2s ease",
+                boxShadow: `0 10px 25px -8px ${C.primary}66`,
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = C.onPrimaryFixedVariant)
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = C.primary)
+              }
+            >
+              <FaMapMarkerAlt size={14} />
+              {t.viewOnMap}
+            </a>
+          )}
+        </div>
+      </GlassCard>
+    </Reveal>
   );
 }
 
-function GalleryBento({ images }: { images: string[] }) {
+function ExtraInfoCard({ extras }: { extras: (string | null | undefined)[] }) {
   const { t } = useLang();
-  const last = images.length > 0 ? images[images.length - 1] : null;
-  const rest = images.length > 1 ? images.slice(0, -1) : [];
-  const isEmpty = images.length === 0;
+  const clean = extras.filter(Boolean) as string[];
+  if (clean.length === 0) return null;
 
   return (
-    <section
-      id="gallery"
-      className="py-16 px-6"
-      style={{ background: C.background }}
-    >
-      <div className="max-w-lg mx-auto">
-        <Reveal>
-          <h2
-            className="text-center mb-10"
-            style={{
-              fontFamily: HEADLINE,
-              fontWeight: 600,
-              fontSize: 26,
-              color: C.primary,
-            }}
-          >
-            {t.ourStory}
-          </h2>
-        </Reveal>
-
-        {isEmpty && (
-          <Reveal>
-            <div
-              className="w-full h-64 rounded-xl flex items-center justify-center"
-              style={{
-                background: `linear-gradient(160deg, ${C.secondaryContainer}, ${C.surfaceContainer})`,
-              }}
-            >
-              <Icon
-                name="photo_library"
-                size={34}
-                style={{ color: C.primary, opacity: 0.35 }}
+    <Reveal style={{ marginTop: 24 }}>
+      <GlassCard style={{ padding: 28, border: `1px solid ${C.secondary}4d` }}>
+        <div className="flex items-center gap-2" style={{ marginBottom: 16 }}>
+          <FaInfoCircle size={15} style={{ color: C.accent }} />
+          <h5 style={{ ...F_LABEL_CAPS, color: C.primary, margin: 0 }}>
+            {t.extraInfoTitle}
+          </h5>
+        </div>
+        <div className="flex flex-col gap-3">
+          {clean.map((e, i) => (
+            <div key={i} className="flex items-start gap-3">
+              <FaStar
+                size={13}
+                style={{ color: C.accent, marginTop: 5, flexShrink: 0 }}
               />
+              <p
+                style={{
+                  ...F_BODY_MD,
+                  fontSize: 15,
+                  color: C.onSurfaceVariant,
+                  margin: 0,
+                  lineHeight: 1.7,
+                }}
+              >
+                {e}
+              </p>
             </div>
-          </Reveal>
-        )}
+          ))}
+        </div>
+      </GlassCard>
+    </Reveal>
+  );
+}
 
-        {rest.length > 0 && (
-          <Reveal>
-            <div
-              className="flex gap-3 overflow-x-auto pb-3 mb-3 snap-x snap-mandatory"
-              style={{ scrollbarWidth: "none" }}
-            >
-              {rest.map((src, i) => (
-                <div
-                  key={i}
-                  className="flex-shrink-0 w-56 h-64 rounded-xl bg-cover bg-center snap-start"
-                  style={{ backgroundImage: `url('${src}')` }}
-                />
-              ))}
-            </div>
-          </Reveal>
-        )}
+function DetailsSection({
+  isoDate,
+  lang,
+  venueName,
+  venueAddress,
+  extras,
+  photo5Url,
+  latitude,
+  longitude,
+}: {
+  isoDate: string | null;
+  lang: Lang;
+  venueName: string | null;
+  venueAddress: string | null;
+  extras: (string | null | undefined)[];
+  photo5Url: string | null;
+  latitude?: any;
+  longitude?: any;
+}) {
+  return (
+    <section
+      id="section-details"
+      style={{ background: C.background, padding: "3rem 5vw" }}
+    >
+      <DateTimeRomanticCards isoDate={isoDate} lang={lang} />
 
-        {last && (
-          <Reveal delay={0.12}>
-            <div
-              className="w-full h-80 rounded-xl bg-cover bg-center"
-              style={{ backgroundImage: `url('${last}')` }}
-            />
-          </Reveal>
-        )}
-      </div>
+      <VenueCard
+        venueName={venueName}
+        venueAddress={venueAddress}
+        photo={photo5Url}
+        latitude={latitude}
+        longitude={longitude}
+      />
+
+      <ExtraInfoCard extras={extras} />
     </section>
   );
 }
@@ -1190,346 +1574,295 @@ function PoemAndCoupleSection({
   link1: string | null;
   link2: string | null;
 }) {
-  if (!poem) return null;
-
   const hasPhoto3 = Boolean(photo3);
   const hasPhoto4 = Boolean(photo4);
   const hasPhotos = hasPhoto3 || hasPhoto4;
   const hasLinks = Boolean(link1) || Boolean(link2);
+  const hasPoem = Boolean(poem);
+
+  if (!hasPoem && !hasPhotos && !hasLinks) return null;
 
   return (
     <section
-      className="py-16 px-6"
-      style={{ background: C.surfaceContainerLow }}
+      id="section-poem"
+      style={{ background: C.surfaceContainerLow, padding: "4rem 5vw" }}
     >
-      <div className="max-w-lg mx-auto text-center">
-        <Reveal>
-          <Icon
-            name="auto_stories"
-            style={{ color: C.primary, marginBottom: 12 }}
+      <Reveal
+        className="text-center"
+        style={{ maxWidth: 640, margin: "0 auto" }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: 12,
+          }}
+        >
+          <FaCameraRetro size={24} style={{ color: C.secondary }} />
+        </div>
+        {hasPoem && (
+          <MultilineText
+            text={poem}
+            style={{
+              fontFamily: HEADLINE_FONT,
+              fontStyle: "italic",
+              fontSize: 17,
+              color: C.onSurfaceVariant,
+              lineHeight: 1.9,
+              whiteSpace: "pre-wrap",
+            }}
           />
-          <div className="mb-2">
-            <MultilineText
-              text={poem}
-              style={{
-                fontFamily: HEADLINE,
-                fontStyle: "italic",
-                fontSize: 16,
-                color: C.onSurfaceVariant,
-                lineHeight: 1.9,
-                whiteSpace: "pre-wrap",
-              }}
-            />
-          </div>
-        </Reveal>
+        )}
 
         {hasPhotos && (
-          <Reveal delay={0.08}>
-            <div
-              className={`grid gap-3 mt-8 ${
-                hasPhoto3 && hasPhoto4 ? "grid-cols-2" : "grid-cols-1"
-              }`}
-            >
-              {hasPhoto3 && (
-                <div
-                  className="h-72 rounded-xl bg-cover bg-center"
-                  style={{ backgroundImage: `url('${photo3}')` }}
+          <div
+            className={`grid gap-3 ${hasPhoto3 && hasPhoto4 ? "grid-cols-2" : "grid-cols-1"}`}
+            style={{ marginTop: 32 }}
+          >
+            {hasPhoto3 && (
+              <div
+                className="h-72"
+                style={{
+                  borderRadius: 16,
+                  overflow: "hidden",
+                  border: `1px solid ${C.secondary}1a`,
+                }}
+              >
+                <img
+                  src={photo3!}
+                  alt="Жігіттің суреті"
+                  className="w-full h-full object-cover"
+                  style={{ display: "block", border: "none" }}
                 />
-              )}
-              {hasPhoto4 && (
-                <div
-                  className="h-72 rounded-xl bg-cover bg-center"
-                  style={{ backgroundImage: `url('${photo4}')` }}
+              </div>
+            )}
+            {hasPhoto4 && (
+              <div
+                className="h-72"
+                style={{
+                  borderRadius: 16,
+                  overflow: "hidden",
+                  border: `1px solid ${C.secondary}1a`,
+                }}
+              >
+                <img
+                  src={photo4!}
+                  alt="Қыздың суреті"
+                  className="w-full h-full object-cover"
+                  style={{ display: "block", border: "none" }}
                 />
-              )}
-            </div>
-          </Reveal>
+              </div>
+            )}
+          </div>
         )}
 
         {hasLinks && (
-          <Reveal delay={0.14}>
-            <div className="flex justify-center gap-4 mt-6 flex-wrap">
-              {link1 && (
-                <a
-                  href={link1}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full"
-                  style={{
-                    background: C.primary,
-                    color: C.onPrimary,
-                    fontFamily: BODY,
-                    fontSize: 12,
-                    letterSpacing: "0.1em",
-                    fontWeight: 600,
-                    boxShadow: `0 10px 25px -5px ${C.primary}33`,
-                  }}
-                >
-                  <Icon name="photo_camera" size={16} />
-                  Instagram
-                </a>
-              )}
-              {link2 && (
-                <a
-                  href={link2}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full"
-                  style={{
-                    background: C.primary,
-                    color: C.onPrimary,
-                    fontFamily: BODY,
-                    fontSize: 12,
-                    letterSpacing: "0.1em",
-                    fontWeight: 600,
-                    boxShadow: `0 10px 25px -5px ${C.primary}33`,
-                  }}
-                >
-                  <Icon name="photo_camera" size={16} />
-                  Instagram
-                </a>
-              )}
-            </div>
-          </Reveal>
+          <div
+            className="flex justify-center gap-4 flex-wrap"
+            style={{ marginTop: 28 }}
+          >
+            {link1 && (
+              <a
+                href={link1}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2"
+                style={{
+                  padding: "10px 24px",
+                  background: C.primary,
+                  color: C.secondaryFixed,
+                  ...F_LABEL_CAPS,
+                  fontSize: 11,
+                  textDecoration: "none",
+                  borderRadius: 999,
+                  border: `1px solid ${C.secondary}`,
+                }}
+              >
+                <FaCameraRetro size={13} />
+                Instagram
+              </a>
+            )}
+            {link2 && (
+              <a
+                href={link2}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2"
+                style={{
+                  padding: "10px 24px",
+                  background: C.primary,
+                  color: C.secondaryFixed,
+                  ...F_LABEL_CAPS,
+                  fontSize: 11,
+                  textDecoration: "none",
+                  borderRadius: 999,
+                  border: `1px solid ${C.secondary}`,
+                }}
+              >
+                <FaCameraRetro size={13} />
+                Instagram
+              </a>
+            )}
+          </div>
         )}
-      </div>
+      </Reveal>
     </section>
   );
 }
 
-function RsvpWrapper({ weddingId }: { weddingId: string }) {
+function MessagesSection({ weddingId }: { weddingId: string }) {
   const { t, lang } = useLang();
   return (
     <section
-      id="rsvp"
-      className="py-16 px-6 pb-32"
-      style={{ background: C.surfaceContainerHighest }}
+      id="section-messages"
+      style={{ background: C.background, padding: "4rem 5vw" }}
     >
-      <div className="max-w-lg mx-auto">
-        <Reveal className="text-center mb-8">
-          <Icon
-            name="edit_note"
-            size={34}
-            style={{ color: C.primary, marginBottom: 12 }}
-          />
-          <h2
+      <Reveal>
+        <GlassCard
+          className="p-10 mx-auto text-center"
+          style={{ maxWidth: 560, border: `2px solid ${C.secondary}33` }}
+        >
+          <h3
             style={{
-              fontFamily: HEADLINE,
-              fontWeight: 600,
-              fontSize: 26,
+              ...F_HEADLINE_MD,
+              fontStyle: "italic",
               color: C.primary,
               marginBottom: 8,
             }}
           >
             {t.rsvpTitle}
-          </h2>
+          </h3>
           <p
             style={{
-              fontFamily: BODY,
-              fontSize: 13,
+              ...F_BODY_MD,
+              fontStyle: "italic",
               color: C.onSurfaceVariant,
+              marginBottom: 32,
             }}
           >
             {t.rsvpSubtitle}
           </p>
-        </Reveal>
-        <Reveal delay={0.08}>
-          <GlassCard style={{ padding: 32 }}>
+          <div style={{ marginBottom: 40 }}>
             <RSVPSection
               weddingId={weddingId}
               accentColor={C.primary}
-              lightColor={C.surfaceContainerLow}
+              lightColor={C.secondaryFixed}
               lang={lang}
             />
-          </GlassCard>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
-function WishesWrapper({ weddingId }: { weddingId: string }) {
-  const { t, lang } = useLang();
-  return (
-    <section
-      id="comments"
-      className="py-16 px-6 relative"
-      style={{ background: C.background }}
-    >
-      <div className="max-w-lg mx-auto">
-        <Reveal className="text-center mb-12">
-          <div className="flex justify-center mb-4">
-            <svg
-              className="w-12 h-12"
-              fill={C.primary}
-              style={{ opacity: 0.4 }}
-              viewBox="0 0 100 100"
-            >
-              <path d="M50 10 C60 30 90 40 90 50 C90 60 60 70 50 90 C40 70 10 60 10 50 C10 40 40 30 50 10" />
-            </svg>
           </div>
-          <h2
-            style={{
-              fontFamily: HEADLINE,
-              fontWeight: 600,
-              fontSize: 26,
-              color: C.primary,
-              letterSpacing: "0.02em",
-            }}
-          >
-            {t.wishesTitle}
-          </h2>
           <div
-            className="h-px w-24 mx-auto mt-4"
-            style={{
-              background: `linear-gradient(to right, transparent, ${C.primary}4d, transparent)`,
-            }}
-          />
-        </Reveal>
-        <Reveal delay={0.08}>
-          <GlassCard style={{ padding: 32 }}>
+            style={{ borderTop: `1px solid ${C.secondary}22`, paddingTop: 40 }}
+          >
             <MessageSection
               weddingId={weddingId}
               accentColor={C.primary}
-              lightColor={C.surfaceContainerLow}
+              lightColor={C.secondaryFixed}
               borderColor="border-[#d5c2c8]"
               lang={lang}
             />
-          </GlassCard>
-        </Reveal>
-      </div>
+          </div>
+        </GlassCard>
+      </Reveal>
     </section>
   );
 }
 
-function FloralDots() {
-  return (
-    <div className="flex items-center justify-center gap-2 my-2">
-      {[0, 1, 2].map((i) => (
-        <div
-          key={i}
-          style={{
-            width: i === 1 ? 6 : 4,
-            height: i === 1 ? 6 : 4,
-            borderRadius: "50%",
-            background: C.secondary,
-            opacity: i === 1 ? 0.6 : 0.35,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function Footer({
+function FooterSection({
   maleName,
   femaleName,
-  dateLabel,
 }: {
   maleName: string;
   femaleName: string;
-  dateLabel: string;
 }) {
   const { t } = useLang();
-  const poem = t.footerPoem;
-
   return (
-    <div
-      className="text-center py-12 mt-4"
-      style={{
-        position: "relative",
-        overflow: "hidden",
-        background: C.background,
-      }}
+    <footer
+      className="flex flex-col items-center text-center footer-gradient-bg-t1"
+      style={{ gap: 32, padding: "4rem 5vw", color: C.secondaryFixed }}
     >
       <style>{`
-        @keyframes floatHeart-t1 {
-          0% { transform: translateY(0) scale(1); opacity: 0; }
-          10% { opacity: 1; }
-          90% { opacity: 1; }
-          100% { transform: translateY(-320px) scale(0.6); opacity: 0; }
+        @keyframes footer-gradient-move-t1 {
+          0%   { background-position: 0% 50%; }
+          50%  { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
         }
-        @keyframes shimmer-gold-t1 { to { background-position: 200% center; } }
-        .shimmer-gold-t1 {
-          background: linear-gradient(90deg, ${C.primary} 0%, #C4A0B0 50%, ${C.primary} 100%);
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          background-clip: text;
-          -webkit-text-fill-color: transparent;
-          animation: shimmer-gold-t1 4s linear infinite;
+        .footer-gradient-bg-t1 {
+          background: linear-gradient(
+            120deg,
+            ${C.primary} 0%,
+            ${C.primaryContainer} 35%,
+            #2a1520 60%,
+            ${C.primary} 100%
+          );
+          background-size: 300% 300%;
+          animation: footer-gradient-move-t1 10s ease-in-out infinite;
         }
       `}</style>
-
-      <Reveal>
-        <IconDivider className="mb-5 mx-8" />
-
-        {poem.map((line, i) => (
-          <p
-            key={i}
-            className={i === 0 ? "mt-4" : "mt-2"}
-            style={{
-              fontSize: 16,
-              fontFamily: HEADLINE,
-              fontStyle: "italic",
-              color: C.onSurfaceVariant,
-            }}
-          >
-            {line}
-          </p>
-        ))}
-
-        <FloralDots />
-
+      <div style={{ maxWidth: 420 }}>
         <p
-          className="shimmer-gold-t1 uppercase mt-4"
           style={{
-            fontSize: 18,
-            fontFamily: BODY,
-            fontWeight: 600,
-            letterSpacing: "0.4em",
+            ...F_BODY_LG,
+            color: "rgba(253,213,230,0.9)",
+            whiteSpace: "pre-line",
+            marginBottom: 32,
           }}
         >
-          {maleName} &amp; {femaleName}
+          {t.footerPoem}
         </p>
-
-        {dateLabel && (
-          <p
-            className="mt-2"
+        <div
+          className="flex items-center justify-center gap-4"
+          style={{ marginBottom: 16 }}
+        >
+          <span
             style={{
-              fontSize: 14,
-              fontFamily: BODY,
-              letterSpacing: "0.24em",
-              color: C.outline,
+              height: 1,
+              width: "100%",
+              maxWidth: 60,
+              opacity: 0.3,
+              background: `linear-gradient(90deg, transparent, ${C.accent}, transparent)`,
             }}
-          >
-            {dateLabel}
-          </p>
-        )}
-
-        <div style={{ marginTop: 20 }}>
-          <FloralDots />
+          />
+          <FaHeart style={{ color: C.secondaryFixedDim }} />
+          <span
+            style={{
+              height: 1,
+              width: "100%",
+              maxWidth: 60,
+              opacity: 0.3,
+              background: `linear-gradient(90deg, transparent, ${C.accent}, transparent)`,
+            }}
+          />
         </div>
-      </Reveal>
+        <ShimmerRose
+          style={{ ...F_HEADLINE_MD, fontStyle: "italic", fontWeight: 700 }}
+        >
+          {maleName} &amp; {femaleName}
+        </ShimmerRose>
+      </div>
+      <p
+        style={{
+          ...F_LABEL_CAPS,
+          fontSize: 10,
+          color: "rgba(253,213,230,0.5)",
+          letterSpacing: "0.2em",
+        }}
+      >
+        © {new Date().getFullYear()} {maleName.toUpperCase()} &amp;{" "}
+        {femaleName.toUpperCase()}. {t.builtWithLove}
+      </p>
+    </footer>
+  );
+}
 
-      {[...Array(10)].map((_, i) => (
-        <Icon
-          key={i}
-          name="favorite"
-          filled
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: `${10 + i * 15}%`,
-            color: C.primary,
-            opacity: 0.25,
-            fontSize: 12 + ((i * 37) % 8),
-            animation: `floatHeart-t1 ${4 + i}s linear infinite`,
-            animationDelay: `${i * 0.8}s`,
-            pointerEvents: "none",
-          }}
-        />
-      ))}
-    </div>
+function GlobalStyles() {
+  return (
+    <style>{`
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;600&display=swap');
+      * { box-sizing: border-box; }
+      img { border: none !important; outline: none !important; }
+      body, #__next { background: ${C.background} !important; }
+      ::-webkit-scrollbar { display: none; }
+    `}</style>
   );
 }
 
@@ -1538,20 +1871,16 @@ function PaymentLockOverlay() {
   return (
     <div
       className="fixed inset-0 h-full w-full flex items-center justify-center"
-      style={{
-        background: "#000000",
-        zIndex: 9999,
-      }}
+      style={{ background: "#000000", zIndex: 9999 }}
     >
       <div className="text-center px-6">
-        <Icon
-          name="lock"
+        <FaLock
           size={40}
           style={{ color: "#ffffff", opacity: 0.7, marginBottom: 16 }}
         />
         <p
           style={{
-            fontFamily: HEADLINE,
+            fontFamily: HEADLINE_FONT,
             fontWeight: 600,
             fontSize: 22,
             color: "#ffffff",
@@ -1564,204 +1893,112 @@ function PaymentLockOverlay() {
   );
 }
 
-function BottomNav() {
-  const { t } = useLang();
-  const [active, setActive] = useState("love");
-
-  const NAV_ITEMS = [
-    { id: "love", icon: "favorite", label: t.nav.love },
-    { id: "gallery", icon: "photo_library", label: t.nav.gallery },
-    { id: "event", icon: "calendar_today", label: t.nav.event },
-    { id: "venue", icon: "location_on", label: t.nav.venue },
-    { id: "rsvp", icon: "edit_note", label: t.nav.rsvp },
-  ];
-
-  useEffect(() => {
-    const onScroll = () => {
-      let current = "love";
-      NAV_ITEMS.forEach(({ id }) => {
-        const el = document.getElementById(id);
-        if (el && window.scrollY >= el.offsetTop - 200) current = id;
-      });
-      setActive(current);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return (
-    <nav
-      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-20 flex justify-around items-center px-4 z-50"
-      style={{
-        background: "rgba(255,248,242,0.85)",
-        backdropFilter: "blur(24px)",
-        WebkitBackdropFilter: "blur(24px)",
-        borderTop: `1px solid ${C.secondary}33`,
-        boxShadow: "0 -4px 12px rgba(123,63,94,0.08)",
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-      }}
-    >
-      {NAV_ITEMS.map(({ id, icon, label }) => {
-        const isActive = active === id;
-        return (
-          <a
-            key={id}
-            href={`#${id}`}
-            className="flex flex-col items-center justify-center transition-all duration-300"
-            style={{
-              color: isActive ? C.onSecondaryContainer : C.secondary,
-              background: isActive ? C.secondaryContainer : "transparent",
-              borderRadius: 999,
-              padding: isActive ? "6px 14px" : "6px 10px",
-              transform: isActive ? "scale(1.08)" : "scale(1)",
-              opacity: isActive ? 1 : 0.7,
-            }}
-          >
-            <Icon name={icon} filled={isActive} size={22} />
-            <span
-              style={{
-                fontFamily: BODY,
-                fontSize: 10,
-                fontWeight: 600,
-                letterSpacing: "0.05em",
-                textTransform: "uppercase",
-                marginTop: 2,
-              }}
-            >
-              {label}
-            </span>
-          </a>
-        );
-      })}
-    </nav>
-  );
-}
-
-function GlobalFonts() {
-  return (
-    <style jsx global>{`
-      @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap");
-      @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
-      .material-symbols-outlined {
-        font-variation-settings:
-          "FILL" 0,
-          "wght" 300,
-          "GRAD" 0,
-          "opsz" 24;
-        vertical-align: middle;
-      }
-    `}</style>
-  );
-}
-
+/* ─────────────────────────────────────────────────────────────
+   MAIN — Template2-той бүрэн ижил бүтэц/дараалал, зөвхөн
+   өнгө (C), фонт (Playfair+Montserrat) болон текстүүд өөр
+   ───────────────────────────────────────────────────────────── */
 export default function Template1({
   wedding,
-  hideBottomNav = false,
   defaultLang = "kk",
 }: {
   wedding: Wedding;
-  hideBottomNav?: boolean;
   defaultLang?: Lang;
 }) {
+  const [navOpen, setNavOpen] = useState(false);
   const [lang, setLang] = useState<Lang>(defaultLang);
-  const t = TRANSLATIONS[lang];
+  const t = T1_TRANSLATIONS[lang];
   const toggleLang = () => setLang((prev) => (prev === "kk" ? "mn" : "kk"));
 
   const isoDate = wedding.wedding_date || null;
-  const dateLabel = isoDate
-    ? formatKazDate(isoDate, t)
-    : formatKazDate(DEFAULTS.isoDate, t);
 
-  const maleName = wedding.male_name || DEFAULTS.maleName;
-  const femaleName = wedding.female_name || DEFAULTS.femaleName;
-
-  const organizerRaw = wedding.organizer
-    ? wedding.organizer
-    : `${DEFAULTS.maleParents}\n${DEFAULTS.femaleParents}`;
-  const organizerText = pickLang(organizerRaw, lang);
-
-  const venueName = pickLang(wedding.venue_name, lang) || DEFAULTS.venueName;
-  const venueAddress =
-    pickLang(wedding.venue_address, lang) || DEFAULTS.venueAddress;
-
-  const description1 = pickLang(wedding.description1, lang) || null;
-  const description2 = pickLang(wedding.description2, lang) || null;
-
-  const latitude = (wedding as any).latitude ?? null;
-  const longitude = (wedding as any).longitude ?? null;
+  const organizerText = pickLang(wedding.organizer, lang) || null;
+  const venueNameText = pickLang(wedding.venue_name, lang) || null;
+  const venueAddressText = pickLang(wedding.venue_address, lang) || null;
+  const description1Text = pickLang(wedding.description1, lang) || null;
+  const description2Text = pickLang(wedding.description2, lang) || null;
 
   const extras = [
     pickLang(wedding.extra1, lang),
     pickLang(wedding.extra2, lang),
     pickLang(wedding.extra3, lang),
     pickLang(wedding.extra4, lang),
-  ].filter(Boolean) as string[];
+  ].filter(Boolean);
 
-  const galleryImages = [...(wedding.gallery_urls || [])].filter(
+  const isPaymentLocked = String((wedding as any).payment) === "2";
+
+  const galleryImages = (wedding.gallery_urls || []).filter(
     Boolean,
   ) as string[];
-
-  const venuePhoto = wedding.photo5_url || galleryImages[0] || null;
-  const isPaymentLocked = String((wedding as any).payment) === "2";
+  const venuePhoto = wedding.photo5_url || galleryImages[3] || null;
 
   return (
     <LangContext.Provider value={{ lang, t, toggleLang }}>
+      <GlobalStyles />
+      {isPaymentLocked && <PaymentLockOverlay />}
+
+      <div className="fixed inset-0 z-0" style={{ background: C.background }} />
+
+      <HeaderBar
+        maleName={wedding.male_name}
+        femaleName={wedding.female_name}
+        extra5={wedding.extra5}
+        onMenuClick={() => setNavOpen((v) => !v)}
+        navOpen={navOpen}
+      />
+
+      <NavDrawer open={navOpen} onClose={() => setNavOpen(false)} />
+
       <div
-        className="min-h-screen overflow-x-hidden"
+        className="relative z-10 min-h-screen overflow-y-auto"
         style={{
+          fontFamily: BODY_FONT,
           background: C.background,
-          color: C.onSurface,
-          fontFamily: BODY,
+          paddingTop: 64,
+          paddingBottom: 24,
         }}
       >
-        {isPaymentLocked && <PaymentLockOverlay />}
-        <GlobalFonts />
-        <Template2Music extra5={wedding.extra5} />
-
-        <Hero
-          mainPhoto={wedding.main_photo_url}
-          maleName={maleName}
-          femaleName={femaleName}
-          dateLabel={dateLabel}
+        <HeroSection
+          mainPhotoUrl={wedding.main_photo_url}
+          maleName={wedding.male_name}
+          femaleName={wedding.female_name}
+          description1={description1Text}
         />
 
-        <InvitationText body={description1} />
+        {organizerText && (
+          <OrganizerSection
+            organizer={organizerText}
+            maleParents={(wedding as any).male_parents}
+            femaleParents={(wedding as any).female_parents}
+          />
+        )}
 
-        <ParentsAndEventBento organizerText={organizerText} isoDate={isoDate} />
-
-        <VenueSection
-          venueName={venueName}
-          venueAddress={venueAddress}
-          photo={venuePhoto}
+        <DetailsSection
+          isoDate={isoDate}
+          lang={lang}
+          venueName={venueNameText}
+          venueAddress={venueAddressText}
           extras={extras}
-          latitude={latitude}
-          longitude={longitude}
+          photo5Url={venuePhoto}
+          latitude={(wedding as any).latitude}
+          longitude={(wedding as any).longitude}
         />
 
-        <GalleryBento images={galleryImages} />
+        <PhotosSection galleryUrls={wedding.gallery_urls} />
 
         <PoemAndCoupleSection
-          poem={description2}
+          poem={description2Text}
           photo3={wedding.photo3_url || null}
           photo4={wedding.photo4_url || null}
           link1={wedding.link1 || null}
           link2={wedding.link2 || null}
         />
 
-        <RsvpWrapper weddingId={wedding.id} />
+        <MessagesSection weddingId={wedding.id} />
 
-        <WishesWrapper weddingId={wedding.id} />
-
-        <Footer
-          maleName={maleName}
-          femaleName={femaleName}
-          dateLabel={dateLabel}
+        <FooterSection
+          maleName={wedding.male_name}
+          femaleName={wedding.female_name}
         />
-
-        {!hideBottomNav && <BottomNav />}
       </div>
     </LangContext.Provider>
   );

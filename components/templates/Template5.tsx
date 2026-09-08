@@ -4,6 +4,7 @@ import { Wedding } from "@/lib/supabase";
 import MessageSection from "@/components/MessageSection";
 import RSVPSection from "@/components/RSVPSection";
 import Song from "../song";
+import GoogleMapEmbed from "../GoogleMapEmbed";
 
 const HEADLINE = "'EB Garamond', Georgia, serif";
 const BODY = "'DM Sans', sans-serif";
@@ -211,6 +212,51 @@ function pickLang(raw: string | null | undefined, lang: Lang): string {
   });
 
   return parts[lang] ?? parts.kk ?? parts.mn ?? raw.trim();
+}
+
+/* ------------------------------------------------------------------------
+   parseLatLngFromString — the latitude column can hold a plain number
+   (old records), a "lat,lng" string, or a full Google Maps URL. This pulls
+   real coordinates out of any of those shapes. Ported 1:1 from Template2
+   so all templates behave consistently. Supported URL forms:
+     - "47.918873,106.917702"                          (plain "lat,lng")
+     - https://www.google.com/maps/@47.918,106.917,15z  (@lat,lng,zoom)
+     - .../place/.../!3d47.918!4d106.917                (place-detail data)
+     - https://maps.google.com/?q=47.918,106.917        (q= query param)
+     - https://www.google.com/maps?ll=47.918,106.917    (ll= query param)
+   Short links (goo.gl/maps, maps.app.goo.gl) cannot be parsed client-side
+   since they redirect — those need to be expanded before saving.
+   ------------------------------------------------------------------------ */
+function parseLatLngFromString(
+  raw: string | null | undefined,
+): { lat: number; lng: number } | null {
+  if (!raw) return null;
+  const str = String(raw).trim();
+  if (!str) return null;
+
+  const plainMatch = str.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+  if (plainMatch) {
+    return { lat: parseFloat(plainMatch[1]), lng: parseFloat(plainMatch[2]) };
+  }
+
+  const atMatch = str.match(/@(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/);
+  if (atMatch) {
+    return { lat: parseFloat(atMatch[1]), lng: parseFloat(atMatch[2]) };
+  }
+
+  const placeMatch = str.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
+  if (placeMatch) {
+    return { lat: parseFloat(placeMatch[1]), lng: parseFloat(placeMatch[2]) };
+  }
+
+  const qMatch = str.match(
+    /[?&](?:q|query|ll)=(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/,
+  );
+  if (qMatch) {
+    return { lat: parseFloat(qMatch[1]), lng: parseFloat(qMatch[2]) };
+  }
+
+  return null;
 }
 
 function getWeddingDateObj(dateStr: string | null | undefined) {
@@ -462,11 +508,7 @@ function GallerySection({
             boxShadow: "0 10px 30px -10px rgba(61,107,69,0.15)",
           }}
         >
-          <img
-            src={main}
-            alt="Негізгі сурет"
-            className="w-full h-full object-cover"
-          />
+          <img src={main} alt="main" className="w-full h-full object-cover" />
         </div>
 
         {rest.map((url, i) => (
@@ -480,7 +522,7 @@ function GallerySection({
           >
             <img
               src={url}
-              alt={`сурет ${i + 2}`}
+              alt={`photo-${i + 2}`}
               className="w-full h-full object-cover"
             />
           </div>
@@ -490,6 +532,14 @@ function GallerySection({
   );
 }
 
+/* ------------------------------------------------------------------------
+   VenueMapCard — now backed by the shared GoogleMapEmbed component
+   (same one Template1/2 use), instead of a hand-rolled iframe. Coordinates
+   are parsed from `latitude` (which may be a plain number, a "lat,lng"
+   string, or a full Google Maps URL) via parseLatLngFromString, falling
+   back to an address-based lookup inside GoogleMapEmbed when no usable
+   coordinates are present.
+   ------------------------------------------------------------------------ */
 function VenueMapCard({
   address,
   venueName,
@@ -500,29 +550,27 @@ function VenueMapCard({
   address: string | null;
   venueName: string | null;
   venueAddress: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
+  latitude?: any;
+  longitude?: any;
 }) {
   const { t } = useLang();
   if (!venueName && !venueAddress) return null;
 
-  const hasCoords =
-    typeof latitude === "number" &&
-    typeof longitude === "number" &&
-    !Number.isNaN(latitude) &&
-    !Number.isNaN(longitude);
+  // latitude may itself carry a full Google Maps URL / "lat,lng" string
+  const parsedFromLat = parseLatLngFromString(latitude);
+  const numericLat =
+    parsedFromLat?.lat ??
+    (typeof latitude === "number" && !Number.isNaN(latitude) ? latitude : null);
+  const numericLng =
+    parsedFromLat?.lng ??
+    (typeof longitude === "number" && !Number.isNaN(longitude)
+      ? longitude
+      : null);
 
-  const mapQuery = hasCoords
-    ? `${latitude},${longitude}`
-    : encodeURIComponent(
-        [venueName, venueAddress].filter(Boolean).join(", ") ||
-          "Алматы, Қазақстан",
-      );
-
-  const embedSrc = `https://www.google.com/maps?q=${mapQuery}&z=15&output=embed`;
+  const hasCoords = numericLat != null && numericLng != null;
 
   const directionsUrl = hasCoords
-    ? `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`
+    ? `https://www.google.com/maps/dir/?api=1&destination=${numericLat},${numericLng}`
     : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
         [venueName, venueAddress].filter(Boolean).join(", "),
       )}`;
@@ -530,20 +578,18 @@ function VenueMapCard({
   return (
     <div className="relative mt-4">
       <div
-        className="overflow-hidden rounded-3xl h-64"
+        className="overflow-hidden rounded-3xl"
         style={{
           border: `1px solid ${COLORS.outlineVariant}`,
           background: `linear-gradient(135deg, #e5ece2 0%, #d7e2d2 100%)`,
         }}
       >
-        <iframe
-          title="Той өтетін орынның картасы"
-          src={embedSrc}
-          width="100%"
-          height="100%"
-          style={{ border: 0, display: "block" }}
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
+        <GoogleMapEmbed
+          address={venueAddress || undefined}
+          latitude={hasCoords ? numericLat! : undefined}
+          longitude={hasCoords ? numericLng! : undefined}
+          accentColor={COLORS.primary}
+          height={256}
         />
       </div>
 
@@ -869,7 +915,7 @@ function Template5Inner({
         {wedding.main_photo_url ? (
           <img
             src={wedding.main_photo_url}
-            alt="Басты сурет"
+            alt="hero"
             className="w-full h-full object-cover"
           />
         ) : (
@@ -1183,7 +1229,7 @@ function Template5Inner({
               >
                 <img
                   src={wedding.photo5_url}
-                  alt="Қосымша сурет"
+                  alt="extra"
                   className="w-full object-cover"
                 />
               </div>
@@ -1191,7 +1237,7 @@ function Template5Inner({
           )}
         </div>
 
-        {/* ── Venue map card (Google Maps embed) ── */}
+        {/* ── Venue map card (shared GoogleMapEmbed component) ── */}
         <VenueMapCard
           address={venueAddressText}
           venueName={venueNameText}
