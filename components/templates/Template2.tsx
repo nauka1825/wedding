@@ -261,6 +261,50 @@ function pickLang(raw: string | null | undefined, lang: Lang): string {
   return parts[lang] ?? parts.kk ?? parts.mn ?? raw.trim();
 }
 
+/* ------------------------------------------------------------------------
+   parseLatLngFromString — the latitude column can now hold a plain number
+   (old records), a "lat,lng" string, or a full Google Maps URL. This pulls
+   real coordinates out of any of those shapes. Supported URL forms:
+     - "47.918873,106.917702"                          (plain "lat,lng")
+     - https://www.google.com/maps/@47.918,106.917,15z  (@lat,lng,zoom)
+     - .../place/.../!3d47.918!4d106.917                (place-detail data)
+     - https://maps.google.com/?q=47.918,106.917        (q= query param)
+     - https://www.google.com/maps?ll=47.918,106.917    (ll= query param)
+   Short links (goo.gl/maps, maps.app.goo.gl) cannot be parsed client-side
+   since they redirect — those need to be expanded before saving.
+   ------------------------------------------------------------------------ */
+function parseLatLngFromString(
+  raw: string | null | undefined,
+): { lat: number; lng: number } | null {
+  if (!raw) return null;
+  const str = String(raw).trim();
+  if (!str) return null;
+
+  const plainMatch = str.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+  if (plainMatch) {
+    return { lat: parseFloat(plainMatch[1]), lng: parseFloat(plainMatch[2]) };
+  }
+
+  const atMatch = str.match(/@(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/);
+  if (atMatch) {
+    return { lat: parseFloat(atMatch[1]), lng: parseFloat(atMatch[2]) };
+  }
+
+  const placeMatch = str.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
+  if (placeMatch) {
+    return { lat: parseFloat(placeMatch[1]), lng: parseFloat(placeMatch[2]) };
+  }
+
+  const qMatch = str.match(
+    /[?&](?:q|query|ll)=(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/,
+  );
+  if (qMatch) {
+    return { lat: parseFloat(qMatch[1]), lng: parseFloat(qMatch[2]) };
+  }
+
+  return null;
+}
+
 function useInView(threshold = 0.12) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -915,12 +959,6 @@ function PhotosSection({
               key={i}
               className="snap-center"
               style={{
-                // Explicit width + flex-shrink: 0 + flex-grow: 0 pins every
-                // slide to the exact same box regardless of the source
-                // image's natural (intrinsic) dimensions. Using only
-                // min-width (as before) leaves the flex-basis to default to
-                // "auto", which some browsers resolve from the image's own
-                // size — that's what made slides drift to different widths.
                 width: 280,
                 minWidth: 280,
                 maxWidth: 280,
@@ -1043,27 +1081,11 @@ function VenueCard({
   venueName: string | null;
   venueAddress: string | null;
   photo: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
+  latitude?: any;
+  longitude?: any;
 }) {
   const { t } = useLang();
-
-  if (!venueName && !venueAddress) return null;
-
-  const hasCoords =
-    typeof latitude === "number" &&
-    typeof longitude === "number" &&
-    !Number.isNaN(latitude) &&
-    !Number.isNaN(longitude);
-
-  const mapsHref = hasCoords
-    ? `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
-    : venueAddress
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-          venueAddress,
-        )}`
-      : null;
-
+  const mapsHref = latitude || "https://maps.app.goo.gl/CFuAhiAHpKMHssta9";
   return (
     <Reveal style={{ marginTop: 32 }}>
       <GlassCard
@@ -1140,24 +1162,22 @@ function VenueCard({
                 ...F_BODY_MD,
                 fontStyle: "italic",
                 color: C.onSurfaceVariant,
-                marginBottom: hasCoords || mapsHref ? 20 : 0,
+                marginBottom: 0,
               }}
             >
               {venueAddress}
             </p>
           )}
 
-          {hasCoords && (
-            <div style={{ marginBottom: 20 }}>
-              <GoogleMapEmbed
-                address={venueAddress || undefined}
-                latitude={latitude}
-                longitude={longitude}
-                accentColor={C.primary}
-                height={200}
-              />
-            </div>
-          )}
+          <div style={{ marginBottom: 20 }}>
+            <GoogleMapEmbed
+              address={venueAddress || undefined}
+              latitude={latitude}
+              longitude={longitude}
+              accentColor={C.primary}
+              height={200}
+            />
+          </div>
 
           {mapsHref && (
             <a
@@ -1253,8 +1273,8 @@ function DetailsSection({
   venueAddress: string | null;
   extras: (string | null | undefined)[];
   photo5Url: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
+  latitude?: any;
+  longitude?: any;
 }) {
   return (
     <section
@@ -1295,9 +1315,6 @@ function PoemAndCoupleSection({
   const hasLinks = Boolean(link1) || Boolean(link2);
   const hasPoem = Boolean(poem);
 
-  // Only hide the whole section when there's truly nothing to show —
-  // previously this returned null whenever description2 (the poem) was
-  // empty, which also hid photo3/photo4/links even when those were set.
   if (!hasPoem && !hasPhotos && !hasLinks) return null;
 
   return (
@@ -1663,8 +1680,9 @@ export default function Template2({
 
   const isPaymentLocked = String((wedding as any).payment) === "2";
 
-  const latitude = (wedding as any).latitude ?? null;
-  const longitude = (wedding as any).longitude ?? null;
+  // latitude талбарт Google Maps URL (эсвэл "lat,lng" мөр) орсон эсэхийг
+  // шалгаад тэндээс, эсвэл хуучин тоон талбаруудаас (backward compatible)
+  // бодит координатыг гаргаж авна.
 
   const galleryImages = (wedding.gallery_urls || []).filter(
     Boolean,
@@ -1719,8 +1737,8 @@ export default function Template2({
           venueAddress={venueAddressText}
           extras={extras}
           photo5Url={venuePhoto}
-          latitude={latitude}
-          longitude={longitude}
+          latitude={wedding.latitude}
+          longitude={wedding.longitude}
         />
 
         <PhotosSection galleryUrls={wedding.gallery_urls} />

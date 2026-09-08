@@ -87,7 +87,7 @@ const SECTION_HEADER =
 const SECTION_TITLE = "text-lg font-semibold text-slate-700";
 
 type WeddingWithCoords = Omit<Wedding, "id" | "created_at"> & {
-  latitude: number | null;
+  latitude: number | string | null;
   longitude: number | null;
 };
 
@@ -136,6 +136,43 @@ function combineBilingual(values: Bilingual): string | null {
   const mn = values.mn.trim();
   if (!kk && !mn) return null;
   return `kk:${kk}\nmn:${mn}`;
+}
+
+/* ---------------------------------------------------------------------- */
+/*  parseLatLngFromString — mirrors the parser used in Template2, so the
+ *  live admin preview map can also render a pin from a pasted Google
+ *  Maps URL (or plain "lat,lng" string) without waiting for a save.     */
+/* ---------------------------------------------------------------------- */
+function parseLatLngFromString(
+  raw: string | null | undefined,
+): { lat: number; lng: number } | null {
+  if (!raw) return null;
+  const str = String(raw).trim();
+  if (!str) return null;
+
+  const plainMatch = str.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+  if (plainMatch) {
+    return { lat: parseFloat(plainMatch[1]), lng: parseFloat(plainMatch[2]) };
+  }
+
+  const atMatch = str.match(/@(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/);
+  if (atMatch) {
+    return { lat: parseFloat(atMatch[1]), lng: parseFloat(atMatch[2]) };
+  }
+
+  const placeMatch = str.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
+  if (placeMatch) {
+    return { lat: parseFloat(placeMatch[1]), lng: parseFloat(placeMatch[2]) };
+  }
+
+  const qMatch = str.match(
+    /[?&](?:q|query|ll)=(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/,
+  );
+  if (qMatch) {
+    return { lat: parseFloat(qMatch[1]), lng: parseFloat(qMatch[2]) };
+  }
+
+  return null;
 }
 
 function GlobalFonts() {
@@ -405,9 +442,6 @@ function PreviewLanguagePicker({
       ctx.closePath();
     };
 
-    // Hearts rise from the very bottom of the screen and fade out by the
-    // time they reach the "Шақыру · Урилға" label, roughly 30% down from
-    // the top — then they respawn at the bottom.
     const fadeZoneTop = () => canvas.height * 0.3;
 
     const hearts: {
@@ -434,7 +468,6 @@ function PreviewLanguagePicker({
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const zoneTop = fadeZoneTop();
       for (const h of hearts) {
-        // Fully visible below the fade zone, fades to 0 as it crosses it.
         let opacity = h.baseOpacity;
         if (h.y < zoneTop) {
           const fade = Math.max(0, h.y / zoneTop);
@@ -451,7 +484,6 @@ function PreviewLanguagePicker({
         h.y -= h.speed;
         h.x += h.drift;
 
-        // Once it's faded out above the zone, respawn at the bottom.
         if (h.y < zoneTop * 0.15) {
           h.y = canvas.height + Math.random() * 40;
           h.x = Math.random() * canvas.width;
@@ -508,7 +540,6 @@ function PreviewLanguagePicker({
             }}
           />
         )}
-        {/* Gradient for text legibility — darkest at the bottom */}
         <div
           className="absolute inset-0"
           style={{
@@ -518,15 +549,12 @@ function PreviewLanguagePicker({
         />
       </div>
 
-      {/* Rising green hearts, fading out near the label */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none z-[5]"
       />
 
-      {/* Content, bottom-anchored over the photo */}
       <div className="relative z-10 min-h-screen flex flex-col justify-end items-center text-center px-8 pb-9 pt-24">
-        {/* 1. Шақыру · Урилға */}
         <p
           className="plp-fade-1"
           style={{
@@ -541,7 +569,6 @@ function PreviewLanguagePicker({
           Шақыру &nbsp;·&nbsp; Урилға
         </p>
 
-        {/* 2-4. Names with & between, italic script */}
         <h1
           className="plp-fade-2 mt-3 leading-[1.05]"
           style={{
@@ -579,7 +606,6 @@ function PreviewLanguagePicker({
           {femaleName || "..."}
         </h1>
 
-        {/* 5. Үйлену тойы · Хурим */}
         <p
           className="plp-fade-5"
           style={{
@@ -594,7 +620,6 @@ function PreviewLanguagePicker({
           Үйлену тойы &nbsp;·&nbsp; Хурим
         </p>
 
-        {/* 6. Тілді таңдаңыз · Хэлээ сонгоно уу */}
         <p
           className="plp-fade-5 mt-1.5 mb-7"
           style={{
@@ -609,7 +634,6 @@ function PreviewLanguagePicker({
           Тілді таңдаңыз &nbsp;·&nbsp; Хэлээ сонгоно уу
         </p>
 
-        {/* 7. Language buttons */}
         <div className="plp-fade-5 flex w-full max-w-xs gap-3">
           <button
             onClick={() => onSelect("kk")}
@@ -666,8 +690,10 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
     time: "",
     venueName: EMPTY_BI as Bilingual,
     venueAddress: EMPTY_BI as Bilingual,
+    /* Single field: Google Maps URL, or "lat,lng" string. Longitude is
+       no longer collected separately — it's parsed out of this value
+       downstream (see parseLatLngFromString / Template2's resolver). */
     latitude: "",
-    longitude: "",
     organizer: EMPTY_BI as Bilingual,
     phone: "",
     desc1: EMPTY_BI as Bilingual,
@@ -691,7 +717,6 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
         | "date"
         | "time"
         | "latitude"
-        | "longitude"
         | "phone"
         | "link1"
         | "link2"
@@ -744,6 +769,12 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
   /* Plain address text (no kk:/mn: prefixes) used only to query the live map preview */
   const mapAddress = f.venueAddress.kk || f.venueAddress.mn || undefined;
 
+  /* Parse whatever was pasted into the latitude field (URL or "lat,lng")
+     purely for the live admin-side map preview below. The raw string is
+     what actually gets saved — parsing for real happens on the public
+     wedding page. */
+  const parsedCoords = parseLatLngFromString(f.latitude);
+
   const previewWedding: WeddingWithCoords = {
     ...EMPTY_WEDDING,
     male_name: f.maleName || "Жасұлан",
@@ -751,8 +782,8 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
     wedding_date: f.date ? (f.time ? `${f.date}T${f.time}` : f.date) : null,
     venue_name: venueNameCombined,
     venue_address: venueAddressCombined,
-    latitude: f.latitude ? parseFloat(f.latitude) : null,
-    longitude: f.longitude ? parseFloat(f.longitude) : null,
+    latitude: f.latitude.trim() || null,
+    longitude: null,
     organizer: organizerCombined,
     phone: f.phone || null,
     template,
@@ -821,8 +852,8 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
         wedding_date: weddingDate,
         venue_name: venueNameCombined,
         venue_address: venueAddressCombined,
-        latitude: f.latitude ? parseFloat(f.latitude) : null,
-        longitude: f.longitude ? parseFloat(f.longitude) : null,
+        latitude: f.latitude.trim() || null,
+        longitude: null,
         organizer: organizerCombined,
         phone: f.phone || null,
         template,
@@ -861,7 +892,7 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
   };
 
   const renderPreview = (lang: Lang) => {
-    const w = previewWedding as Wedding;
+    const w = previewWedding as unknown as Wedding;
     if (template === "luxury")
       return <Template2 wedding={w} defaultLang={lang} />;
     if (template === "bohemian")
@@ -1282,11 +1313,12 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                 placeholderMn="Баян-Өлгий, Sky Palace"
               />
 
-              {/* Coordinates (optional, gives an exact map pin) */}
+              {/* Google Maps location — single field, accepts either a
+                  full Google Maps link or a plain "lat,lng" string. */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className={`${LABEL} mb-0`}>
-                    Координат (міндетті емес)
+                    Google Maps сілтемесі (міндетті емес)
                   </label>
                   <a
                     href="https://www.google.com/maps"
@@ -1295,37 +1327,25 @@ export default function WeddingForm({ onSuccess }: { onSuccess?: () => void }) {
                     className="text-[11px] text-sky-accent font-semibold flex items-center gap-1 mr-1"
                   >
                     <Icon name="my_location" className="text-[14px]" />
-                    Google Maps-тан алу
+                    Google Maps ашу
                   </a>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <input
-                    value={f.latitude}
-                    onChange={upd("latitude")}
-                    placeholder="Latitude, мыс. 43.238949"
-                    inputMode="decimal"
-                    className={INPUT}
-                  />
-                  <input
-                    value={f.longitude}
-                    onChange={upd("longitude")}
-                    placeholder="Longitude, мыс. 76.889709"
-                    inputMode="decimal"
-                    className={INPUT}
-                  />
-                </div>
+                <input
+                  value={f.latitude}
+                  onChange={upd("latitude")}
+                  placeholder="https://maps.google.com/... немесе 43.238949, 76.889709"
+                  className={INPUT}
+                />
                 <p className="text-[10px] text-slate-400 pl-1 leading-relaxed">
-                  Google Maps-та орынды тауып, оны басып тұрып шыққан
-                  координатты (мыс. 43.238949, 76.889709) осында қойыңыз —
-                  шақыруда картаға дәл сол нүкте белгіленеді.
+                  Google Maps-та орынды тауып, жоғарыдағы адрес жолындағы
+                  сілтемені (немесе координатты) осында қойыңыз — шақыруда
+                  картаға дәл сол нүкте белгіленеді.
                 </p>
-                {(f.latitude || f.longitude || mapAddress) && (
+                {(parsedCoords || mapAddress) && (
                   <GoogleMapEmbed
                     address={mapAddress}
-                    latitude={f.latitude ? parseFloat(f.latitude) : undefined}
-                    longitude={
-                      f.longitude ? parseFloat(f.longitude) : undefined
-                    }
+                    latitude={parsedCoords?.lat}
+                    longitude={parsedCoords?.lng}
                     height={160}
                   />
                 )}

@@ -12,10 +12,12 @@ type Message = {
 
 type Lang = "kk" | "mn";
 
-const HEADLINE = "'Playfair Display', Georgia, serif";
-const BODY = "'Montserrat', sans-serif";
+/* Template2-той ижил фонт стек */
+const HEADLINE = "'Playfair Display', serif";
+const BODY = "'EB Garamond', serif";
+const LABEL = "'Montserrat', sans-serif";
 
-const AVATAR_PALETTE_ALPHA = ["28", "1f", "24", "1a", "2c"]; // subtle variety for avatar bg
+const AVATAR_PALETTE_ALPHA = ["28", "1f", "24", "1a", "2c"];
 
 /* ======================================================================
    BILINGUAL SUPPORT (Kazakh / Mongolian)
@@ -72,11 +74,7 @@ const MESSAGE_TRANSLATIONS: Record<Lang, MessageTranslationSet> = {
   },
 };
 
-/* ── shared reveal-on-scroll hook, now with a safety fallback ──
-   If the IntersectionObserver never fires (e.g. rendered inside an
-   iframe/preview container with no real scrolling), we force the
-   content visible after a short delay instead of leaving it hidden
-   forever. */
+/* ── shared reveal-on-scroll hook, with a safety fallback ── */
 function useInView(threshold = 0.15, fallbackMs = 900) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -102,9 +100,6 @@ function useInView(threshold = 0.15, fallbackMs = 900) {
     );
     obs.observe(el);
 
-    // Fallback: some hosting contexts (preview iframes, scaled
-    // thumbnails, non-scrolling wrappers) never fire the observer.
-    // Don't let content stay invisible forever because of that.
     const fallback = setTimeout(markVisible, fallbackMs);
 
     return () => {
@@ -115,10 +110,10 @@ function useInView(threshold = 0.15, fallbackMs = 900) {
   return { ref, visible };
 }
 
-/* Material Symbols icon helper — same pattern used across the site */
+/* Material Symbols icon helper */
 function Icon({
   name,
-  size = 18,
+  size = 15,
   filled = false,
   color,
   style = {},
@@ -150,8 +145,7 @@ function Icon({
 function GlobalFonts() {
   return (
     <style jsx global>{`
-      @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap");
-      @import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Montserrat:wght@400;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
       .material-symbols-outlined {
         font-variation-settings:
           "FILL" 0,
@@ -257,10 +251,10 @@ export default function MessageSection({
     <div style={{ position: "relative", fontFamily: BODY }}>
       <GlobalFonts />
 
-      {/* ── Section eyebrow ── */}
+      {/* ── Section eyebrow — Template2 F_LABEL_CAPS хэмжээтэй ── */}
       <div
         ref={headerRef}
-        className="flex items-center justify-center gap-3 mb-7"
+        className="flex items-center justify-center gap-2 mb-5"
         style={{
           opacity: headerVisible ? 1 : 0,
           transform: headerVisible ? "translateY(0)" : "translateY(14px)",
@@ -275,16 +269,16 @@ export default function MessageSection({
         />
         <Icon
           name="favorite"
-          size={16}
+          size={13}
           filled
           color={accentColor}
           style={{ opacity: 0.55 }}
         />
         <p
           style={{
-            fontFamily: BODY,
+            fontFamily: LABEL,
             fontSize: 11,
-            letterSpacing: "0.28em",
+            letterSpacing: "0.2em",
             textTransform: "uppercase",
             color: accentColor,
             fontWeight: 600,
@@ -296,7 +290,7 @@ export default function MessageSection({
         </p>
         <Icon
           name="favorite"
-          size={16}
+          size={13}
           filled
           color={accentColor}
           style={{ opacity: 0.55 }}
@@ -313,7 +307,7 @@ export default function MessageSection({
       {top5.length > 0 && (
         <div
           ref={sliderWrapRef}
-          className="mb-7"
+          className="mb-5"
           style={{
             transform: sliderVisible
               ? "translateY(0) scale(1)"
@@ -325,72 +319,84 @@ export default function MessageSection({
           <div
             className="relative overflow-hidden"
             style={{
-              background: `linear-gradient(160deg, ${lightColor}c9, ${lightColor}88)`,
-              backdropFilter: "blur(20px)",
-              WebkitBackdropFilter: "blur(20px)",
-              border: `1px solid ${accentColor}22`,
-              borderRadius: 22,
-              boxShadow: `0 14px 36px ${accentColor}22, inset 0 1px 0 #ffffff55`,
-              padding: "34px 8px 18px",
+              background: "rgba(255, 248, 245, 0.85)",
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
+              border: `0.5px solid ${accentColor}4d`,
+              padding: "24px 8px 14px",
             }}
           >
             <div
-              className="absolute top-0 right-0 p-4"
+              className="absolute top-0 right-0 p-3"
               style={{ opacity: 0.1 }}
             >
-              <Icon name="format_quote" size={56} color={accentColor} />
+              <Icon name="format_quote" size={40} color={accentColor} />
             </div>
 
             {/* message counter badge */}
             <div
-              className="absolute top-3 left-4 flex items-center gap-1.5"
+              className="absolute top-2.5 left-3 flex items-center gap-1.5"
               style={{
-                fontFamily: BODY,
-                fontSize: 10,
-                letterSpacing: "0.14em",
+                fontFamily: LABEL,
+                fontSize: 9,
+                letterSpacing: "0.12em",
                 color: `${accentColor}90`,
               }}
             >
               <Icon
                 name="favorite"
-                size={11}
+                size={10}
                 filled
                 color={`${accentColor}80`}
               />
               {messages.length}
             </div>
 
+            {/* Slide track — fixed height so short/long wishes don't
+                make the card jump; each slide vertically centers its
+                own content inside that fixed box. */}
             <div
               className="flex transition-transform duration-700 ease-in-out"
-              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+              style={{
+                transform: `translateX(-${currentSlide * 100}%)`,
+                height: 150,
+              }}
             >
               {top5.map((m) => (
-                <div key={m.id} className="min-w-full px-7 text-center">
+                <div
+                  key={m.id}
+                  className="min-w-full px-6 text-center flex flex-col items-center justify-center"
+                  style={{ height: "100%" }}
+                >
                   <p
                     style={{
                       fontFamily: HEADLINE,
                       fontStyle: "italic",
-                      fontSize: 21,
-                      lineHeight: 1.65,
+                      fontSize: 17,
+                      lineHeight: 1.6,
                       color: accentColor,
-                      marginBottom: 16,
+                      marginBottom: 12,
                       wordBreak: "break-word",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 4,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
                     }}
                   >
-                    “{m.message}”
+                    "{m.message}"
                   </p>
-                  <div className="flex items-center justify-center gap-3">
+                  <div className="flex items-center justify-center gap-2">
                     <div
-                      className="h-px w-6"
+                      className="h-px w-5"
                       style={{
                         background: `linear-gradient(to right, transparent, ${accentColor})`,
                       }}
                     />
                     <p
                       style={{
-                        fontFamily: BODY,
-                        fontSize: 11,
-                        letterSpacing: "0.28em",
+                        fontFamily: LABEL,
+                        fontSize: 10,
+                        letterSpacing: "0.2em",
                         textTransform: "uppercase",
                         fontWeight: 600,
                         color: accentColor,
@@ -400,7 +406,7 @@ export default function MessageSection({
                       {m.sender_name}
                     </p>
                     <div
-                      className="h-px w-6"
+                      className="h-px w-5"
                       style={{
                         background: `linear-gradient(to left, transparent, ${accentColor})`,
                       }}
@@ -411,7 +417,7 @@ export default function MessageSection({
             </div>
 
             {top5.length > 1 && (
-              <div className="flex justify-center gap-1.5 pt-6">
+              <div className="flex justify-center gap-1.5 pt-4">
                 {top5.map((_, i) => (
                   <button
                     key={i}
@@ -419,8 +425,8 @@ export default function MessageSection({
                     aria-label={t.wishAriaLabel(i + 1)}
                     className="rounded-full transition-all duration-300"
                     style={{
-                      width: currentSlide === i ? 20 : 6,
-                      height: 6,
+                      width: currentSlide === i ? 16 : 5,
+                      height: 5,
                       background: accentColor,
                       opacity: currentSlide === i ? 0.9 : 0.22,
                       border: "none",
@@ -437,17 +443,16 @@ export default function MessageSection({
       {/* ── Empty state (no messages yet) ── */}
       {top5.length === 0 && !fetchError && (
         <div
-          className="mb-7 text-center"
+          className="mb-5 text-center"
           style={{
-            padding: "26px 20px",
-            borderRadius: 20,
+            padding: "20px 16px",
             border: `1px dashed ${accentColor}35`,
             background: `${lightColor}60`,
           }}
         >
           <Icon
             name="favorite_border"
-            size={22}
+            size={18}
             color={accentColor}
             style={{ opacity: 0.6 }}
           />
@@ -455,9 +460,9 @@ export default function MessageSection({
             style={{
               fontFamily: HEADLINE,
               fontStyle: "italic",
-              fontSize: 15,
+              fontSize: 14,
               color: `${accentColor}b0`,
-              marginTop: 8,
+              marginTop: 6,
             }}
           >
             {t.emptyState}
@@ -465,29 +470,28 @@ export default function MessageSection({
         </div>
       )}
 
-      {/* ── Write form — underline inputs, matching the site's premium form style ── */}
+      {/* ── Write form — Template2 GlassCard хэмжээтэй ── */}
       <div
         ref={formRef}
         style={{
-          background: `${lightColor}80`,
-          backdropFilter: "blur(14px)",
-          WebkitBackdropFilter: "blur(14px)",
-          border: `1px solid ${accentColor}22`,
-          borderRadius: 20,
-          padding: 28,
+          background: "rgba(255, 248, 245, 0.85)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          border: `0.5px solid ${accentColor}4d`,
+          padding: 24,
           opacity: formVisible ? 1 : 0,
           transform: formVisible ? "translateY(0)" : "translateY(20px)",
           transition:
             "opacity 0.75s cubic-bezier(0.22,1,0.36,1) 0.1s, transform 0.75s cubic-bezier(0.22,1,0.36,1) 0.1s",
         }}
       >
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <Icon name="edit_note" size={18} color={accentColor} />
+        <div className="flex items-center justify-center gap-2 mb-5">
+          <Icon name="edit_note" size={15} color={accentColor} />
           <p
             style={{
-              fontFamily: BODY,
+              fontFamily: LABEL,
               fontSize: 11,
-              letterSpacing: "0.28em",
+              letterSpacing: "0.2em",
               textTransform: "uppercase",
               fontWeight: 600,
               color: accentColor,
@@ -498,13 +502,13 @@ export default function MessageSection({
           </p>
         </div>
 
-        <div className="space-y-7">
+        <div className="space-y-5">
           <div className="relative group">
             <label
               style={{
-                fontFamily: BODY,
-                fontSize: 10,
-                letterSpacing: "0.2em",
+                fontFamily: LABEL,
+                fontSize: 9.5,
+                letterSpacing: "0.18em",
                 textTransform: "uppercase",
                 color: `${accentColor}99`,
                 display: "block",
@@ -522,7 +526,7 @@ export default function MessageSection({
                 background: "transparent",
                 border: "none",
                 borderBottom: `1px solid ${accentColor}30`,
-                padding: "8px 0",
+                padding: "7px 0",
                 fontFamily: BODY,
                 fontSize: 15,
                 color: "#1e1b18",
@@ -543,9 +547,9 @@ export default function MessageSection({
             >
               <label
                 style={{
-                  fontFamily: BODY,
-                  fontSize: 10,
-                  letterSpacing: "0.2em",
+                  fontFamily: LABEL,
+                  fontSize: 9.5,
+                  letterSpacing: "0.18em",
                   textTransform: "uppercase",
                   color: `${accentColor}99`,
                 }}
@@ -554,8 +558,8 @@ export default function MessageSection({
               </label>
               <span
                 style={{
-                  fontFamily: BODY,
-                  fontSize: 10,
+                  fontFamily: LABEL,
+                  fontSize: 9.5,
                   color: `${accentColor}60`,
                 }}
               >
@@ -572,10 +576,10 @@ export default function MessageSection({
                 background: "transparent",
                 border: "none",
                 borderBottom: `1px solid ${accentColor}30`,
-                padding: "8px 0",
+                padding: "7px 0",
                 fontFamily: HEADLINE,
                 fontStyle: "italic",
-                fontSize: 16,
+                fontSize: 15,
                 lineHeight: 1.6,
                 color: "#1e1b18",
                 outline: "none",
@@ -595,32 +599,32 @@ export default function MessageSection({
           disabled={disabled}
           className="w-full flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
           style={{
-            marginTop: 24,
-            padding: "14px 0",
+            marginTop: 20,
+            padding: "12px 0",
             borderRadius: 999,
             background: accentColor,
             color: "#fff",
-            fontFamily: BODY,
-            fontSize: 12,
+            fontFamily: LABEL,
+            fontSize: 11,
             letterSpacing: "0.2em",
             fontWeight: 600,
             textTransform: "uppercase",
             border: "none",
             cursor: disabled ? "not-allowed" : "pointer",
             opacity: disabled ? 0.4 : 1,
-            boxShadow: `0 10px 25px -8px ${accentColor}88`,
+            boxShadow: `0 10px 25px -8px ${accentColor}66`,
           }}
         >
           {sent ? (
             <>
-              <Icon name="check_circle" size={16} filled color="#fff" />
+              <Icon name="check_circle" size={14} filled color="#fff" />
               {t.sent}
             </>
           ) : loading ? (
             <>
               <Icon
                 name="progress_activity"
-                size={16}
+                size={14}
                 color="#fff"
                 style={{ animation: "msg-spin-t1 1s linear infinite" }}
               />
@@ -628,7 +632,7 @@ export default function MessageSection({
             </>
           ) : (
             <>
-              <Icon name="send" size={16} color="#fff" />
+              <Icon name="send" size={14} color="#fff" />
               {t.send}
             </>
           )}
@@ -637,53 +641,52 @@ export default function MessageSection({
 
       {/* ── All messages toggle + feed ── */}
       {messages.length > 0 && (
-        <div className="mt-6 text-center">
+        <div className="mt-5 text-center">
           <button
             onClick={() => setShowAll(!showAll)}
-            className="inline-flex items-center gap-3 transition-opacity hover:opacity-70 group"
+            className="inline-flex items-center gap-2.5 transition-opacity hover:opacity-70 group"
             style={{
               background: "none",
               border: "none",
               cursor: "pointer",
               color: accentColor,
-              fontFamily: BODY,
-              fontSize: 11,
-              letterSpacing: "0.24em",
+              fontFamily: LABEL,
+              fontSize: 10,
+              letterSpacing: "0.2em",
               textTransform: "uppercase",
               fontWeight: 600,
             }}
           >
             <span
-              className="h-px w-6"
+              className="h-px w-5"
               style={{ background: `${accentColor}50` }}
             />
             {showAll ? t.hide : t.viewAll(messages.length)}
             <span
-              className="h-px w-6"
+              className="h-px w-5"
               style={{ background: `${accentColor}50` }}
             />
           </button>
 
           {showAll && (
-            <div className="mt-5 space-y-4 text-left">
+            <div className="mt-4 space-y-3 text-left">
               {messages.map((m, idx) => (
                 <div
                   key={m.id}
                   style={{
-                    background: `${lightColor}80`,
-                    backdropFilter: "blur(14px)",
-                    WebkitBackdropFilter: "blur(14px)",
-                    border: `1px solid ${accentColor}18`,
-                    borderRadius: 18,
-                    padding: "18px 20px",
+                    background: "rgba(255, 248, 245, 0.85)",
+                    backdropFilter: "blur(8px)",
+                    WebkitBackdropFilter: "blur(8px)",
+                    border: `0.5px solid ${accentColor}33`,
+                    padding: "16px 18px",
                     animation: `msg-fadeIn-t1 0.45s ease ${idx * 45}ms both`,
                   }}
                 >
-                  <div className="flex items-center gap-3 mb-3">
+                  <div className="flex items-center gap-2.5 mb-2.5">
                     <div
                       style={{
-                        width: 34,
-                        height: 34,
+                        width: 30,
+                        height: 30,
                         borderRadius: "50%",
                         background: `${accentColor}${avatarShade(m.sender_name)}`,
                         color: accentColor,
@@ -692,7 +695,7 @@ export default function MessageSection({
                         justifyContent: "center",
                         fontFamily: HEADLINE,
                         fontWeight: 700,
-                        fontSize: 15,
+                        fontSize: 14,
                         flexShrink: 0,
                       }}
                     >
@@ -701,10 +704,10 @@ export default function MessageSection({
                     <div className="flex-1 min-w-0">
                       <p
                         style={{
-                          fontFamily: BODY,
-                          fontSize: 12,
+                          fontFamily: LABEL,
+                          fontSize: 11,
                           fontWeight: 600,
-                          letterSpacing: "0.05em",
+                          letterSpacing: "0.04em",
                           color: accentColor,
                           margin: 0,
                         }}
@@ -713,8 +716,8 @@ export default function MessageSection({
                       </p>
                       <p
                         style={{
-                          fontFamily: BODY,
-                          fontSize: 10.5,
+                          fontFamily: LABEL,
+                          fontSize: 10,
                           color: `${accentColor}80`,
                           margin: 0,
                         }}
@@ -733,14 +736,14 @@ export default function MessageSection({
                     style={{
                       fontFamily: HEADLINE,
                       fontStyle: "italic",
-                      fontSize: 16,
+                      fontSize: 15,
                       lineHeight: 1.6,
                       color: "#3d3438",
                       margin: 0,
                       wordBreak: "break-word",
                     }}
                   >
-                    “{m.message}”
+                    "{m.message}"
                   </p>
                 </div>
               ))}
