@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
+  console.log('object🚀supabaseUrl', supabaseUrl);
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export type Template = 'romantic' | 'luxury' | 'bohemian' | 'azure' | 'sage'| 'blush'| 'midnight' | 'terracotta'

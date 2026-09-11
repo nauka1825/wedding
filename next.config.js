@@ -7,6 +7,11 @@ const nextConfig = {
         hostname: 'bexdxwbfrbklkuqovoyy.supabase.co',
         pathname: '/storage/v1/object/public/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'ivliqysgnolpfwimadpj.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
     ],
   },
   eslint: {
