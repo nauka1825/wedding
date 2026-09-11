@@ -43,8 +43,8 @@ export async function generateMetadata({
     };
   }
 
-  const title = `${wedding.male_name} & ${wedding.female_name}`;
-  const description = "Хуримын урилга";
+  const title = `${wedding.male_name} & ${wedding.female_name} ${wedding.wedding_date}`;
+  const description = "шақыру";
   const image =
     wedding.main_photo_url || wedding.photo3_url || wedding.photo5_url;
 
@@ -54,7 +54,9 @@ export async function generateMetadata({
     openGraph: {
       title,
       description,
-      url: `https://ulgiitoi.vercel.app/weddings/${wedding.id}`,
+      // url: `https://ulgiitoi.vercel.app/weddings/${wedding.id}`,
+      url: `https://ulgiiwedding.vercel.app/weddings/${wedding.id}`,
+
       siteName: title,
       type: "website",
       locale: "mn_MN",
